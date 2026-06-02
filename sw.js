@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gestione-competizioni-sw-1.0';
+const CACHE_NAME = 'gestione-competizioni-sw-1.1';
 const BASE = '/gestione-competizioni';
 
 // File da mettere in cache all'installazione
@@ -14,7 +14,12 @@ self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(PRECACHE))
   );
-  self.skipWaiting();
+  // Non chiama skipWaiting automaticamente — aspetta il segnale dal launcher
+});
+
+// Il launcher invia SKIP_WAITING quando l'utente tocca il toast
+self.addEventListener('message', e => {
+  if(e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', e => {
