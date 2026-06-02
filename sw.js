@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gestione-competizioni-v1';
+const CACHE_NAME = 'gestione-competizioni-sw-1.0';
 const BASE = '/gestione-competizioni';
 
 // File da mettere in cache all'installazione

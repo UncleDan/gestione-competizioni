@@ -13,9 +13,9 @@
       "st": "Friuli-Venezia Giulia"
     },
     {
-      "nome": "Cerano",
-      "citta": "Cerano",
-      "st": "Piemonte/Valle d'Aosta/Liguria"
+      "nome": "Cerrano",
+      "citta": "Cerrano",
+      "st": "Valle d'Aosta/Piemonte/Liguria"
     },
     {
       "nome": "Schio",
@@ -47,7 +47,7 @@
     {
       "id": "ER1",
       "label": "Emilia-Romagna 1",
-      "gruppo": 1,
+      "fascia": 1,
       "st": "Emilia-Romagna",
       "cognome": "LANDI",
       "nome": "Diego"
@@ -55,7 +55,7 @@
     {
       "id": "MA1",
       "label": "Marche 1",
-      "gruppo": 1,
+      "fascia": 1,
       "st": "Marche",
       "cognome": "VECCHI",
       "nome": "Matteo"
@@ -63,7 +63,7 @@
     {
       "id": "FV1",
       "label": "FVG 1",
-      "gruppo": 1,
+      "fascia": 1,
       "st": "Friuli-Venezia Giulia",
       "cognome": "CONTE",
       "nome": "Claudio"
@@ -71,7 +71,7 @@
     {
       "id": "VE1",
       "label": "Veneto 1",
-      "gruppo": 1,
+      "fascia": 1,
       "st": "Veneto",
       "cognome": "BARDI",
       "nome": "Giorgio"
@@ -79,7 +79,7 @@
     {
       "id": "LO2",
       "label": "Lombardia",
-      "gruppo": 2,
+      "fascia": 2,
       "st": "Lombardia Est",
       "cognome": "LANDI",
       "nome": "Maria Rita"
@@ -87,7 +87,7 @@
     {
       "id": "TO2",
       "label": "Toscana",
-      "gruppo": 2,
+      "fascia": 2,
       "st": "Toscana",
       "cognome": "PRATI",
       "nome": "Aldo"
@@ -95,7 +95,7 @@
     {
       "id": "VE2",
       "label": "Veneto 2",
-      "gruppo": 2,
+      "fascia": 2,
       "st": "Veneto",
       "cognome": "LO VISCO",
       "nome": "Alberto"
@@ -103,7 +103,7 @@
     {
       "id": "MA2",
       "label": "Marche 2",
-      "gruppo": 2,
+      "fascia": 2,
       "st": "Marche",
       "cognome": "MELLI",
       "nome": "Elia"
@@ -111,15 +111,15 @@
     {
       "id": "PI3",
       "label": "Piemonte",
-      "gruppo": 3,
-      "st": "Piemonte/Valle d'Aosta/Liguria",
+      "fascia": 3,
+      "st": "Valle d'Aosta/Piemonte/Liguria",
       "cognome": "CONTI",
       "nome": "Luca"
     },
     {
       "id": "LA3",
       "label": "Lazio",
-      "gruppo": 3,
+      "fascia": 3,
       "st": "Lazio",
       "cognome": "SENSI",
       "nome": "Alessio"
@@ -127,7 +127,7 @@
     {
       "id": "ER2",
       "label": "Emilia-Romagna 2",
-      "gruppo": 3,
+      "fascia": 3,
       "st": "Emilia-Romagna",
       "cognome": "ANGELI",
       "nome": "Claudio"
@@ -135,10 +135,16 @@
     {
       "id": "FV2",
       "label": "FVG 2",
-      "gruppo": 3,
+      "fascia": 3,
       "st": "Friuli-Venezia Giulia",
       "cognome": "MARZO",
       "nome": "Grazia"
     }
-  ]
+  ],
+  "_release": {
+    "finali.html": "1.2",
+    "pwa/index.html": "1.1",
+    "sw.js": "1.0",
+    "manifest.json": "1.0"
+  }
 }
