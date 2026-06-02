@@ -149,6 +149,7 @@ button,input,select{font-family:Georgia,serif}
   <div class="eyebrow">Gestione Competizione Baskin</div>
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
+        <div style="font-size:9px;color:#334155;letter-spacing:2px;margin-top:3px;position:relative">v 1.3</div>
 </div>
 
 <div id="tabbar">
@@ -163,6 +164,7 @@ button,input,select{font-family:Georgia,serif}
   <button class="tab-btn" onclick="showTab('palestre',this)">Palestre</button>
   <button class="tab-btn" onclick="showTab('date',this)">📅 Date</button>
   <button onclick="showTab('importexport',document.getElementById('tab-btn-ie'))" id="tab-btn-ie" class="tab-btn" style="color:#34d399">⇅ Import/Export</button>
+  <button onclick="showTab('sessioni',this)" class="tab-btn" style="color:#a78bfa">🕐 Sessioni</button>
   <button id="btn-debug" onclick="toggleDebug()" style="padding:12px 14px;background:transparent;border:none;color:#475569;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer">🐛 Debug</button>
   <button id="btn-pdf"   onclick="stampaPDF()"   style="display:none">🖨 PDF</button>
   <button id="btn-badge" onclick="stampaBadge()" style="display:none">🪪 Badge</button>
@@ -332,6 +334,13 @@ button,input,select{font-family:Georgia,serif}
     <div id="finali-builder"></div>
   </div>
 
+  <!-- ══ SESSIONI ══ -->
+  <div id="tab-sessioni" class="tab-panel">
+    <div class="eyebrow-sm">Storico Sessioni</div>
+    <div style="font-size:12px;color:#475569;margin-bottom:20px">Il lavoro viene salvato automaticamente ad ogni modifica significativa. Puoi ripristinare qualsiasi sessione precedente.</div>
+    <div id="sessioni-content"><div style="color:#475569;font-size:12px">Caricamento...</div></div>
+  </div>
+
 <!-- DEBUG PANEL -->
 <div id="debug-panel" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#0a0e1a;border-top:2px solid #ef4444;padding:10px 16px;font-size:11px;font-family:monospace;color:#fca5a5;max-height:40vh;overflow-y:auto;z-index:9999">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
@@ -373,6 +382,14 @@ window.onerror=function(msg,src,line,col,err){
 </script>
 
 <script>
+const VERSION = '1.3'; // Aggiornare ad ogni release
+const VERSIONS = {
+  'finali.html':    '1.3',
+  'pwa/index.html': '1.1',
+  'sw.js':          '1.0',
+  'manifest.json':  '1.0',
+};
+
 // ══════════════════════════════════════════════════ SEZIONI TERRITORIALI
 // st: ID univoco della ST
 // macroST: gruppo per vincolo lasco (stessa macroST = conflitto al secondo livello)
@@ -514,6 +531,7 @@ function showTab(t,btn){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+t).classList.add('active');
   if(btn){btn.disabled=false;btn.classList.add('active');}
+  if(t==='sessioni') renderSessioni();
 }
 
 // ══════════════════════════════════════════════════ GIRONI
@@ -567,6 +585,7 @@ function impostaGironi(A,B){
   // Aggiorna finali se già nel tab
   renderFinali();
   renderRisultati();
+  schedulaSalvataggio();
 }
 
 function sorteggioCasuale(){
@@ -886,7 +905,7 @@ function cellPartitaHtml(p,t,c,pi){
 function rimuoviDaSlotCal(t,c,pi){
   const p=stato.calSlots[t][c].splice(pi,1)[0];
   if(p&&!stato.partitePool.find(x=>x.id===p.id)) stato.partitePool.push(p);
-  renderCalBuilder();
+  renderCalBuilder(); schedulaSalvataggio();
 }
 
 function swapCasaOspite(t,c,pi){
@@ -921,7 +940,7 @@ function calPoolDrop(e){
   const {t,c,pi}=calDragSrc;
   const partita=stato.calSlots[t][c].splice(pi,1)[0];
   if(partita&&!stato.partitePool.find(x=>x.id===partita.id)) stato.partitePool.push(partita);
-  calDragSrc=null; renderCalBuilder();
+  calDragSrc=null; renderCalBuilder(); schedulaSalvataggio();
 }
 
 // Cell drag-over/drop
@@ -1219,6 +1238,7 @@ function generaDesignazioni(){
   renderDesignazioni();
   renderArbitriForm();
   showTab('designazioni',document.getElementById('tab-btn-designazioni'));
+  schedulaSalvataggio();
 }
 // ══════════════════════════════════════════════════ RENDER DESIGNAZIONI
 function gLabel(partita){return stato.gironi.A.find(s=>s.nome===partita.casa.nome||s.nome===partita.ospite.nome)?'A':'B';}
@@ -1365,6 +1385,7 @@ function arbDrop(e,t,c,p,aid){
   stato.modificatoArbitri=true;
   arbDragSrc=null;
   renderDesignazioni();
+  schedulaSalvataggio();
 }
 
 // ══════════════════════════════════════════════════ CONTROLLO VINCOLI
@@ -1469,8 +1490,8 @@ function renderArbitriForm(){
           ${stato.calendario?`<span class="count-badge" style="background:${bc};color:${bt}">${nP}/3</span>`:''}
         </div>
         <div class="grid2 mb8" style="gap:6px">
-          <div><div class="label-xs">Cognome</div><input class="inp" value="${n.cognome}" placeholder="Cognome" oninput="aggiornaArbitro('${arb.id}','cognome',this.value)"></div>
-          <div><div class="label-xs">Nome</div><input class="inp" value="${n.nome}" placeholder="Nome" oninput="aggiornaArbitro('${arb.id}','nome',this.value)"></div>
+          <div><div class="label-xs">Cognome</div><input class="inp" value="${n.cognome}" placeholder="Cognome" onchange="aggiornaArbitro('${arb.id}','cognome',this.value)" onblur="aggiornaArbitro('${arb.id}','cognome',this.value)"></div>
+          <div><div class="label-xs">Nome</div><input class="inp" value="${n.nome}" placeholder="Nome" onchange="aggiornaArbitro('${arb.id}','nome',this.value)" onblur="aggiornaArbitro('${arb.id}','nome',this.value)"></div>
         </div>
         <div class="grid2 mb8" style="gap:6px">
           <div>
@@ -1722,16 +1743,16 @@ function renderPalestreForm(){
       <div class="grid2" style="gap:8px;margin-bottom:8px">
         <div>
           <div class="label-xs">Nome palestra</div>
-          <input class="inp" value="${c.nome}" placeholder="es. Pala Paliaga" oninput="aggiornaPalestra(${i},'nome',this.value)">
+          <input class="inp" value="${c.nome}" placeholder="es. Pala Paliaga" onchange="aggiornaPalestra(${i},'nome',this.value)" onblur="aggiornaPalestra(${i},'nome',this.value)">
         </div>
         <div>
           <div class="label-xs">Città</div>
-          <input class="inp" value="${c.citta}" placeholder="es. Monfalcone (GO)" oninput="aggiornaPalestra(${i},'citta',this.value)">
+          <input class="inp" value="${c.citta}" placeholder="es. Monfalcone (GO)" onchange="aggiornaPalestra(${i},'citta',this.value)" onblur="aggiornaPalestra(${i},'citta',this.value)">
         </div>
       </div>
       <div style="margin-bottom:8px">
         <div class="label-xs">Indirizzo</div>
-        <input class="inp" value="${c.indirizzo}" placeholder="es. Via Baden Powell, 2" oninput="aggiornaPalestra(${i},'indirizzo',this.value)">
+        <input class="inp" value="${c.indirizzo}" placeholder="es. Via Baden Powell, 2" onchange="aggiornaPalestra(${i},'indirizzo',this.value)" onblur="aggiornaPalestra(${i},'indirizzo',this.value)">
       </div>
       <div>
         <div class="label-xs">Link Google Maps</div>
@@ -1793,7 +1814,7 @@ function getSezioniSelezionate(){
 }
 
 function costruisciExport(sezioni){
-  const out={_versione:1, _data:new Date().toISOString()};
+  const out={_versione:1, _data:new Date().toISOString(), _release:{...VERSIONS}};
   if(sezioni.includes('squadre'))
     out.squadre=SQUADRE.map(s=>({nome:s.nome,citta:s.citta||'',st:s.st}));
   if(sezioni.includes('arbitri'))
@@ -1857,6 +1878,87 @@ function esportaJSON(){
   a.download='baskin-dati-'+ts+'.json';
   document.body.appendChild(a);a.click();document.body.removeChild(a);
   setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+// importaStato: used by session restore (same logic as importaJSON but takes data directly)
+function importaStato(data, sezioni){
+  try{
+    if(sezioni.includes('squadre')&&data.squadre){
+      data.squadre.forEach((s,i)=>{if(SQUADRE[i]){SQUADRE[i].nome=s.nome;if(s.citta!==undefined)SQUADRE[i].citta=s.citta;SQUADRE[i].st=s.st||SQUADRE[i].st;}});
+    }
+    if(sezioni.includes('arbitri')&&data.arbitri){
+      data.arbitri.forEach(a=>{
+        const arb=ARBITRI_BASE.find(x=>x.id===a.id);
+        if(arb){if(a.st)arb.st=a.st;if(a.label)arb.label=a.label;if(a.fascia)arb.fascia=a.fascia;}
+        if(stato.nomiArbitri[a.id]){
+          if(a.nome!==undefined)stato.nomiArbitri[a.id].nome=a.nome;
+          if(a.cognome!==undefined)stato.nomiArbitri[a.id].cognome=a.cognome;
+        }
+      });
+    }
+    if(sezioni.includes('palestre')&&data.palestre){
+      CAMPI.length=0;
+      data.palestre.forEach(p=>CAMPI.push({nome:p.nome,citta:p.citta,indirizzo:p.indirizzo,maps:p.maps||''}));
+    }
+    if(sezioni.includes('date')&&data.date){
+      Object.assign(DATE_GARA, data.date);
+      ['ven','sab','dom'].forEach(k=>{const el=document.getElementById('date-'+k);if(el&&DATE_GARA[k])el.value=DATE_GARA[k];});
+    }
+    if(sezioni.includes('gironi')&&data.gironi){
+      const trovaSq=nome=>SQUADRE.find(s=>s.nome===nome);
+      const A=data.gironi.A.map(trovaSq).filter(Boolean);
+      const B=data.gironi.B.map(trovaSq).filter(Boolean);
+      if(A.length===4&&B.length===4){ stato.gironi={A,B}; }
+    }
+    if(sezioni.includes('calendario')&&data.calendario&&stato.gironi){
+      const trovaSq=nome=>SQUADRE.find(s=>s.nome===nome);
+      stato.calSlots=data.calendario.map(turno=>
+        turno.map(campo=>campo.map(p=>{
+          const casa=trovaSq(p.casa),ospite=trovaSq(p.ospite);
+          return casa&&ospite?{id:`${p.casa}|${p.ospite}`,casa,ospite,girone:p.girone}:null;
+        }).filter(Boolean))
+      );
+    }
+    if(sezioni.includes('risultati')&&data.risultati){
+      stato.risultati={...data.risultati};
+      if(data.risultatiFinali) stato.risultatiFinali={...data.risultatiFinali};
+    }
+    if(sezioni.includes('finali')&&data.finali){
+      const trovaSq=nome=>SQUADRE.find(s=>s.nome===nome);
+      const trovArb=id=>ARBITRI_BASE.find(a=>a.id===id);
+      stato.finali.f34.casa=data.finali.f34.casa?trovaSq(data.finali.f34.casa):null;
+      stato.finali.f34.ospite=data.finali.f34.ospite?trovaSq(data.finali.f34.ospite):null;
+      stato.finali.f12.casa=data.finali.f12.casa?trovaSq(data.finali.f12.casa):null;
+      stato.finali.f12.ospite=data.finali.f12.ospite?trovaSq(data.finali.f12.ospite):null;
+      if(data.finali.terne){
+        stato.finaliCalendario={
+          f34:(data.finali.terne.f34||[]).map(trovArb).filter(Boolean),
+          f12:(data.finali.terne.f12||[]).map(trovArb).filter(Boolean),
+        };
+      }
+    }
+    if(sezioni.includes('designazioni')&&data.designazioni&&stato.gironi){
+      const trovaSq=nome=>SQUADRE.find(s=>s.nome===nome);
+      const trovArb=id=>ARBITRI_BASE.find(a=>a.id===id);
+      const turni=data.designazioni.turni.map(({turno,campi})=>({
+        turno,
+        campi:campi.map(campo=>campo.map(slot=>({
+          casa:trovaSq(slot.casa)||{nome:slot.casa,st:''},
+          ospite:trovaSq(slot.ospite)||{nome:slot.ospite,st:''},
+          girone:slot.girone,deroga:slot.deroga||null,
+          terna:slot.terna.map(trovArb).filter(Boolean),
+        })))
+      }));
+      const cnt={};ARBITRI_BASE.forEach(a=>cnt[a.id]=0);
+      turni.forEach(({campi})=>campi.forEach(campo=>campo.forEach(slot=>slot.terna.forEach(a=>{if(cnt[a.id]!==undefined)cnt[a.id]++;}))));
+      stato.calendario={turni,cnt};
+      stato.deroghe=data.designazioni.deroghe||[];
+      stato.modificatoArbitri=false;
+      document.getElementById('tab-btn-designazioni').disabled=false;
+      document.getElementById('btn-pdf').style.display='';
+      document.getElementById('btn-badge').style.display='';
+    }
+  } catch(err){ dbg('⚠ importaStato: '+err,true); }
 }
 
 function importaJSON(event){
@@ -1972,10 +2074,12 @@ function importaJSON(event){
         msgs.push('✓ Designazioni importate');
       }
 
+      schedulaSalvataggio();
       const fb=document.getElementById('ie-feedback');
       fb.style.display='block';
       fb.style.color=msgs.some(m=>m.startsWith('⚠'))?'#fbbf24':'#4ade80';
-      fb.innerHTML=msgs.join('<br>');
+      const releaseInfo=data._release?`<div style="font-size:10px;color:#475569;margin-top:6px">File creato con: ${Object.entries(data._release).map(([k,v])=>`${k} v${v}`).join(' · ')}</div>`:'';
+      fb.innerHTML=msgs.join('<br>')+releaseInfo;
     } catch(err){
       const fb=document.getElementById('ie-feedback');
       fb.style.display='block';fb.style.color='#ef4444';
@@ -2284,7 +2388,7 @@ function setFinaleSlot(key, sq){
 function liberaSlot(key){
   const [fk, ruolo] = parseSlotKey(key);
   if(fk) stato.finali[fk][ruolo]=null;
-  renderFinali();
+  renderFinali(); schedulaSalvataggio();
 }
 
 // ── DnD arbitri finali ────────────────────────────────────────────────────
@@ -2315,7 +2419,7 @@ function finaliTernaDropPos(e, fKey, pos){
   // Rimuovi null finali
   stato.finaliCalendario[fKey] = arr.filter(Boolean);
   _finaliArbDrag = null;
-  renderFinali();
+  renderFinali(); schedulaSalvataggio();
 }
 function rimuoviArbitroFinale(fKey, ruolo){
   if(stato.finaliCalendario?.[fKey])
@@ -2585,11 +2689,12 @@ function aggiornaRisultatoFinale(key, field, val){
     alert('⚠ Il pareggio non è ammesso nel regolamento Baskin. Correggi il risultato.');
     stato.risultatiFinali[key][field]='';
   }
-  renderRisultati();
+  renderRisultati(); schedulaSalvataggio();
 }
 
 function aggiornaRisultato(key, field, val){
   if(!stato.risultati[key]) stato.risultati[key]={casaPts:'',ospitePts:'',forfait:null};
+  schedulaSalvataggio();
   stato.risultati[key][field] = val===''?'':Number(val);
   // Controlla pareggio
   const r = stato.risultati[key];
@@ -2706,15 +2811,269 @@ td{padding:5px 8px;border:1px solid #ddd;vertical-align:middle}
   scaricaHTML(html,'risultati-baskin.html');
 }
 
+
+// ══════════════════════════════════════════════════ INDEXEDDB — STORICO SESSIONI
+const DB_NAME    = 'gestione-competizioni';
+const DB_VERSION = 1;
+const STORE_NAME = 'sessioni';
+const MAX_SESSIONI = 50;   // massimo sessioni conservate
+let   _db = null;
+let   _saveTimer = null;
+const SAVE_DEBOUNCE = 1500; // ms dopo l'ultima modifica prima di salvare
+
+// Apre (o crea) il database
+function dbOpen(){
+  return new Promise((resolve,reject)=>{
+    if(_db){resolve(_db);return;}
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      if(!db.objectStoreNames.contains(STORE_NAME)){
+        const store = db.createObjectStore(STORE_NAME, {keyPath:'id', autoIncrement:true});
+        store.createIndex('ts','ts',{unique:false});
+      }
+    };
+    req.onsuccess = e => { _db=e.target.result; resolve(_db); };
+    req.onerror   = e => reject(e.target.error);
+  });
+}
+
+// Serializza lo stato corrente in un oggetto
+function serializeStato(){
+  const sezioni = ['squadre','arbitri','palestre','date','gironi','calendario','designazioni','finali','risultati'];
+  return JSON.parse(JSON.stringify(costruisciExport(sezioni)));
+}
+
+// Salva una sessione nel DB (elimina le più vecchie se > MAX)
+async function salvaSessione(nota){
+  try{
+    const db  = await dbOpen();
+    const ts  = Date.now();
+    const data = {
+      ts,
+      nota: nota || new Date(ts).toLocaleString('it-IT'),
+      stato: serializeStato(),
+    };
+    await new Promise((res,rej)=>{
+      const tx  = db.transaction(STORE_NAME,'readwrite');
+      const st  = tx.objectStore(STORE_NAME);
+      st.add(data).onsuccess = res;
+      tx.onerror = rej;
+    });
+    // Elimina le sessioni in eccesso (tieni solo le ultime MAX_SESSIONI)
+    await pulisciSessioniVecchie(db);
+    dbg('💾 Sessione salvata: '+data.nota);
+  } catch(err){ dbg('⚠ Errore salvataggio sessione: '+err,true); }
+}
+
+async function pulisciSessioniVecchie(db){
+  return new Promise((res)=>{
+    const tx  = db.transaction(STORE_NAME,'readwrite');
+    const st  = tx.objectStore(STORE_NAME);
+    const idx = st.index('ts');
+    const all = [];
+    idx.openCursor(null,'prev').onsuccess = e=>{
+      const cur = e.target.result;
+      if(cur){ all.push(cur.primaryKey); cur.continue(); }
+      else {
+        // cancella quelle oltre il limite
+        all.slice(MAX_SESSIONI).forEach(id=>st.delete(id));
+        res();
+      }
+    };
+  });
+}
+
+// Carica l'ultima sessione salvata
+async function caricaUltimaSessione(){
+  try{
+    const db  = await dbOpen();
+    const sessione = await new Promise((res,rej)=>{
+      const tx  = db.transaction(STORE_NAME,'readonly');
+      const idx = tx.objectStore(STORE_NAME).index('ts');
+      idx.openCursor(null,'prev').onsuccess = e=>{
+        res(e.target.result ? e.target.result.value : null);
+      };
+      tx.onerror = rej;
+    });
+    if(sessione){
+      importaStato(sessione.stato, Object.keys(sessione.stato).filter(k=>!k.startsWith('_')));
+      dbg('📂 Ultima sessione caricata: '+sessione.nota);
+      return true;
+    }
+  } catch(err){ dbg('⚠ Errore caricamento sessione: '+err,true); }
+  return false;
+}
+
+// Carica una sessione specifica per id
+async function caricaSessionePerId(id){
+  try{
+    const db = await dbOpen();
+    const sessione = await new Promise((res,rej)=>{
+      const tx = db.transaction(STORE_NAME,'readonly');
+      tx.objectStore(STORE_NAME).get(id).onsuccess = e=>res(e.target.result);
+      tx.onerror = rej;
+    });
+    if(sessione){
+      importaStato(sessione.stato, Object.keys(sessione.stato).filter(k=>!k.startsWith('_')));
+      dbg('📂 Sessione ripristinata: '+sessione.nota);
+      renderTutti();
+    }
+  } catch(err){ dbg('⚠ Errore ripristino: '+err,true); }
+}
+
+// Elimina una sessione per id
+async function eliminaSessione(id){
+  if(!confirm('Eliminare questa sessione?')) return;
+  try{
+    const db = await dbOpen();
+    await new Promise((res,rej)=>{
+      const tx = db.transaction(STORE_NAME,'readwrite');
+      tx.objectStore(STORE_NAME).delete(id).onsuccess = res;
+      tx.onerror = rej;
+    });
+    renderSessioni();
+  } catch(err){ dbg('⚠ Errore eliminazione: '+err,true); }
+}
+
+// Rinomina una sessione
+async function rinominaSessione(id, nuovaNota){
+  try{
+    const db = await dbOpen();
+    await new Promise((res,rej)=>{
+      const tx = db.transaction(STORE_NAME,'readwrite');
+      const st = tx.objectStore(STORE_NAME);
+      st.get(id).onsuccess = e=>{
+        const s = e.target.result;
+        if(s){ s.nota=nuovaNota; st.put(s).onsuccess=res; }
+        else res();
+      };
+      tx.onerror = rej;
+    });
+    renderSessioni();
+  } catch(err){ dbg('⚠ Errore rinomina: '+err,true); }
+}
+
+// Carica tutte le sessioni e le mostra
+async function renderSessioni(){
+  const el = document.getElementById('sessioni-content');
+  if(!el) return;
+  try{
+    const db = await dbOpen();
+    const sessioni = await new Promise((res,rej)=>{
+      const tx  = db.transaction(STORE_NAME,'readonly');
+      const idx = tx.objectStore(STORE_NAME).index('ts');
+      const all = [];
+      idx.openCursor(null,'prev').onsuccess = e=>{
+        const cur=e.target.result;
+        if(cur){all.push(cur.value);cur.continue();}
+        else res(all);
+      };
+      tx.onerror=rej;
+    });
+
+    if(sessioni.length===0){
+      el.innerHTML='<div style="color:#475569;font-size:12px">Nessuna sessione salvata.</div>';
+      return;
+    }
+
+    let html=`<div style="font-size:11px;color:#475569;margin-bottom:16px">${sessioni.length} sessioni salvate · max ${MAX_SESSIONI}</div>`;
+    html+=`<div style="display:flex;flex-direction:column;gap:8px">`;
+    sessioni.forEach((s,i)=>{
+      const d = new Date(s.ts);
+      const dateStr = d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
+      const timeStr = d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      const isFirst = i===0;
+      html+=`<div style="background:#0d1f3c;border:1px solid ${isFirst?'#3b82f6':'#1e3a5f'};border-radius:4px;padding:12px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div style="flex:1;min-width:180px">
+          <div style="font-size:12px;color:#fff;font-weight:${isFirst?'bold':'normal'}" id="nota-${s.id}">${s.nota}</div>
+          <div style="font-size:10px;color:#475569;margin-top:2px">${dateStr} ${timeStr}${isFirst?' · <span style="color:#3b82f6">ultima</span>':''}</div>
+          ${s.stato&&s.stato._release?`<div style="font-size:9px;color:#334155;margin-top:2px">${Object.entries(s.stato._release).map(([k,v])=>`${k} v${v}`).join(' · ')}</div>`:''}
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button class="btn-sm" onclick="caricaSessionePerId(${s.id})"
+            style="background:#1e3a5f;color:#60a5fa;font-size:10px;padding:4px 10px">📂 Ripristina</button>
+          <button class="btn-sm" onclick="
+            const n=prompt('Nuovo nome:',document.getElementById('nota-${s.id}').textContent);
+            if(n)rinominaSessione(${s.id},n)"
+            style="background:#0a1628;color:#64748b;font-size:10px;padding:4px 8px">✏</button>
+          <button class="btn-sm" onclick="eliminaSessione(${s.id})"
+            style="background:#2d1515;color:#fca5a5;font-size:10px;padding:4px 8px">✕</button>
+        </div>
+      </div>`;
+    });
+    html+=`</div>
+    <div class="flex gap10 wrap mt16">
+      <button class="btn-green" onclick="salvaSessione(prompt('Nome sessione (opzionale):')||undefined);setTimeout(renderSessioni,200)">💾 Salva ora</button>
+      <button class="btn-outline" style="border-color:#ef4444;color:#ef4444;font-size:11px"
+        onclick="if(confirm('Eliminare TUTTE le sessioni?'))eliminaTutteSessioni()">🗑 Elimina tutto</button>
+    </div>`;
+    el.innerHTML = html;
+  } catch(err){
+    el.innerHTML=`<div style="color:#ef4444;font-size:12px">⚠ IndexedDB non disponibile: ${err}</div>`;
+  }
+}
+
+async function eliminaTutteSessioni(){
+  try{
+    const db = await dbOpen();
+    await new Promise((res,rej)=>{
+      const tx=db.transaction(STORE_NAME,'readwrite');
+      tx.objectStore(STORE_NAME).clear().onsuccess=res;
+      tx.onerror=rej;
+    });
+    renderSessioni();
+  } catch(err){ dbg('⚠ '+err,true); }
+}
+
+// Funzione che re-renderizza tutto dopo un import/ripristino
+function renderTutti(){
+  renderSquadre();
+  renderArbitriForm();
+  renderSquadreForm();
+  renderST();
+  renderPalestreForm();
+  renderIESezioni();
+  renderFinali();
+  renderRisultati();
+  if(stato.gironi){
+    document.getElementById('tab-btn-calendario').disabled=false;
+    document.getElementById('vincoli-opzioni').style.display='block';
+    renderCalBuilder();
+  }
+  if(stato.calendario){
+    document.getElementById('tab-btn-designazioni').disabled=false;
+    document.getElementById('btn-pdf').style.display='';
+    document.getElementById('btn-badge').style.display='';
+    renderDesignazioni();
+  }
+}
+
+// Hook: chiama schedulaSalvataggio dopo ogni modifica significativa
+function schedulaSalvataggio(){
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(()=>salvaSessione(), SAVE_DEBOUNCE);
+}
+
 // ══════════════════════════════════════════════════ INIT
-renderSquadre();
-renderArbitriForm();
-renderSquadreForm();
-renderST();
-renderPalestreForm();
-renderIESezioni();
-renderFinali();
-renderRisultati();
+(async ()=>{
+  // Tenta di caricare l'ultima sessione salvata
+  const caricata = await caricaUltimaSessione();
+  if(!caricata){
+    // Prima apertura: render iniziale con dati default
+    renderSquadre();
+    renderArbitriForm();
+    renderSquadreForm();
+    renderST();
+    renderPalestreForm();
+    renderIESezioni();
+    renderFinali();
+    renderRisultati();
+  } else {
+    renderTutti();
+  }
+  renderSessioni();
+})();
 // ── PWA Service Worker ──
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/gestione-competizioni/sw.js',{scope:'/gestione-competizioni/'})
