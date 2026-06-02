@@ -149,7 +149,7 @@ button,input,select{font-family:Georgia,serif}
   <div class="eyebrow">Gestione Competizione Baskin</div>
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
-        <div style="font-size:9px;color:#334155;letter-spacing:2px;margin-top:3px;position:relative">v 1.3</div>
+        <div style="font-size:9px;color:#334155;letter-spacing:2px;margin-top:3px;position:relative">v 1.4</div>
 </div>
 
 <div id="tabbar">
@@ -382,9 +382,9 @@ window.onerror=function(msg,src,line,col,err){
 </script>
 
 <script>
-const VERSION = '1.3'; // Aggiornare ad ogni release
+const VERSION = '1.4'; // Aggiornare ad ogni release
 const VERSIONS = {
-  'finali.html':    '1.3',
+  'finali.html':    '1.4',
   'pwa/index.html': '1.4',
   'sw.js':          '1.1',
   'manifest.json':  '1.0',
@@ -844,7 +844,8 @@ function renderCalBuilder(){
         : pool.map(p=>{
             const gc=p.girone==='A'?'ga':'gb';
             return `<div class="pool-item" draggable="true"
-              ondragstart="calDragStart(event,'pool','${p.id}')"
+              data-from="pool" data-id="${p.id.replace(/"/g,'&quot;')}"
+              ondragstart="calDragStartEl(event)"
               ondragend="calDragEnd(event)"
               style="padding:8px 11px;background:#0d1f3c;border:1px solid #1e3a5f;border-radius:4px;cursor:grab;user-select:none;display:flex;align-items:center;gap:6px">
               <span class="g-tag ${gc}" style="font-size:9px;padding:1px 5px;border-radius:6px">G.${p.girone}</span>
@@ -885,8 +886,10 @@ function renderCalBuilder(){
 
 function cellPartitaHtml(p,t,c,pi){
   const gc=p.girone==='A'?'ga':'gb';
+  const safeId=p.id.replace(/"/g,'&quot;');
   return `<div class="pbuilder" draggable="true"
-    ondragstart="calDragStart(event,'cell','${p.id}',${t},${c},${pi})"
+    data-from="cell" data-id="${safeId}" data-t="${t}" data-c="${c}" data-pi="${pi}"
+    ondragstart="calDragStartEl(event)"
     ondragend="calDragEnd(event)"
     ondragover="calCellDragOver(event,${t},${c})"
     ondragleave="calCellDragLeave(event,${t},${c})"
@@ -916,10 +919,25 @@ function swapCasaOspite(t,c,pi){
 
 // calDragSrc: {from:'pool'|'cell', id, t, c, pi}
 function calDragStart(e, from, idOrKey, t, c, pi){
-  calDragSrc = from==='pool' ? {from:'pool', id:idOrKey} : {from:'cell', t, c, pi};
+  calDragSrc = from==='pool' ? {from:'pool', id:idOrKey} : {from:'cell', t:Number(t), c:Number(c), pi:Number(pi)};
   e.dataTransfer.effectAllowed='move';
   e.dataTransfer.setData('text/plain', String(idOrKey));
   const el=e.currentTarget;
+  setTimeout(()=>{try{if(el)el.classList.add('dragging-p');}catch(x){}},0);
+}
+
+// Safe version: reads params from data attributes to avoid special char issues
+function calDragStartEl(e){
+  const el=e.currentTarget;
+  const from=el.dataset.from;
+  const id=el.dataset.id;
+  if(from==='pool'){
+    calDragSrc={from:'pool',id};
+  } else {
+    calDragSrc={from:'cell',t:Number(el.dataset.t),c:Number(el.dataset.c),pi:Number(el.dataset.pi)};
+  }
+  e.dataTransfer.effectAllowed='move';
+  e.dataTransfer.setData('text/plain',id||'');
   setTimeout(()=>{try{if(el)el.classList.add('dragging-p');}catch(x){}},0);
 }
 function calDragEnd(e){
