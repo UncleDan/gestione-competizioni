@@ -377,7 +377,7 @@ window.onerror=function(msg,src,line,col,err){
 // st: ID univoco della ST
 // macroST: gruppo per vincolo lasco (stessa macroST = conflitto al secondo livello)
 const SEZIONI_TERRITORIALI = [
-  {st:"Valle d'Aosta/Piemonte/Liguria", macroST:"Piemonte/Liguria/VdA"},
+  {st:"Piemonte/Valle d'Aosta/Liguria", macroST:"Piemonte/Liguria/VdA"},
   {st:"Lombardia Est",                  macroST:"Lombardia"},
   {st:"Lombardia Nord",                 macroST:"Lombardia"},
   {st:"Lombardia Sud",                  macroST:"Lombardia"},
@@ -407,7 +407,7 @@ function macroST(st){return stById(st).macroST;}
 const SQUADRE = [
   {nome:"Reggio Emilia", citta:"Reggio Emilia",  st:"Emilia-Romagna"},
   {nome:"Udine",         citta:"Udine",           st:"Friuli-Venezia Giulia"},
-  {nome:"Cerrano",       citta:"Cerrano",         st:"Valle d'Aosta/Piemonte/Liguria"},
+  {nome:"Cerrano",       citta:"Cerrano",         st:"Piemonte/Valle d'Aosta/Liguria"},
   {nome:"Schio",         citta:"Schio",           st:"Veneto"},
   {nome:"Bergamo",       citta:"Bergamo",         st:"Lombardia Est"},
   {nome:"Cremona",       citta:"Cremona",         st:"Lombardia Sud"},
@@ -423,7 +423,7 @@ const ARBITRI_BASE = [
   {id:"TO2",label:"Toscana",          fascia:2, st:"Toscana"},
   {id:"VE2",label:"Veneto 2",         fascia:2, st:"Veneto"},
   {id:"MA2",label:"Marche 2",         fascia:2, st:"Marche"},
-  {id:"PI3",label:"Piemonte",         fascia:3, st:"Valle d'Aosta/Piemonte/Liguria"},
+  {id:"PI3",label:"Piemonte",         fascia:3, st:"Piemonte/Valle d'Aosta/Liguria"},
   {id:"LA3",label:"Lazio",            fascia:3, st:"Lazio"},
   {id:"ER2",label:"Emilia-Romagna 2", fascia:3, st:"Emilia-Romagna"},
   {id:"FV2",label:"FVG 2",            fascia:3, st:"Friuli-Venezia Giulia"},

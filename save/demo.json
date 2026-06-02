@@ -15,7 +15,7 @@
     {
       "nome": "Cerrano",
       "citta": "Cerrano",
-      "st": "Valle d'Aosta/Piemonte/Liguria"
+      "st": "Piemonte/Valle d'Aosta/Liguria"
     },
     {
       "nome": "Schio",
@@ -112,7 +112,7 @@
       "id": "PI3",
       "label": "Piemonte",
       "fascia": 3,
-      "st": "Valle d'Aosta/Piemonte/Liguria",
+      "st": "Piemonte/Valle d'Aosta/Liguria",
       "cognome": "CONTI",
       "nome": "Luca"
     },
