@@ -8,6 +8,9 @@ baskin-dati-*.json
 finali-dati-*.json
 gestione-*.json
 
+# ── Backup ───────────────────────────────────────────────────────────────────
+bak/
+
 # ── Sistema operativo ─────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
