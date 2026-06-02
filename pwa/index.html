@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#3b82f6">
+<title>Gestione Competizioni Baskin</title>
+<link rel="manifest" href="manifest.json">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:Georgia,serif;
+  background:linear-gradient(135deg,#0a0e1a 0%,#0f172a 50%,#0a1628 100%);
+  min-height:100vh;color:#e2e8f0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;
+}
+.logo{
+  font-size:48px;margin-bottom:16px;
+}
+h1{
+  font-size:22px;font-weight:normal;letter-spacing:3px;
+  color:#fff;text-align:center;margin-bottom:6px;
+}
+.sub{
+  font-size:12px;color:#64748b;letter-spacing:2px;
+  text-align:center;margin-bottom:48px;
+}
+.moduli{
+  display:flex;flex-direction:column;gap:14px;
+  width:100%;max-width:440px;
+}
+.modulo{
+  display:flex;align-items:center;gap:16px;
+  background:#0d1f3c;border:1px solid #1e3a5f;
+  border-radius:8px;padding:18px 22px;
+  text-decoration:none;color:inherit;
+  transition:border-color .2s,background .2s;
+  cursor:pointer;
+}
+.modulo:hover{background:#112440;border-color:#3b82f6;}
+.modulo-icon{font-size:28px;flex-shrink:0;}
+.modulo-info{flex:1;}
+.modulo-nome{font-size:16px;color:#fff;margin-bottom:3px;}
+.modulo-desc{font-size:11px;color:#64748b;letter-spacing:1px;}
+.modulo-anno{
+  font-size:11px;color:#3b82f6;
+  background:#0a1628;border:1px solid #1e3a5f;
+  border-radius:4px;padding:2px 8px;flex-shrink:0;
+}
+.modulo.disabled{opacity:.4;cursor:not-allowed;pointer-events:none;}
+
+.footer{
+  margin-top:48px;font-size:10px;color:#334155;
+  letter-spacing:2px;text-align:center;
+}
+#install-btn{
+  display:none;margin-top:24px;
+  padding:10px 24px;
+  background:transparent;border:1px solid #3b82f6;
+  border-radius:4px;color:#3b82f6;
+  font-family:Georgia,serif;font-size:12px;
+  letter-spacing:2px;text-transform:uppercase;cursor:pointer;
+}
+#install-btn:hover{background:#0d1f3c;}
+#sw-status{
+  margin-top:12px;font-size:10px;color:#475569;letter-spacing:1px;
+}
+</style>
+</head>
+<body>
+
+<div class="logo">🏀</div>
+<h1>Gestione Competizioni</h1>
+<div class="sub">BASKIN · UNCLEDAN.IT</div>
+
+<div class="moduli" id="moduli-list">
+  <!-- Popolato da JS leggendo modules.json o lista statica -->
+</div>
+
+<button id="install-btn">⬇ Installa App</button>
+<div id="sw-status"></div>
+
+<div class="footer">v1.0 · 2026 · uncledan.it</div>
+
+<script>
+const BASE = '/gestione-competizioni';
+
+// ── Elenco moduli (aggiungere qui i futuri) ───────────────────────────────
+const MODULI = [
+  {
+    id: 'finali-2026',
+    nome: 'Finali Nazionali',
+    desc: 'Sorteggio gironi · Designazioni arbitrali · Risultati',
+    anno: '2026',
+    file: `${BASE}/finali.html`,
+    icon: '🏆',
+    attivo: true,
+  },
+  // Aggiungere futuri moduli qui:
+  // { id:'...', nome:'...', desc:'...', anno:'...', file:`${BASE}/...html`, icon:'...', attivo:false },
+];
+
+function renderModuli() {
+  const el = document.getElementById('moduli-list');
+  el.innerHTML = MODULI.map(m => `
+    <a class="modulo${m.attivo?'':' disabled'}" href="${m.attivo ? m.file : '#'}">
+      <span class="modulo-icon">${m.icon}</span>
+      <div class="modulo-info">
+        <div class="modulo-nome">${m.nome}</div>
+        <div class="modulo-desc">${m.desc}</div>
+      </div>
+      <span class="modulo-anno">${m.anno}</span>
+    </a>`
+  ).join('');
+}
+
+// ── Service Worker ────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register(`${BASE}/sw.js`, { scope: `${BASE}/` })
+    .then(reg => {
+      document.getElementById('sw-status').textContent = '✓ Offline disponibile';
+    })
+    .catch(err => {
+      document.getElementById('sw-status').textContent = '⚠ Offline non disponibile';
+    });
+}
+
+// ── Install prompt ────────────────────────────────────────────────────────
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-btn').style.display = 'inline-block';
+});
+document.getElementById('install-btn').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  if (outcome === 'accepted')
+    document.getElementById('install-btn').style.display = 'none';
+});
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-btn').style.display = 'none';
+});
+
+renderModuli();
+</script>
+</body>
+</html>

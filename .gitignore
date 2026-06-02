@@ -1,0 +1,21 @@
+# ── Salvataggi (dati sensibili) ───────────────────────────────────────────────
+# Tutti i file nella cartella save/ sono esclusi TRANNE demo.json
+save/*
+!save/demo.json
+
+# Salvataggi esportati dall'app
+baskin-dati-*.json
+finali-dati-*.json
+gestione-*.json
+
+# ── Sistema operativo ─────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editor ───────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
