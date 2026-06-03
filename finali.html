@@ -150,7 +150,10 @@ button,input,select{font-family:Georgia,serif}
   <div class="eyebrow">Gestione Competizione Baskin</div>
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
-        <div style="font-size:9px;color:#334155;letter-spacing:2px;margin-top:3px;position:relative">v 1.6</div>
+  <div id="version-badge" style="font-size:10px;color:#475569;letter-spacing:2px;margin-top:5px">
+    finali.html v <span id="ver-num">1.7</span>
+    <span id="ver-update" style="display:none;color:#f59e0b;margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
+  </div>
 </div>
 
 <div id="tabbar">
@@ -383,13 +386,13 @@ window.onerror=function(msg,src,line,col,err){
 </script>
 
 <script>
-const VERSION = '1.6'; // Aggiornare ad ogni release
+const VERSION = '1.7'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '1.6',
-  'pwa/index.html': '1.7',
+  'finali.html':    '1.7',
+  'pwa/index.html': '1.8',
   'sw.js':          '1.3',
   'manifest.json':  '1.1',
 };
@@ -3111,6 +3114,20 @@ function schedulaSalvataggio(){
   }
   renderSessioni();
 })();
+// ── Versione badge + controllo aggiornamento ──
+(async()=>{
+  document.getElementById('ver-num').textContent = VERSION;
+  try{
+    const res = await fetch('/gestione-competizioni/versions.json?_='+Date.now());
+    if(!res.ok) return;
+    const remote = await res.json();
+    if(remote['finali.html'] && remote['finali.html'] !== VERSION){
+      document.getElementById('ver-update').style.display='inline';
+      document.getElementById('version-badge').style.color='#f59e0b';
+    }
+  } catch(e){}
+})();
+
 // ── PWA Service Worker ──
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/gestione-competizioni/sw.js',{scope:'/gestione-competizioni/'})

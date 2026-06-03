@@ -110,7 +110,7 @@ h1{
 <div id="sw-status"></div>
 
 <div class="footer">
-  <div>Launcher v 1.7 · 2026 · uncledan.it</div>
+  <div>Launcher v 1.8 · 2026 · uncledan.it</div>
   <div style="margin-top:4px;color:#1e3a5f">sw.js v 1.3 · manifest v 1.1</div>
 </div>
 
@@ -137,10 +137,18 @@ async function verificaAggiornamenti(){
     const remote = await res.json();
 
     if(!current){
-      // Prima installazione: nessuna cache da confrontare
-      btn.textContent = '✓ Prima installazione';
-      btn.className = 'updated';
-      setTimeout(()=>{ btn.textContent='🔄 Verifica aggiornamenti'; btn.className=''; },3000);
+      // Nessuna cache SW (pagina aperta senza SW o prima visita):
+      // confronta direttamente con la versione del launcher caricato
+      const launcherVer = '1.7'; // versione di questo file
+      const remoteVer   = remote['pwa/index.html'];
+      if(remoteVer && remoteVer !== launcherVer){
+        mostraToast('Aggiornamento disponibile — ricarica la pagina');
+        btn.textContent = '⬆ Aggiornamento disponibile';
+      } else {
+        btn.textContent = '✓ Tutto aggiornato';
+        btn.className = 'updated';
+        setTimeout(()=>{ btn.textContent='🔄 Verifica aggiornamenti'; btn.className=''; },3000);
+      }
       return;
     }
 
@@ -174,7 +182,7 @@ const MODULI = [
     nome: 'Finali Nazionali',
     desc: 'Sorteggio gironi · Designazioni arbitrali · Risultati',
     anno: '2026',
-    versione: '1.6',
+    versione: '1.7',
     file: `${BASE}/finali.html`,
     icon: '🏆',
     attivo: true,
