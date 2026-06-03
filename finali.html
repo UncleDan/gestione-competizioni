@@ -151,7 +151,7 @@ button,input,select{font-family:Georgia,serif}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:#475569;letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">2.4</span>
+    finali.html v <span id="ver-num">2.5</span>
     <span id="ver-update" style="display:none;color:#f59e0b;margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -449,12 +449,12 @@ window.onerror=function(msg,src,line,col,err){
 </script>
 
 <script>
-const VERSION = '2.4'; // Aggiornare ad ogni release
+const VERSION = '2.5'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '2.4',
+  'finali.html':    '2.5',
   'pwa/index.html': '1.9',
   'sw.js':          '1.5',
   'manifest.json':  '1.3',
@@ -515,7 +515,7 @@ const ARBITRI_BASE = [
   {id:"FV2",label:"FVG 2",            gruppo:3, st:"Friuli-Venezia Giulia"},
 ];
 // Gruppi distinti disponibili (calcolati dinamicamente)
-function getGruppi(){ return [...new Set(ARBITRI_BASE.map(a=>a.gruppo))].sort(); }
+function getGruppi(){ return [...new Set(ARBITRI_BASE.map(a=>a.gruppo))].sort((a,b)=>a-b); }
 const CAMPI = [
   {nome:'Pala Paliaga',   citta:'Monfalcone (GO)', indirizzo:'Via Baden Powell, 2', maps:'https://maps.google.com/?q=Via+Baden+Powell+2+Monfalcone'},
   {nome:'Palestra Verde', citta:'Monfalcone (GO)', indirizzo:'Via Baden Powell, 1', maps:'https://maps.google.com/?q=Via+Baden+Powell+1+Monfalcone'},
@@ -539,7 +539,7 @@ const TURNI_LABEL_SHORT = ["Venerdì Pomeriggio","Sabato Mattina","Sabato Pomeri
 const TURNI_LABEL = TURNI_LABEL_SHORT; // alias per compatibilità
 const gruppo_COLOR = {1:"#f59e0b",2:"#60a5fa",3:"#a78bfa"};
 const gruppo_COLOR_P={1:"#d97706",2:"#2563eb",3:"#7c3aed"};
-const gruppo_LABEL_P={1:"Arbitro 1",2:"Arbitro 2",3:"Arbitro 3"};
+const gruppo_LABEL_P={1:"Gruppo 1",2:"Gruppo 2",3:"Gruppo 3"};
 
 // ══════════════════════════════════════════════════ STATO
 let stato = {
@@ -1567,8 +1567,8 @@ function renderArbitriForm(){
     });
     html+=`<div class="gruppo-section">
       <div class="gruppo-hdr">
-        <div class="gruppo-dot" style="background:${gruppo_COLOR[gruppo]||'#64748b'}">${gruppo}</div>
-        <span style="color:${gruppo_COLOR[gruppo]||'#94a3b8'};font-size:11px;letter-spacing:2px;text-transform:uppercase">Gruppo ${gruppo} — ${arbitriGruppo.length} arbitr${arbitriGruppo.length===1?'o':'i'}</span>
+        <div class="gruppo-dot" style="background:${GRUPPO_COLOR[gruppo]||'#64748b'}">${gruppo}</div>
+        <span style="color:${GRUPPO_COLOR[gruppo]||'#94a3b8'};font-size:11px;letter-spacing:2px;text-transform:uppercase">Gruppo ${gruppo} — ${arbitriGruppo.length} arbitr${arbitriGruppo.length===1?'o':'i'}</span>
       </div><div class="arb-grid">`;
     arbitriGruppo.forEach(arb=>{
       const n=stato.nomiArbitri[arb.id];
@@ -1577,7 +1577,7 @@ function renderArbitriForm(){
       const nd=nomeDisplay(arb);
       const bc=nP===3?'#14532d':nP>0?'#1e3a5f':'#1a1a2e';
       const bt=nP===3?'#4ade80':nP>0?'#60a5fa':'#475569';
-      html+=`<div class="arb-card" style="border-top:2px solid ${gruppo_COLOR[gruppo]||'#64748b'}">
+      html+=`<div class="arb-card" style="border-top:2px solid ${GRUPPO_COLOR[gruppo]||'#64748b'}">
         <div class="arb-card-header">
           <div><div class="arb-label">${nd}</div><div class="arb-sub">${arb.label} · ${arb.st}</div></div>
           ${stato.calendario?`<span class="count-badge" style="background:${bc};color:${bt}">${nP}/3</span>`:''}
@@ -1982,7 +1982,7 @@ function importaStato(data, sezioni){
     if(sezioni.includes('arbitri')&&data.arbitri){
       data.arbitri.forEach(a=>{
         const arb=ARBITRI_BASE.find(x=>x.id===a.id);
-        if(arb){if(a.st)arb.st=a.st;if(a.label)arb.label=a.label;if(a.fascia)arb.fascia=a.fascia;}
+        if(arb){if(a.st)arb.st=a.st;if(a.label)arb.label=a.label;if(a.gruppo)arb.gruppo=a.gruppo;}
         if(stato.nomiArbitri[a.id]){
           if(a.nome!==undefined)stato.nomiArbitri[a.id].nome=a.nome;
           if(a.cognome!==undefined)stato.nomiArbitri[a.id].cognome=a.cognome;
@@ -3439,18 +3439,18 @@ function resetApp(){
   // Reset ARBITRI_BASE
   ARBITRI_BASE.length=0;
   ARBITRI_BASE.push(
-    {id:"ER1",label:"Emilia-Romagna 1", fascia:1, st:"Emilia-Romagna"},
-    {id:"MA1",label:"Marche 1",         fascia:1, st:"Marche"},
-    {id:"FV1",label:"FVG 1",            fascia:1, st:"Friuli-Venezia Giulia"},
-    {id:"VE1",label:"Veneto 1",         fascia:1, st:"Veneto"},
-    {id:"LO2",label:"Lombardia",        fascia:2, st:"Lombardia Est"},
-    {id:"TO2",label:"Toscana",          fascia:2, st:"Toscana"},
-    {id:"VE2",label:"Veneto 2",         fascia:2, st:"Veneto"},
-    {id:"MA2",label:"Marche 2",         fascia:2, st:"Marche"},
-    {id:"PI3",label:"Piemonte",         fascia:3, st:"Valle d'Aosta/Piemonte/Liguria"},
-    {id:"LA3",label:"Lazio",            fascia:3, st:"Lazio"},
-    {id:"ER2",label:"Emilia-Romagna 2", fascia:3, st:"Emilia-Romagna"},
-    {id:"FV2",label:"FVG 2",            fascia:3, st:"Friuli-Venezia Giulia"},
+    {id:"ER1",label:"Emilia-Romagna 1", gruppo:1, st:"Emilia-Romagna"},
+    {id:"MA1",label:"Marche 1",         gruppo:1, st:"Marche"},
+    {id:"FV1",label:"FVG 1",            gruppo:1, st:"Friuli-Venezia Giulia"},
+    {id:"VE1",label:"Veneto 1",         gruppo:1, st:"Veneto"},
+    {id:"LO2",label:"Lombardia",        gruppo:2, st:"Lombardia Est"},
+    {id:"TO2",label:"Toscana",          gruppo:2, st:"Toscana"},
+    {id:"VE2",label:"Veneto 2",         gruppo:2, st:"Veneto"},
+    {id:"MA2",label:"Marche 2",         gruppo:2, st:"Marche"},
+    {id:"PI3",label:"Piemonte",         gruppo:3, st:"Valle d'Aosta/Piemonte/Liguria"},
+    {id:"LA3",label:"Lazio",            gruppo:3, st:"Lazio"},
+    {id:"ER2",label:"Emilia-Romagna 2", gruppo:3, st:"Emilia-Romagna"},
+    {id:"FV2",label:"FVG 2",            gruppo:3, st:"Friuli-Venezia Giulia"},
   );
 
   // Reset nomi arbitri (fittizi)
