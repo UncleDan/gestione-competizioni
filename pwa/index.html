@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#3b82f6">
 <title>Gestione Competizioni Baskin</title>
+<link rel="icon" href="/gestione-competizioni/pwa/icon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.json">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -63,6 +64,18 @@ h1{
   letter-spacing:2px;text-transform:uppercase;cursor:pointer;
 }
 #install-btn:hover{background:#0d1f3c;}
+#check-update-btn{
+  margin-top:12px;
+  padding:9px 20px;
+  background:transparent;border:1px solid #334155;
+  border-radius:4px;color:#475569;
+  font-family:Georgia,serif;font-size:11px;
+  letter-spacing:2px;text-transform:uppercase;cursor:pointer;
+  transition:border-color .2s,color .2s;
+}
+#check-update-btn:hover{border-color:#64748b;color:#94a3b8;}
+#check-update-btn.checking{border-color:#f59e0b;color:#f59e0b;}
+#check-update-btn.updated{border-color:#22c55e;color:#22c55e;}
 #sw-status{
   margin-top:12px;font-size:10px;color:#475569;letter-spacing:1px;
 }
@@ -93,11 +106,12 @@ h1{
 </div>
 
 <button id="install-btn">⬇ Installa App</button>
+<button id="check-update-btn" onclick="verificaAggiornamenti()">🔄 Verifica aggiornamenti</button>
 <div id="sw-status"></div>
 
 <div class="footer">
-  <div>Launcher v 1.4 · 2026 · uncledan.it</div>
-  <div style="margin-top:4px;color:#1e3a5f">sw.js v 1.1 · manifest v 1.0</div>
+  <div>Launcher v 1.6 · 2026 · uncledan.it</div>
+  <div style="margin-top:4px;color:#1e3a5f">sw.js v 1.3 · manifest v 1.1</div>
 </div>
 
 <div id="update-toast" onclick="applicaAggiornamento()">
@@ -108,6 +122,49 @@ h1{
 <script>
 const BASE = '/gestione-competizioni';
 
+// Versioni attualmente in cache — aggiornare ad ogni release
+const CURRENT_VERSIONS = {
+  'finali.html':    '1.6',
+  'pwa/index.html': '1.6',
+  'sw.js':          '1.3',
+  'manifest.json':  '1.0',
+};
+
+async function verificaAggiornamenti(){
+  const btn = document.getElementById('check-update-btn');
+  btn.textContent = '🔄 Controllo in corso...';
+  btn.className = 'checking';
+  try {
+    const res = await fetch(`${BASE}/versions.json?_=${Date.now()}`);
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const remote = await res.json();
+
+    const aggiornamenti = Object.entries(remote).filter(([k,v])=>
+      CURRENT_VERSIONS[k] && CURRENT_VERSIONS[k] !== v
+    );
+
+    if(aggiornamenti.length === 0){
+      btn.textContent = '✓ Tutto aggiornato';
+      btn.className = 'updated';
+      setTimeout(()=>{ btn.textContent='🔄 Verifica aggiornamenti'; btn.className=''; },3000);
+    } else {
+      const lista = aggiornamenti.map(([k,v])=>`${k}: ${CURRENT_VERSIONS[k]} → ${v}`).join('\n');
+      mostraToast('Aggiornamento disponibile');
+      btn.textContent = `⬆ ${aggiornamenti.length} aggiornament${aggiornamenti.length>1?'i':'o'}`;
+      btn.className = '';
+      // Force SW update
+      if('serviceWorker' in navigator){
+        const reg = await navigator.serviceWorker.getRegistration(`${BASE}/`);
+        if(reg) reg.update();
+      }
+    }
+  } catch(err){
+    btn.textContent = '⚠ Errore verifica';
+    btn.className = '';
+    setTimeout(()=>{ btn.textContent='🔄 Verifica aggiornamenti'; },3000);
+  }
+}
+
 // ── Elenco moduli (aggiungere qui i futuri) ───────────────────────────────
 const MODULI = [
   {
@@ -115,7 +172,7 @@ const MODULI = [
     nome: 'Finali Nazionali',
     desc: 'Sorteggio gironi · Designazioni arbitrali · Risultati',
     anno: '2026',
-    versione: '1.4',
+    versione: '1.6',
     file: `${BASE}/finali.html`,
     icon: '🏆',
     attivo: true,

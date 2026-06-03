@@ -1,13 +1,16 @@
-const CACHE_NAME = 'gestione-competizioni-sw-1.1';
+const CACHE_NAME = 'gestione-competizioni-sw-1.3';
 const BASE = '/gestione-competizioni';
 
 // File da mettere in cache all'installazione
+// versions.json è sempre scaricato fresh (no cache) per il controllo aggiornamenti
 const PRECACHE = [
   `${BASE}/`,
   `${BASE}/pwa/index.html`,
   `${BASE}/pwa/manifest.json`,
   `${BASE}/finali.html`,
   `${BASE}/save/finali-2026.json`,
+  `${BASE}/versions.json`,
+  `${BASE}/pwa/icon.svg`,
 ];
 
 self.addEventListener('install', e => {
@@ -36,6 +39,12 @@ self.addEventListener('fetch', e => {
   // Solo richieste GET dello stesso origine
   if (e.request.method !== 'GET') return;
   if (!e.request.url.startsWith(self.location.origin)) return;
+
+  // versions.json: sempre fresh, mai dalla cache
+  if(e.request.url.endsWith('/versions.json')){
+    e.respondWith(fetch(e.request));
+    return;
+  }
 
   e.respondWith(
     fetch(e.request)

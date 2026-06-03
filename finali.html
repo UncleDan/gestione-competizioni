@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/gestione-competizioni/pwa/icon.svg" type="image/svg+xml">
 <link rel="manifest" href="pwa/manifest.json">
 <meta name="theme-color" content="#3b82f6">
 <title>Baskin — Sorteggio & Designazioni</title>
@@ -149,7 +150,7 @@ button,input,select{font-family:Georgia,serif}
   <div class="eyebrow">Gestione Competizione Baskin</div>
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
-        <div style="font-size:9px;color:#334155;letter-spacing:2px;margin-top:3px;position:relative">v 1.4</div>
+        <div style="font-size:9px;color:#334155;letter-spacing:2px;margin-top:3px;position:relative">v 1.6</div>
 </div>
 
 <div id="tabbar">
@@ -382,12 +383,15 @@ window.onerror=function(msg,src,line,col,err){
 </script>
 
 <script>
-const VERSION = '1.4'; // Aggiornare ad ogni release
+const VERSION = '1.6'; // Aggiornare ad ogni release
+
+// Escape sicuro per qualsiasi stringa inserita in attributi HTML
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '1.4',
-  'pwa/index.html': '1.4',
-  'sw.js':          '1.1',
-  'manifest.json':  '1.0',
+  'finali.html':    '1.6',
+  'pwa/index.html': '1.6',
+  'sw.js':          '1.3',
+  'manifest.json':  '1.1',
 };
 
 // ══════════════════════════════════════════════════ SEZIONI TERRITORIALI
@@ -841,10 +845,10 @@ function renderCalBuilder(){
       style="display:flex;flex-wrap:wrap;gap:7px;min-height:48px;padding:10px;background:#071428;border:1px solid #1e3a5f;border-radius:4px">
       ${pool.length===0
         ? '<div style="font-size:11px;color:#1e3a5f">Tutte le partite sono state assegnate</div>'
-        : pool.map(p=>{
+        : pool.map((p,idx)=>{
             const gc=p.girone==='A'?'ga':'gb';
             return `<div class="pool-item" draggable="true"
-              data-from="pool" data-id="${p.id.replace(/"/g,'&quot;')}"
+              data-from="pool" data-pool-idx="${idx}"
               ondragstart="calDragStartEl(event)"
               ondragend="calDragEnd(event)"
               style="padding:8px 11px;background:#0d1f3c;border:1px solid #1e3a5f;border-radius:4px;cursor:grab;user-select:none;display:flex;align-items:center;gap:6px">
@@ -886,9 +890,8 @@ function renderCalBuilder(){
 
 function cellPartitaHtml(p,t,c,pi){
   const gc=p.girone==='A'?'ga':'gb';
-  const safeId=p.id.replace(/"/g,'&quot;');
   return `<div class="pbuilder" draggable="true"
-    data-from="cell" data-id="${safeId}" data-t="${t}" data-c="${c}" data-pi="${pi}"
+    data-from="cell" data-t="${t}" data-c="${c}" data-pi="${pi}"
     ondragstart="calDragStartEl(event)"
     ondragend="calDragEnd(event)"
     ondragover="calCellDragOver(event,${t},${c})"
@@ -926,18 +929,23 @@ function calDragStart(e, from, idOrKey, t, c, pi){
   setTimeout(()=>{try{if(el)el.classList.add('dragging-p');}catch(x){}},0);
 }
 
-// Safe version: reads params from data attributes to avoid special char issues
+// Safe version: reads params from data attributes — no string IDs in HTML
 function calDragStartEl(e){
   const el=e.currentTarget;
   const from=el.dataset.from;
-  const id=el.dataset.id;
   if(from==='pool'){
-    calDragSrc={from:'pool',id};
+    // Use pool index to avoid any special char in p.id
+    const poolIdx=Number(el.dataset.poolIdx);
+    const assegnate=new Set();
+    for(let t=0;t<3;t++) for(let c=0;c<2;c++) stato.calSlots[t][c].forEach(p=>assegnate.add(p.id));
+    const pool=stato.partitePool.filter(p=>!assegnate.has(p.id));
+    const p=pool[poolIdx];
+    calDragSrc={from:'pool', id:p?p.id:null};
   } else {
     calDragSrc={from:'cell',t:Number(el.dataset.t),c:Number(el.dataset.c),pi:Number(el.dataset.pi)};
   }
   e.dataTransfer.effectAllowed='move';
-  e.dataTransfer.setData('text/plain',id||'');
+  e.dataTransfer.setData('text/plain','drag');
   setTimeout(()=>{try{if(el)el.classList.add('dragging-p');}catch(x){}},0);
 }
 function calDragEnd(e){
@@ -2171,7 +2179,8 @@ function renderFinali(){
       <div style="font-size:9px;letter-spacing:2px;color:${color};text-transform:uppercase;margin-bottom:6px">Girone ${girone}</div>
       ${squadre.map(sq=>`
         <div draggable="true"
-          ondragstart="finaliDragStart(event,'pool',null,'${sq.nome}')"
+          data-sq-nome="${esc(sq.nome)}"
+          ondragstart="finaliDragStartEl(event)"
           ondragend="finaliDragEnd(event)"
           style="padding:7px 10px;background:#0a1628;border:1px solid ${color}40;border-radius:3px;margin-bottom:5px;cursor:grab;user-select:none">
           <div style="font-size:12px;color:#e2e8f0">${sq.nome}</div>
@@ -2354,6 +2363,16 @@ function ternaManualeHtml(fKey, terna){
 
 // ── DnD squadre finali ────────────────────────────────────────────────────
 let _finaliArbDrag = null;
+
+function finaliDragStartEl(e){
+  const el=e.currentTarget;
+  const sqNome=el.dataset.sqNome;
+  finaliDragSrc={from:'pool',slotKey:null,sqNome};
+  e.dataTransfer.effectAllowed='move';
+  e.dataTransfer.setData('text/plain','drag');
+  const capture=el;
+  setTimeout(()=>{try{if(capture)capture.classList.add('dragging');}catch(x){}},0);
+}
 
 function finaliDragStart(e, from, slotKey, sqNome){
   finaliDragSrc = {from, slotKey, sqNome};
