@@ -151,7 +151,7 @@ button,input,select{font-family:Georgia,serif}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:#475569;letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">2.1</span>
+    finali.html v <span id="ver-num">2.2</span>
     <span id="ver-update" style="display:none;color:#f59e0b;margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -181,6 +181,7 @@ button,input,select{font-family:Georgia,serif}
   <button onclick="showTab('importexport',document.getElementById('tab-btn-ie'))" id="tab-btn-ie" class="tab-btn" style="color:#34d399">⇅ Import/Export</button>
   <button onclick="showTab('sync',this)" class="tab-btn" style="color:#60a5fa">☁ Sync</button>
   <button onclick="showTab('sessioni',this)" class="tab-btn" style="color:#a78bfa">🕐 Sessioni</button>
+  <button onclick="resetApp()" style="padding:12px 14px;background:transparent;border:none;color:#475569;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer" title="Ripristina dati di esempio">↺ Reset</button>
   <button id="btn-debug" onclick="toggleDebug()" style="padding:12px 14px;background:transparent;border:none;color:#475569;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer">🐛 Debug</button>
   <button id="btn-pdf"   onclick="stampaPDF()"   style="display:none">🖨 PDF</button>
   <button id="btn-badge" onclick="stampaBadge()" style="display:none">🪪 Badge</button>
@@ -447,12 +448,12 @@ window.onerror=function(msg,src,line,col,err){
 </script>
 
 <script>
-const VERSION = '2.1'; // Aggiornare ad ogni release
+const VERSION = '2.2'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '2.1',
+  'finali.html':    '2.2',
   'pwa/index.html': '1.9',
   'sw.js':          '1.5',
   'manifest.json':  '1.3',
@@ -3414,6 +3415,96 @@ function renderTutti(){
 function schedulaSalvataggio(){
   clearTimeout(_saveTimer);
   _saveTimer = setTimeout(()=>salvaSessione(), SAVE_DEBOUNCE);
+}
+
+// ══════════════════════════════════════════════════ RESET
+function resetApp(){
+  if(!confirm('Resettare tutto ai dati di esempio?\nTutte le modifiche non salvate andranno perse.')) return;
+
+  // Reset SQUADRE
+  SQUADRE.length=0;
+  SQUADRE.push(
+    {nome:"Reggio Emilia", citta:"Reggio Emilia",  st:"Emilia-Romagna"},
+    {nome:"Udine",         citta:"Udine",           st:"Friuli-Venezia Giulia"},
+    {nome:"Cerrano",       citta:"Cerrano",         st:"Valle d'Aosta/Piemonte/Liguria"},
+    {nome:"Schio",         citta:"Schio",           st:"Veneto"},
+    {nome:"Bergamo",       citta:"Bergamo",         st:"Lombardia Est"},
+    {nome:"Cremona",       citta:"Cremona",         st:"Lombardia Sud"},
+    {nome:"Pesaro",        citta:"Pesaro",          st:"Marche"},
+    {nome:"Siena",         citta:"Siena",           st:"Toscana"},
+  );
+
+  // Reset ARBITRI_BASE
+  ARBITRI_BASE.length=0;
+  ARBITRI_BASE.push(
+    {id:"ER1",label:"Emilia-Romagna 1", fascia:1, st:"Emilia-Romagna"},
+    {id:"MA1",label:"Marche 1",         fascia:1, st:"Marche"},
+    {id:"FV1",label:"FVG 1",            fascia:1, st:"Friuli-Venezia Giulia"},
+    {id:"VE1",label:"Veneto 1",         fascia:1, st:"Veneto"},
+    {id:"LO2",label:"Lombardia",        fascia:2, st:"Lombardia Est"},
+    {id:"TO2",label:"Toscana",          fascia:2, st:"Toscana"},
+    {id:"VE2",label:"Veneto 2",         fascia:2, st:"Veneto"},
+    {id:"MA2",label:"Marche 2",         fascia:2, st:"Marche"},
+    {id:"PI3",label:"Piemonte",         fascia:3, st:"Valle d'Aosta/Piemonte/Liguria"},
+    {id:"LA3",label:"Lazio",            fascia:3, st:"Lazio"},
+    {id:"ER2",label:"Emilia-Romagna 2", fascia:3, st:"Emilia-Romagna"},
+    {id:"FV2",label:"FVG 2",            fascia:3, st:"Friuli-Venezia Giulia"},
+  );
+
+  // Reset nomi arbitri (fittizi)
+  stato.nomiArbitri = {
+    ER1:{cognome:"LANDI",    nome:"Diego"},
+    MA1:{cognome:"VECCHI",   nome:"Matteo"},
+    FV1:{cognome:"CONTE",    nome:"Claudio"},
+    VE1:{cognome:"BARDI",    nome:"Giorgio"},
+    LO2:{cognome:"LANDI",    nome:"Maria Rita"},
+    TO2:{cognome:"PRATI",    nome:"Aldo"},
+    VE2:{cognome:"LO VISCO", nome:"Alberto"},
+    MA2:{cognome:"MELLI",    nome:"Elia"},
+    PI3:{cognome:"CONTI",    nome:"Luca"},
+    LA3:{cognome:"SENSI",    nome:"Alessio"},
+    ER2:{cognome:"ANGELI",   nome:"Claudio"},
+    FV2:{cognome:"MARZO",    nome:"Grazia"},
+  };
+
+  // Reset CAMPI
+  CAMPI.length=0;
+  CAMPI.push(
+    {nome:"Pala Paliaga",   citta:"Monfalcone (GO)", indirizzo:"Via Baden Powell, 2", maps:"https://maps.google.com/?q=Via+Baden+Powell+2+Monfalcone"},
+    {nome:"Palestra Verde", citta:"Monfalcone (GO)", indirizzo:"Via Baden Powell, 1", maps:"https://maps.google.com/?q=Via+Baden+Powell+1+Monfalcone"},
+  );
+
+  // Reset DATE
+  Object.assign(DATE_GARA, {ven:"2026-06-12", sab:"2026-06-13", dom:"2026-06-14"});
+  ["ven","sab","dom"].forEach(k=>{
+    const el=document.getElementById("date-"+k);
+    if(el) el.value=DATE_GARA[k];
+  });
+
+  // Reset stato
+  stato.gironi=null;
+  stato.calSlots=[[[],[]],[[],[]],[[],[]]];
+  stato.partitePool=[];
+  stato.calendario=null;
+  stato.finali={f34:{casa:null,ospite:null},f12:{casa:null,ospite:null}};
+  stato.finaliCalendario=null;
+  stato.risultati={};
+  stato.risultatiFinali={};
+  stato.deroghe=[];
+  stato.modificatoArbitri=false;
+  stato.dndState={A:[],B:[],pool:[...SQUADRE]};
+  stato.manualeAperto=false;
+
+  // Disabilita tab dipendenti
+  document.getElementById("tab-btn-calendario").disabled=true;
+  document.getElementById("tab-btn-designazioni").disabled=true;
+  document.getElementById("vincoli-opzioni").style.display="none";
+  document.getElementById("btn-pdf").style.display="none";
+  document.getElementById("btn-badge").style.display="none";
+
+  renderTutti();
+  showTab("gironi", document.querySelector(".tab-btn"));
+  dbg("↺ App resettata ai dati di esempio");
 }
 
 // ══════════════════════════════════════════════════ INIT
