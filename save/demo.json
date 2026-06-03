@@ -142,7 +142,7 @@
     }
   ],
   "_release": {
-    "finali.html": "2.5",
+    "finali.html": "2.5.1",
     "pwa/index.html": "1.9",
     "sw.js": "1.5",
     "manifest.json": "1.3"
