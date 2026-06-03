@@ -1,3 +1,7 @@
+# ── Configurazione sincronizzazione (contiene token) ────────────────────────────
+config/*
+!config/demo-sync.json
+
 # ── Salvataggi (dati sensibili) ───────────────────────────────────────────────
 # Tutti i file nella cartella save/ sono esclusi TRANNE demo.json
 save/*

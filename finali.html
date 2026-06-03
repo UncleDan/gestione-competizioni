@@ -151,8 +151,19 @@ button,input,select{font-family:Georgia,serif}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:#475569;letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">1.7</span>
+    finali.html v <span id="ver-num">1.9</span>
     <span id="ver-update" style="display:none;color:#f59e0b;margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
+  </div>
+</div>
+
+<div id="session-banner" style="display:none;background:#0d1f3c;border:1px solid #3b82f6;border-radius:6px;padding:12px 16px;margin:0 0 12px;display:none;align-items:center;gap:12px;flex-wrap:wrap">
+  <div style="flex:1;min-width:200px">
+    <div style="font-size:12px;color:#60a5fa;font-weight:bold;margin-bottom:2px">📂 Sessione disponibile</div>
+    <div id="session-banner-info" style="font-size:11px;color:#64748b"></div>
+  </div>
+  <div style="display:flex;gap:8px;flex-shrink:0">
+    <button onclick="ripristinaUltimaSessione()" style="padding:7px 14px;background:#1d4ed8;border:none;color:#fff;border-radius:4px;font-size:11px;cursor:pointer;font-family:Georgia,serif">✓ Ripristina</button>
+    <button onclick="chiudiBannerSessione()" style="padding:7px 14px;background:transparent;border:1px solid #1e3a5f;color:#475569;border-radius:4px;font-size:11px;cursor:pointer;font-family:Georgia,serif">✕ Ignora</button>
   </div>
 </div>
 
@@ -168,6 +179,7 @@ button,input,select{font-family:Georgia,serif}
   <button class="tab-btn" onclick="showTab('palestre',this)">Palestre</button>
   <button class="tab-btn" onclick="showTab('date',this)">📅 Date</button>
   <button onclick="showTab('importexport',document.getElementById('tab-btn-ie'))" id="tab-btn-ie" class="tab-btn" style="color:#34d399">⇅ Import/Export</button>
+  <button onclick="showTab('sync',this)" class="tab-btn" style="color:#60a5fa">☁ Sync</button>
   <button onclick="showTab('sessioni',this)" class="tab-btn" style="color:#a78bfa">🕐 Sessioni</button>
   <button id="btn-debug" onclick="toggleDebug()" style="padding:12px 14px;background:transparent;border:none;color:#475569;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer">🐛 Debug</button>
   <button id="btn-pdf"   onclick="stampaPDF()"   style="display:none">🖨 PDF</button>
@@ -345,6 +357,55 @@ button,input,select{font-family:Georgia,serif}
     <div id="sessioni-content"><div style="color:#475569;font-size:12px">Caricamento...</div></div>
   </div>
 
+  <!-- ══ SYNC ══ -->
+  <div id="tab-sync" class="tab-panel">
+    <div class="eyebrow-sm">Sincronizzazione GitHub</div>
+    <div style="font-size:12px;color:#475569;margin-bottom:20px">
+      Salva e carica i tuoi dati su un repository GitHub privato.<br>
+      Configura il file <code style="color:#94a3b8">config/sync-config.json</code> con il tuo token PAT.
+    </div>
+
+    <!-- Config status -->
+    <div id="sync-config-status" style="background:#0d1f3c;border:1px solid #1e3a5f;border-radius:4px;padding:14px;margin-bottom:16px">
+      <div style="font-size:10px;letter-spacing:3px;color:#64748b;text-transform:uppercase;margin-bottom:10px">Configurazione</div>
+      <div id="sync-config-info" style="font-size:12px;color:#475569">Caricamento...</div>
+      <div class="flex gap10 wrap mt8">
+        <label style="padding:8px 16px;background:#1e3a5f;border-radius:4px;color:#60a5fa;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer">
+          📂 Carica sync-config.json
+          <input type="file" accept=".json" onchange="caricaConfigSync(event)" style="display:none">
+        </label>
+      </div>
+    </div>
+
+    <!-- Push / Pull -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div style="background:#0d1f3c;border:1px solid #1e3a5f;border-radius:4px;padding:14px">
+        <div style="font-size:10px;letter-spacing:3px;color:#22c55e;text-transform:uppercase;margin-bottom:8px">⬆ Push</div>
+        <div style="font-size:11px;color:#64748b;margin-bottom:12px">Salva il JSON corrente sul repo privato</div>
+        <div style="margin-bottom:8px">
+          <div class="label-xs">Nome file</div>
+          <input class="inp" id="sync-filename" placeholder="finali-2026.json" value="finali-2026.json">
+        </div>
+        <div style="margin-bottom:12px">
+          <div class="label-xs">Sezioni da includere</div>
+          <div id="sync-sezioni" style="font-size:11px;color:#475569;margin-top:4px">stesse del tab Import/Export</div>
+        </div>
+        <button class="btn-green" onclick="syncPush()">⬆ Push su GitHub</button>
+      </div>
+      <div style="background:#0d1f3c;border:1px solid #1e3a5f;border-radius:4px;padding:14px">
+        <div style="font-size:10px;letter-spacing:3px;color:#3b82f6;text-transform:uppercase;margin-bottom:8px">⬇ Pull</div>
+        <div style="font-size:11px;color:#64748b;margin-bottom:12px">Carica un JSON dal repo privato</div>
+        <div style="margin-bottom:12px">
+          <div class="label-xs">File disponibili nel repo</div>
+          <div id="sync-filelist" style="font-size:11px;color:#475569;margin-top:4px">—</div>
+        </div>
+        <button class="btn-outline" onclick="syncListFiles()" style="margin-bottom:8px;font-size:11px">🔄 Aggiorna lista</button>
+      </div>
+    </div>
+
+    <div id="sync-feedback" style="display:none;font-size:12px;padding:10px 14px;background:#0a1628;border-radius:4px;border:1px solid #1e3a5f"></div>
+  </div>
+
 <!-- DEBUG PANEL -->
 <div id="debug-panel" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#0a0e1a;border-top:2px solid #ef4444;padding:10px 16px;font-size:11px;font-family:monospace;color:#fca5a5;max-height:40vh;overflow-y:auto;z-index:9999">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
@@ -386,12 +447,12 @@ window.onerror=function(msg,src,line,col,err){
 </script>
 
 <script>
-const VERSION = '1.7'; // Aggiornare ad ogni release
+const VERSION = '1.9'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '1.7',
+  'finali.html':    '1.9',
   'pwa/index.html': '1.9',
   'sw.js':          '1.5',
   'manifest.json':  '1.3',
@@ -2852,6 +2913,221 @@ td{padding:5px 8px;border:1px solid #ddd;vertical-align:middle}
 }
 
 
+// ══════════════════════════════════════════════════ SYNC GITHUB
+let syncConfig = null;
+
+async function caricaConfigSync(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  try{
+    const text = await file.text();
+    const cfg = JSON.parse(text);
+    if(!cfg.token||!cfg.repo||!cfg.branch){
+      syncFeedback('⚠ File non valido: mancano token, repo o branch.','#ef4444');
+      return;
+    }
+    syncConfig = cfg;
+    // Salva in sessionStorage (non persiste tra sessioni — sicurezza)
+    sessionStorage.setItem('syncConfig', JSON.stringify(cfg));
+    aggiornaConfigStatus();
+    syncListFiles();
+  } catch(e){
+    syncFeedback('⚠ Errore lettura config: '+e.message,'#ef4444');
+  }
+  event.target.value='';
+}
+
+function aggiornaConfigStatus(){
+  const el = document.getElementById('sync-config-info');
+  if(!el) return;
+  if(!syncConfig){
+    el.innerHTML = '<span style="color:#ef4444">⚠ Nessuna configurazione caricata</span><br><span style="font-size:10px">Carica sync-config.json per abilitare la sincronizzazione</span>';
+  } else {
+    el.innerHTML = `<span style="color:#22c55e">✓ Connesso</span><br>
+      <span style="font-size:10px;color:#64748b">Repo: <strong style="color:#94a3b8">${syncConfig.repo}</strong> · Branch: <strong style="color:#94a3b8">${syncConfig.branch}</strong> · Path: <strong style="color:#94a3b8">${syncConfig.path||'/'}</strong></span>`;
+  }
+}
+
+function syncFeedback(msg, color){
+  const el = document.getElementById('sync-feedback');
+  if(!el) return;
+  el.style.display='block';
+  el.style.color = color||'#4ade80';
+  el.textContent = msg;
+  setTimeout(()=>{ el.style.display='none'; }, 5000);
+}
+
+// GitHub API helpers
+function ghHeaders(){
+  return {
+    'Authorization': 'Bearer '+syncConfig.token,
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'Content-Type': 'application/json',
+  };
+}
+
+function ghPath(filename){
+  const base = syncConfig.path ? syncConfig.path.replace(/^\/|\/$$/g,'') : '';
+  return base ? base+'/'+filename : filename;
+}
+
+async function syncPush(){
+  if(!syncConfig){ syncFeedback('⚠ Carica prima sync-config.json','#ef4444'); return; }
+  const filename = document.getElementById('sync-filename').value.trim()||'finali-2026.json';
+  const sezioni = getSezioniSelezionate();
+  const data = costruisciExport(sezioni);
+  const content = JSON.stringify(data, null, 2);
+  const b64 = btoa(unescape(encodeURIComponent(content)));
+  const path = ghPath(filename);
+  const apiUrl = `https://api.github.com/repos/${syncConfig.repo}/contents/${path}`;
+
+  syncFeedback('⬆ Upload in corso...','#f59e0b');
+  try{
+    // Check if file exists (to get SHA for update)
+    let sha = null;
+    const check = await fetch(apiUrl, {headers: ghHeaders()});
+    if(check.ok){ const existing = await check.json(); sha = existing.sha; }
+
+    const body = {
+      message: `sync: ${filename} — ${new Date().toLocaleString('it-IT')}`,
+      content: b64,
+      branch: syncConfig.branch,
+    };
+    if(sha) body.sha = sha;
+
+    const res = await fetch(apiUrl, {method:'PUT', headers: ghHeaders(), body: JSON.stringify(body)});
+    if(!res.ok){ const err=await res.json(); throw new Error(err.message); }
+    syncFeedback(`✓ Push completato: ${filename}`,'#4ade80');
+    syncListFiles();
+  } catch(e){
+    syncFeedback('⚠ Errore push: '+e.message,'#ef4444');
+    dbg('sync push error: '+e.message, true);
+  }
+}
+
+async function syncListFiles(){
+  if(!syncConfig){ return; }
+  const path = syncConfig.path ? syncConfig.path.replace(/^\/|\/$$/g,'') : '';
+  const apiUrl = `https://api.github.com/repos/${syncConfig.repo}/contents/${path}?ref=${syncConfig.branch}`;
+  const el = document.getElementById('sync-filelist');
+  if(el) el.innerHTML = '<span style="color:#f59e0b">Caricamento...</span>';
+  try{
+    const res = await fetch(apiUrl, {headers: ghHeaders()});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const files = await res.json();
+    const jsonFiles = Array.isArray(files) ? files.filter(f=>f.name.endsWith('.json')) : [];
+    if(!el) return;
+    if(jsonFiles.length===0){
+      el.innerHTML = '<span style="color:#475569">Nessun file JSON nel repo</span>';
+      return;
+    }
+    // Fetch commit info for each file to get last modified timestamp
+    const filesConTimestamp = await Promise.all(jsonFiles.map(async f=>{
+      try{
+        const commitUrl = `https://api.github.com/repos/${syncConfig.repo}/commits?path=${f.path}&ref=${syncConfig.branch}&per_page=1`;
+        const cr = await fetch(commitUrl, {headers: ghHeaders()});
+        if(cr.ok){
+          const commits = await cr.json();
+          if(commits.length>0){
+            const ts = commits[0].commit.committer.date;
+            const d = new Date(ts);
+            f.lastModified = d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'})
+              + ' ' + d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+            f.lastAuthor = commits[0].commit.committer.name || commits[0].commit.author.name;
+          }
+        }
+      } catch(e){}
+      return f;
+    }));
+
+    el.innerHTML = filesConTimestamp.map(f=>`
+      <div style="padding:8px 0;border-bottom:1px solid #1e3a5f">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="flex:1;font-size:12px;color:#cbd5e1;font-weight:bold">${f.name}</span>
+          <button data-path="${f.path}" data-name="${f.name}" onclick="syncPull(this.dataset.path, this.dataset.name)"
+            style="padding:4px 12px;background:#1e3a5f;border:none;color:#60a5fa;border-radius:3px;font-size:10px;cursor:pointer;flex-shrink:0">⬇ Pull</button>
+        </div>
+        ${f.lastModified ? `<div style="font-size:9px;color:#475569;margin-top:3px">
+          Ultima modifica: <span style="color:#64748b">${f.lastModified}</span>
+          ${f.lastAuthor?' · '+f.lastAuthor:''}
+        </div>`:''}
+      </div>`).join('');
+  } catch(e){
+    if(el) el.innerHTML = '<span style="color:#ef4444">⚠ '+e.message+'</span>';
+  }
+}
+
+async function syncPull(path, filename){
+  if(!syncConfig){ syncFeedback('⚠ Carica prima sync-config.json','#ef4444'); return; }
+  syncFeedback('⬇ Download in corso...','#f59e0b');
+  try{
+    const apiUrl = `https://api.github.com/repos/${syncConfig.repo}/contents/${path}?ref=${syncConfig.branch}`;
+    const res = await fetch(apiUrl, {headers: ghHeaders()});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const file = await res.json();
+    const text = decodeURIComponent(escape(atob(file.content.replace(/\n/g,''))));
+    const data = JSON.parse(text);
+    const sezioni = getSezioniSelezionate();
+    importaStato(data, sezioni);
+    renderTutti();
+    schedulaSalvataggio();
+    syncFeedback(`✓ Pull completato: ${filename}`,'#4ade80');
+  } catch(e){
+    syncFeedback('⚠ Errore pull: '+e.message,'#ef4444');
+    dbg('sync pull error: '+e.message, true);
+  }
+}
+
+// Ripristina config da sessionStorage se presente
+(()=>{
+  const saved = sessionStorage.getItem('syncConfig');
+  if(saved){ try{ syncConfig=JSON.parse(saved); }catch(e){} }
+})();
+
+// ══════════════════════════════════════════════════ SESSIONE BANNER
+
+async function verificaSessioneDisponibile(){
+  try{
+    const db = await dbOpen();
+    const sessione = await new Promise((res,rej)=>{
+      const tx  = db.transaction(STORE_NAME,'readonly');
+      const idx = tx.objectStore(STORE_NAME).index('ts');
+      idx.openCursor(null,'prev').onsuccess = e=>{
+        res(e.target.result ? e.target.result.value : null);
+      };
+      tx.onerror = rej;
+    });
+    if(!sessione) return;
+
+    // Mostra il banner con info sulla sessione
+    const d = new Date(sessione.ts);
+    const dateStr = d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const timeStr = d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+    const releaseStr = sessione.stato?._release
+      ? ' · ' + Object.entries(sessione.stato._release).map(([k,v])=>v).join('/')
+      : '';
+    document.getElementById('session-banner-info').textContent =
+      `Salvata il ${dateStr} alle ${timeStr}${releaseStr}`;
+    const banner = document.getElementById('session-banner');
+    banner.style.display = 'flex';
+    // Salva id per il ripristino
+    banner.dataset.sessionId = sessione.id;
+  } catch(e){ /* IndexedDB non disponibile */ }
+}
+
+async function ripristinaUltimaSessione(){
+  const banner = document.getElementById('session-banner');
+  const id = Number(banner.dataset.sessionId);
+  if(!id) return;
+  await caricaSessionePerId(id);
+  chiudiBannerSessione();
+}
+
+function chiudiBannerSessione(){
+  document.getElementById('session-banner').style.display = 'none';
+}
+
 // ══════════════════════════════════════════════════ INDEXEDDB — STORICO SESSIONI
 const DB_NAME    = 'gestione-competizioni';
 const DB_VERSION = 1;
@@ -3097,21 +3373,19 @@ function schedulaSalvataggio(){
 
 // ══════════════════════════════════════════════════ INIT
 (async ()=>{
-  // Tenta di caricare l'ultima sessione salvata
-  const caricata = await caricaUltimaSessione();
-  if(!caricata){
-    // Prima apertura: render iniziale con dati default
-    renderSquadre();
-    renderArbitriForm();
-    renderSquadreForm();
-    renderST();
-    renderPalestreForm();
-    renderIESezioni();
-    renderFinali();
-    renderRisultati();
-  } else {
-    renderTutti();
-  }
+  // Render iniziale con dati default sempre
+  renderSquadre();
+  renderArbitriForm();
+  renderSquadreForm();
+  renderST();
+  renderPalestreForm();
+  renderIESezioni();
+  renderFinali();
+  renderRisultati();
+  aggiornaConfigStatus();
+
+  // Controlla se esiste una sessione salvata e avvisa l'utente
+  await verificaSessioneDisponibile();
   renderSessioni();
 })();
 // ── Versione badge + controllo aggiornamento ──

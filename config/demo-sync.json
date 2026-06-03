@@ -1,0 +1,8 @@
+{
+  "_nota": "Copia questo file in sync-config.json e compila i campi reali. Non committare sync-config.json.",
+  "provider": "github",
+  "repo": "UncleDan/gestione-competizioni-private",
+  "branch": "main",
+  "path": "saves",
+  "token": "IL_TUO_PERSONAL_ACCESS_TOKEN"
+}
