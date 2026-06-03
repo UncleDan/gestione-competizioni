@@ -151,7 +151,7 @@ button,input,select{font-family:Georgia,serif}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:#475569;letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">2.0</span>
+    finali.html v <span id="ver-num">2.1</span>
     <span id="ver-update" style="display:none;color:#f59e0b;margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -447,12 +447,12 @@ window.onerror=function(msg,src,line,col,err){
 </script>
 
 <script>
-const VERSION = '2.0'; // Aggiornare ad ogni release
+const VERSION = '2.1'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '2.0',
+  'finali.html':    '2.1',
   'pwa/index.html': '1.9',
   'sw.js':          '1.5',
   'manifest.json':  '1.3',
@@ -2944,7 +2944,12 @@ function aggiornaConfigStatus(){
     el.innerHTML = '<span style="color:#ef4444">⚠ Nessuna configurazione caricata</span><br><span style="font-size:10px">Carica sync-config.json per abilitare la sincronizzazione</span>';
   } else {
     el.innerHTML = `<span style="color:#22c55e">✓ Connesso</span><br>
-      <span style="font-size:10px;color:#64748b">Repo: <strong style="color:#94a3b8">${syncConfig.repo}</strong> · Branch: <strong style="color:#94a3b8">${syncConfig.branch}</strong> · Path: <strong style="color:#94a3b8">${syncConfig.path||'/'}</strong></span>`;
+      <span style="font-size:10px;color:#64748b">
+        Repo: <strong style="color:#94a3b8">${syncConfig.repo}</strong> ·
+        Branch: <strong style="color:#94a3b8">${syncConfig.branch}</strong> ·
+        Path: <strong style="color:#94a3b8">${syncConfig.path||'/'}</strong>
+        ${syncConfig.user?` · Utente: <strong style="color:#60a5fa">${syncConfig.user}</strong>`:''}
+      </span>`;
   }
 }
 
@@ -2989,10 +2994,15 @@ async function syncPush(){
     const check = await fetch(apiUrl, {headers: ghHeaders()});
     if(check.ok){ const existing = await check.json(); sha = existing.sha; }
 
+    const author = syncConfig.user ? {
+      name:  syncConfig.user,
+      email: syncConfig.email || (syncConfig.user||'utente')+'@gestione-competizioni.local',
+    } : undefined;
     const body = {
-      message: `sync: ${filename} — ${new Date().toLocaleString('it-IT')}`,
+      message: `sync: ${filename} — ${new Date().toLocaleString('it-IT')}${syncConfig.user?' ['+syncConfig.user+']':''}`,
       content: b64,
       branch: syncConfig.branch,
+      ...(author && {author, committer: author}),
     };
     if(sha) body.sha = sha;
 
