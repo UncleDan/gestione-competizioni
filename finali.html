@@ -151,18 +151,18 @@ button,input,select{font-family:Georgia,serif}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:#475569;letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">1.9</span>
+    finali.html v <span id="ver-num">2.0</span>
     <span id="ver-update" style="display:none;color:#f59e0b;margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
 
 <div id="session-banner" style="display:none;background:#0d1f3c;border:1px solid #3b82f6;border-radius:6px;padding:12px 16px;margin:0 0 12px;display:none;align-items:center;gap:12px;flex-wrap:wrap">
   <div style="flex:1;min-width:200px">
-    <div style="font-size:12px;color:#60a5fa;font-weight:bold;margin-bottom:2px">📂 Sessione disponibile</div>
+    <div style="font-size:12px;color:#60a5fa;font-weight:bold;margin-bottom:2px">☁ Aggiornamento disponibile nel repo sync</div>
     <div id="session-banner-info" style="font-size:11px;color:#64748b"></div>
   </div>
   <div style="display:flex;gap:8px;flex-shrink:0">
-    <button onclick="ripristinaUltimaSessione()" style="padding:7px 14px;background:#1d4ed8;border:none;color:#fff;border-radius:4px;font-size:11px;cursor:pointer;font-family:Georgia,serif">✓ Ripristina</button>
+    <button onclick="ripristinaUltimaSessione()" style="padding:7px 14px;background:#1d4ed8;border:none;color:#fff;border-radius:4px;font-size:11px;cursor:pointer;font-family:Georgia,serif">⬇ Carica dal repo</button>
     <button onclick="chiudiBannerSessione()" style="padding:7px 14px;background:transparent;border:1px solid #1e3a5f;color:#475569;border-radius:4px;font-size:11px;cursor:pointer;font-family:Georgia,serif">✕ Ignora</button>
   </div>
 </div>
@@ -447,12 +447,12 @@ window.onerror=function(msg,src,line,col,err){
 </script>
 
 <script>
-const VERSION = '1.9'; // Aggiornare ad ogni release
+const VERSION = '2.0'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '1.9',
+  'finali.html':    '2.0',
   'pwa/index.html': '1.9',
   'sw.js':          '1.5',
   'manifest.json':  '1.3',
@@ -3085,12 +3085,15 @@ async function syncPull(path, filename){
   if(saved){ try{ syncConfig=JSON.parse(saved); }catch(e){} }
 })();
 
-// ══════════════════════════════════════════════════ SESSIONE BANNER
+// ══════════════════════════════════════════════════ SESSIONE BANNER SYNC
 
-async function verificaSessioneDisponibile(){
+// Controlla silenziosamente se il repo sync ha un file più recente della sessione locale
+async function verificaSyncRemoto(){
+  if(!syncConfig) return; // sync non configurata
   try{
+    // Timestamp dell'ultima sessione locale
     const db = await dbOpen();
-    const sessione = await new Promise((res,rej)=>{
+    const ultimaLocale = await new Promise((res,rej)=>{
       const tx  = db.transaction(STORE_NAME,'readonly');
       const idx = tx.objectStore(STORE_NAME).index('ts');
       idx.openCursor(null,'prev').onsuccess = e=>{
@@ -3098,29 +3101,61 @@ async function verificaSessioneDisponibile(){
       };
       tx.onerror = rej;
     });
-    if(!sessione) return;
+    const tsLocale = ultimaLocale ? ultimaLocale.ts : 0;
 
-    // Mostra il banner con info sulla sessione
-    const d = new Date(sessione.ts);
-    const dateStr = d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
-    const timeStr = d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
-    const releaseStr = sessione.stato?._release
-      ? ' · ' + Object.entries(sessione.stato._release).map(([k,v])=>v).join('/')
-      : '';
-    document.getElementById('session-banner-info').textContent =
-      `Salvata il ${dateStr} alle ${timeStr}${releaseStr}`;
+    // Lista file nel repo
+    const path = syncConfig.path ? syncConfig.path.replace(/^\/|\/$/g,'') : '';
+    const apiUrl = `https://api.github.com/repos/${syncConfig.repo}/contents/${path}?ref=${syncConfig.branch}`;
+    const res = await fetch(apiUrl, {headers: ghHeaders()});
+    if(!res.ok) return;
+    const files = await res.json();
+    const jsonFiles = Array.isArray(files) ? files.filter(f=>f.name.endsWith('.json')) : [];
+    if(jsonFiles.length===0) return;
+
+    // Cerca il file più recente nel repo
+    let piuRecente = null;
+    for(const f of jsonFiles){
+      const commitUrl = `https://api.github.com/repos/${syncConfig.repo}/commits?path=${f.path}&ref=${syncConfig.branch}&per_page=1`;
+      const cr = await fetch(commitUrl, {headers: ghHeaders()});
+      if(!cr.ok) continue;
+      const commits = await cr.json();
+      if(commits.length>0){
+        const tsRemoto = new Date(commits[0].commit.committer.date).getTime();
+        if(tsRemoto > tsLocale){
+          if(!piuRecente || tsRemoto > piuRecente.ts){
+            piuRecente = {
+              file: f,
+              ts: tsRemoto,
+              dateStr: new Date(tsRemoto).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}),
+              timeStr: new Date(tsRemoto).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}),
+              author: commits[0].commit.author.name || commits[0].commit.committer.name,
+            };
+          }
+        }
+      }
+    }
+
+    if(!piuRecente) return; // nessun aggiornamento remoto
+
+    // Mostra il banner
     const banner = document.getElementById('session-banner');
+    document.getElementById('session-banner-info').innerHTML =
+      `Sul repo sync: <strong style="color:#e2e8f0">${piuRecente.file.name}</strong> · ${piuRecente.dateStr} ${piuRecente.timeStr}` +
+      (piuRecente.author ? ` · <span style="color:#94a3b8">${piuRecente.author}</span>` : '');
+    banner.dataset.syncPath = piuRecente.file.path;
+    banner.dataset.syncName = piuRecente.file.name;
     banner.style.display = 'flex';
-    // Salva id per il ripristino
-    banner.dataset.sessionId = sessione.id;
-  } catch(e){ /* IndexedDB non disponibile */ }
+  } catch(e){
+    dbg('verificaSyncRemoto: '+e.message);
+  }
 }
 
 async function ripristinaUltimaSessione(){
   const banner = document.getElementById('session-banner');
-  const id = Number(banner.dataset.sessionId);
-  if(!id) return;
-  await caricaSessionePerId(id);
+  // Se è un sync remoto, fai pull
+  if(banner.dataset.syncPath){
+    await syncPull(banner.dataset.syncPath, banner.dataset.syncName);
+  }
   chiudiBannerSessione();
 }
 
@@ -3373,20 +3408,25 @@ function schedulaSalvataggio(){
 
 // ══════════════════════════════════════════════════ INIT
 (async ()=>{
-  // Render iniziale con dati default sempre
-  renderSquadre();
-  renderArbitriForm();
-  renderSquadreForm();
-  renderST();
-  renderPalestreForm();
-  renderIESezioni();
-  renderFinali();
-  renderRisultati();
+  // 1. Carica automaticamente l'ultima sessione locale
+  const caricata = await caricaUltimaSessione();
+  if(!caricata){
+    renderSquadre();
+    renderArbitriForm();
+    renderSquadreForm();
+    renderST();
+    renderPalestreForm();
+    renderIESezioni();
+    renderFinali();
+    renderRisultati();
+  } else {
+    renderTutti();
+  }
   aggiornaConfigStatus();
-
-  // Controlla se esiste una sessione salvata e avvisa l'utente
-  await verificaSessioneDisponibile();
   renderSessioni();
+
+  // 2. Controlla silenziosamente se il repo sync ha qualcosa di più recente
+  await verificaSyncRemoto();
 })();
 // ── Versione badge + controllo aggiornamento ──
 (async()=>{
