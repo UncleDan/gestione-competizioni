@@ -151,7 +151,7 @@ button,input,select{font-family:Georgia,serif}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:#475569;letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">2.7.1</span>
+    finali.html v <span id="ver-num">2.9</span>
     <span id="ver-update" style="display:none;color:#f59e0b;margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -449,12 +449,12 @@ window.onerror=function(msg,src,line,col,err){
 </script>
 
 <script>
-const VERSION = '2.7.1'; // Aggiornare ad ogni release
+const VERSION = '2.9'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '2.7.1',
+  'finali.html':    '2.9',
   'pwa/index.html': '1.9',
   'sw.js':          '1.5',
   'manifest.json':  '1.3',
@@ -1890,17 +1890,19 @@ const IE_SEZIONI = [
   {id:'risultati',  label:'Risultati',             desc:'Punteggi delle partite dei gironi'},
 ];
 
-function renderIESezioni(){
+function renderIESezioni(availableSezioni){
   const el=document.getElementById('ie-sezioni');
   if(!el)return;
-  el.innerHTML=IE_SEZIONI.map(s=>`
-    <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;padding:8px;background:#0a1628;border:1px solid #1e3a5f;border-radius:4px">
-      <input type="checkbox" id="ie-chk-${s.id}" checked style="margin-top:2px;width:14px;height:14px;cursor:pointer;flex-shrink:0">
+  el.innerHTML=IE_SEZIONI.map(s=>{
+    const avail = !availableSezioni || availableSezioni.includes(s.id);
+    return `<label style="display:flex;align-items:flex-start;gap:8px;cursor:${avail?'pointer':'not-allowed'};padding:8px;background:#0a1628;border:1px solid ${avail?'#1e3a5f':'#0f1f2e'};border-radius:4px;opacity:${avail?'1':'0.4'}">
+      <input type="checkbox" id="ie-chk-${s.id}" ${avail?'checked':''} ${avail?'':'disabled'} style="margin-top:2px;width:14px;height:14px;cursor:${avail?'pointer':'not-allowed'};flex-shrink:0">
       <div>
-        <div style="font-size:13px;color:#e2e8f0">${s.label}</div>
+        <div style="font-size:13px;color:${avail?'#e2e8f0':'#475569'}">${s.label}${avail?'':' <span style="font-size:9px;color:#1e3a5f">non presente</span>'}</div>
         <div style="font-size:10px;color:#64748b">${s.desc}</div>
       </div>
-    </label>`).join('');
+    </label>`;
+  }).join('');
 }
 
 function getSezioniSelezionate(){
@@ -2062,6 +2064,9 @@ function importaJSON(event){
   reader.onload=e=>{
     try{
       const data=JSON.parse(e.target.result);
+      // Aggiorna i checkbox mostrando solo le sezioni presenti nel JSON
+      const sezioniPresenti = IE_SEZIONI.map(s=>s.id).filter(id=>data[id]!==undefined);
+      renderIESezioni(sezioniPresenti.length>0 ? sezioniPresenti : null);
       const sezioni=getSezioniSelezionate();
       const msgs=[];
 
@@ -2920,17 +2925,19 @@ td{padding:5px 8px;border:1px solid #ddd;vertical-align:middle}
 // ══════════════════════════════════════════════════ SYNC GITHUB
 let syncConfig = null;
 
-function renderSyncSezioni(){
+function renderSyncSezioni(availableSezioni){
   const el = document.getElementById('sync-sezioni');
   if(!el) return;
-  el.innerHTML = IE_SEZIONI.map(s=>`
-    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:4px 0">
-      <input type="checkbox" id="sync-chk-${s.id}" checked style="width:13px;height:13px;cursor:pointer;flex-shrink:0">
+  el.innerHTML = IE_SEZIONI.map(s=>{
+    const avail = !availableSezioni || availableSezioni.includes(s.id);
+    return `<label style="display:flex;align-items:center;gap:6px;cursor:${avail?'pointer':'not-allowed'};padding:4px 0;opacity:${avail?'1':'0.35'}">
+      <input type="checkbox" id="sync-chk-${s.id}" ${avail?'checked':''} ${avail?'':'disabled'} style="width:13px;height:13px;cursor:${avail?'pointer':'not-allowed'};flex-shrink:0">
       <div>
-        <div style="font-size:11px;color:#e2e8f0">${s.label}</div>
+        <div style="font-size:11px;color:${avail?'#e2e8f0':'#475569'}">${s.label}${avail?'':' <span style="font-size:9px;color:#1e3a5f">—</span>'}</div>
         <div style="font-size:9px;color:#475569">${s.desc}</div>
       </div>
-    </label>`).join('');
+    </label>`;
+  }).join('');
 }
 
 function getSyncSezioniSelezionate(){
@@ -3115,6 +3122,9 @@ async function syncPull(path, filename){
     const file = await res.json();
     const text = decodeURIComponent(escape(atob(file.content.replace(/\n/g,''))));
     const data = JSON.parse(text);
+    // Aggiorna i checkbox mostrando solo le sezioni presenti nel JSON
+    const sezioniPresenti = IE_SEZIONI.map(s=>s.id).filter(id=>data[id]!==undefined);
+    if(sezioniPresenti.length>0) renderSyncSezioni(sezioniPresenti);
     const sezioni = getSyncSezioniSelezionate();
     importaStato(data, sezioni);
     renderTutti();
@@ -3199,11 +3209,46 @@ async function verificaSyncRemoto(){
 
 async function ripristinaUltimaSessione(){
   const banner = document.getElementById('session-banner');
-  // Se è un sync remoto, fai pull
-  if(banner.dataset.syncPath){
-    await syncPull(banner.dataset.syncPath, banner.dataset.syncName);
+  if(!banner.dataset.syncPath){ chiudiBannerSessione(); return; }
+
+  // Assicura che syncConfig sia disponibile
+  if(!syncConfig){
+    alert('⚠ Configura prima la sincronizzazione nel tab ☁ Sync.');
+    return;
   }
-  chiudiBannerSessione();
+
+  // Mostra indicazione visiva nel banner stesso
+  const btn = banner.querySelector('button');
+  const origText = btn ? btn.textContent : '';
+  if(btn){ btn.textContent = '⏳ Scaricamento...'; btn.disabled = true; }
+
+  try{
+    const path = banner.dataset.syncPath;
+    const filename = banner.dataset.syncName;
+    const apiUrl = `https://api.github.com/repos/${syncConfig.repo}/contents/${path}?ref=${syncConfig.branch}`;
+    const res = await fetch(apiUrl, {headers: ghHeaders()});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const file = await res.json();
+    const text = decodeURIComponent(escape(atob(file.content.replace(/
+/g,''))));
+    const data = JSON.parse(text);
+    // Usa tutte le sezioni disponibili (non dipende dal tab Sync)
+    const sezioni = IE_SEZIONI.map(s=>s.id);
+    importaStato(data, sezioni);
+    renderTutti();
+    schedulaSalvataggio();
+    chiudiBannerSessione();
+    // Feedback visibile nella pagina
+    const fb = document.createElement('div');
+    fb.textContent = `✓ Caricato dal repo: ${filename}`;
+    fb.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#166534;color:#4ade80;padding:10px 20px;border-radius:6px;font-size:12px;z-index:9999;pointer-events:none';
+    document.body.appendChild(fb);
+    setTimeout(()=>fb.remove(), 3000);
+  } catch(e){
+    if(btn){ btn.textContent = origText; btn.disabled = false; }
+    dbg('Banner pull error: '+e.message, true);
+    alert('⚠ Errore durante il caricamento: '+e.message);
+  }
 }
 
 function chiudiBannerSessione(){
