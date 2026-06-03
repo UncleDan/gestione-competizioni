@@ -110,7 +110,7 @@ h1{
 <div id="sw-status"></div>
 
 <div class="footer">
-  <div>Launcher v 1.6 · 2026 · uncledan.it</div>
+  <div>Launcher v 1.7 · 2026 · uncledan.it</div>
   <div style="margin-top:4px;color:#1e3a5f">sw.js v 1.3 · manifest v 1.1</div>
 </div>
 
@@ -122,40 +122,42 @@ h1{
 <script>
 const BASE = '/gestione-competizioni';
 
-// Versioni attualmente in cache — aggiornare ad ogni release
-const CURRENT_VERSIONS = {
-  'finali.html':    '1.6',
-  'pwa/index.html': '1.6',
-  'sw.js':          '1.3',
-  'manifest.json':  '1.0',
-};
-
 async function verificaAggiornamenti(){
   const btn = document.getElementById('check-update-btn');
   btn.textContent = '🔄 Controllo in corso...';
   btn.className = 'checking';
   try {
+    // Versione in cache (quello che l'utente ha ora)
+    const cached  = await caches.match(`${BASE}/versions.json`);
+    const current = cached ? await cached.json() : null;
+
+    // Versione remota — sempre fresh, bypassa la cache
     const res = await fetch(`${BASE}/versions.json?_=${Date.now()}`);
     if(!res.ok) throw new Error('HTTP '+res.status);
     const remote = await res.json();
 
-    const aggiornamenti = Object.entries(remote).filter(([k,v])=>
-      CURRENT_VERSIONS[k] && CURRENT_VERSIONS[k] !== v
-    );
+    if(!current){
+      // Prima installazione: nessuna cache da confrontare
+      btn.textContent = '✓ Prima installazione';
+      btn.className = 'updated';
+      setTimeout(()=>{ btn.textContent='🔄 Verifica aggiornamenti'; btn.className=''; },3000);
+      return;
+    }
+
+    const aggiornamenti = Object.entries(remote).filter(([k,v]) => current[k] !== v);
 
     if(aggiornamenti.length === 0){
       btn.textContent = '✓ Tutto aggiornato';
       btn.className = 'updated';
       setTimeout(()=>{ btn.textContent='🔄 Verifica aggiornamenti'; btn.className=''; },3000);
     } else {
-      const lista = aggiornamenti.map(([k,v])=>`${k}: ${CURRENT_VERSIONS[k]} → ${v}`).join('\n');
-      mostraToast('Aggiornamento disponibile');
+      mostraToast(`Aggiornamento disponibile (${aggiornamenti.length} file)`);
       btn.textContent = `⬆ ${aggiornamenti.length} aggiornament${aggiornamenti.length>1?'i':'o'}`;
       btn.className = '';
-      // Force SW update
+      // Forza aggiornamento SW
       if('serviceWorker' in navigator){
         const reg = await navigator.serviceWorker.getRegistration(`${BASE}/`);
-        if(reg) reg.update();
+        if(reg) await reg.update();
       }
     }
   } catch(err){
