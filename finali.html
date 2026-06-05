@@ -151,7 +151,7 @@ button,input,select{font-family:Georgia,serif}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:#475569;letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">3.1.1</span>
+    finali.html v <span id="ver-num">3.1.2</span>
     <span id="ver-update" style="display:none;color:#f59e0b;margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -460,12 +460,12 @@ window.onerror=function(msg,src,line,col,err){
 </script>
 
 <script>
-const VERSION = '3.1.1'; // Aggiornare ad ogni release
+const VERSION = '3.1.2'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '3.1.1',
+  'finali.html':    '3.1.2',
   'pwa/index.html': '1.9',
   'sw.js':          '1.5',
   'manifest.json':  '1.3',
@@ -3009,7 +3009,7 @@ async function caricaConfigSync(event){
     }
     syncConfig = cfg;
     // Salva in sessionStorage (non persiste tra sessioni — sicurezza)
-    sessionStorage.setItem('syncConfig', JSON.stringify(cfg));
+    localStorage.setItem('syncConfig', JSON.stringify(cfg));
     aggiornaConfigStatus();
     syncListFiles();
   } catch(e){
@@ -3040,7 +3040,7 @@ function aggiornaConfigStatus(){
 function disconnettiSync(){
   if(!confirm('Scollegare il repository sync?\nLa configurazione verrà rimossa dalla sessione corrente.')) return;
   syncConfig = null;
-  sessionStorage.removeItem('syncConfig');
+  localStorage.removeItem('syncConfig');
   aggiornaConfigStatus();
   syncFeedback('✓ Repository scollegato','#4ade80');
 }
@@ -3202,7 +3202,7 @@ async function syncPull(path, filename){
 
 // Ripristina config da sessionStorage se presente
 (()=>{
-  const saved = sessionStorage.getItem('syncConfig');
+  const saved = localStorage.getItem('syncConfig');
   if(saved){ try{ syncConfig=JSON.parse(saved); }catch(e){} }
 })();
 
