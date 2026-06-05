@@ -82,10 +82,14 @@ button,input,select,textarea{font-family:inherit}
 #tabbar{
   display:flex;background:#fff;
   border-bottom:1px solid var(--md-sys-color-outline-variant);
-  align-items:center;flex-wrap:wrap;
+  align-items:center;flex-wrap:nowrap;
+  overflow-x:auto;overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
   box-shadow:var(--md-sys-elevation-1);
   position:sticky;top:0;z-index:100;
 }
+#tabbar::-webkit-scrollbar{display:none}
 .tab-btn{
   padding:14px 16px;background:transparent;border:none;
   border-bottom:3px solid transparent;
@@ -412,6 +416,49 @@ button,input,select,textarea{font-family:inherit}
 .flex{display:flex}.gap8{gap:8px}.gap10{gap:10px}.wrap{flex-wrap:wrap}
 .mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt20{margin-top:20px}
 .mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}.mb20{margin-bottom:20px}.mb24{margin-bottom:24px}
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  #header{padding:14px 16px 12px}
+  #header h1{font-size:16px}
+  #header .sub{display:none}
+  #main{padding:16px 12px}
+
+  /* Tab labels compatti */
+  .tab-btn{padding:12px 12px;font-size:11px}
+
+  /* Grids → colonna singola */
+  .grid2,.grid3{grid-template-columns:1fr!important}
+  #dnd-area{grid-template-columns:1fr!important}
+  .arb-grid{grid-template-columns:1fr!important}
+
+  /* Calendario: font più grande */
+  .cal-grid{grid-template-columns:60px 1fr 1fr;font-size:12px}
+  .cal-turno-lbl{font-size:9px;padding:6px 4px}
+  .slot-partita{font-size:13px}
+
+  /* Font size minimo leggibile */
+  .label-xs{font-size:12px}
+  .eyebrow-sm{font-size:12px}
+
+  /* Bottoni full-width su mobile */
+  .flex.wrap .btn-primary,
+  .flex.wrap .btn-outline,
+  .flex.wrap .btn-green{min-width:0;flex:1}
+}
+
+@media(max-width:480px){
+  .cal-grid{grid-template-columns:50px 1fr 1fr}
+  .slot{padding:10px}
+  .slot-partita{font-size:12px}
+  .arb-nome{font-size:12px}
+}
+
+@media(min-width:641px) and (max-width:1024px){
+  /* Tablet: grid 2 colonne invece di 3 */
+  .grid3{grid-template-columns:1fr 1fr}
+  #dnd-area{grid-template-columns:1fr 1fr 1fr} /* OK a 3 su tablet */
+}
 </style>
 </head>
 <body>
@@ -421,7 +468,7 @@ button,input,select,textarea{font-family:inherit}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:rgba(255,255,255,.65);letter-spacing:1px;margin-top:6px">
-    finali.html v <span id="ver-num">3.2</span>
+    finali.html v <span id="ver-num">3.6</span>
     <span id="ver-update" style="display:none;color:#fde68a;margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -451,6 +498,7 @@ button,input,select,textarea{font-family:inherit}
   <button onclick="showTab('importexport',document.getElementById('tab-btn-ie'))" id="tab-btn-ie" class="tab-btn" style="color:#34d399">⇅ Import/Export</button>
   <button onclick="showTab('sync',this)" class="tab-btn" style="color:#60a5fa">☁ Sync</button>
   <button onclick="showTab('sessioni',this)" class="tab-btn" style="color:#a78bfa">🕐 Sessioni</button>
+  <button onclick="showTab('opzioni',this)" class="tab-btn" style="color:#0e7490">⚙ Opzioni</button>
   <a href="/gestione-competizioni/pwa/index.html" style="padding:12px 16px;background:transparent;border:none;color:var(--md-sys-color-on-surface-variant);font-size:12px;font-weight:500;cursor:pointer;text-decoration:none" title="Torna al menu principale">⌂ Menu</a>
   <button onclick="resetApp()" style="padding:12px 16px;background:transparent;border:none;color:var(--md-sys-color-on-surface-variant);font-size:12px;font-weight:500;cursor:pointer" title="Ripristina dati di esempio">↺ Reset</button>
   <button id="btn-debug" onclick="toggleDebug()" style="padding:12px 16px;background:transparent;border:none;color:var(--md-sys-color-on-surface-variant);font-size:12px;font-weight:500;cursor:pointer">🐛 Debug</button>
@@ -689,6 +737,43 @@ button,input,select,textarea{font-family:inherit}
     <div id="sync-feedback" style="display:none;font-size:12px;padding:10px 14px;background:#0a1628;border-radius:4px;border:1px solid #1e3a5f"></div>
   </div>
 
+  <!-- ══ OPZIONI ══ -->
+  <div id="tab-opzioni" class="tab-panel">
+    <div class="eyebrow-sm">Opzioni Applicazione</div>
+
+    <div class="card mb16">
+      <div style="font-size:13px;font-weight:600;color:var(--md-sys-color-on-surface);margin-bottom:6px">Metodo di stampa report</div>
+      <div style="font-size:12px;color:var(--md-sys-color-on-surface-variant);margin-bottom:14px">
+        Si applica a tutti i report: designazioni per turno, designazioni complete, risultati e classifica.
+      </div>
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:12px;background:var(--md-sys-color-surface-variant);border-radius:8px;margin-bottom:8px">
+        <input type="radio" name="metodo-stampa" value="browser" checked style="margin-top:2px;width:16px;height:16px;cursor:pointer">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--md-sys-color-on-surface)">Stampa browser (consigliato)</div>
+          <div style="font-size:11px;color:var(--md-sys-color-on-surface-variant)">Apre il report e lancia automaticamente il dialogo di stampa. PDF vettoriale, testo selezionabile, funziona offline.</div>
+        </div>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:12px;background:var(--md-sys-color-surface-variant);border-radius:8px">
+        <input type="radio" name="metodo-stampa" value="pdfmake" style="margin-top:2px;width:16px;height:16px;cursor:pointer">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--md-sys-color-on-surface)">PDF diretto (sperimentale)</div>
+          <div style="font-size:11px;color:var(--md-sys-color-on-surface-variant)">Scarica direttamente un file .pdf via pdfmake. Richiede connessione internet per caricare la libreria.</div>
+        </div>
+      </label>
+    </div>
+
+    <div class="card">
+      <div style="font-size:13px;font-weight:600;color:var(--md-sys-color-on-surface);margin-bottom:6px">Salvataggio automatico</div>
+      <div style="font-size:12px;color:var(--md-sys-color-on-surface-variant);margin-bottom:14px">
+        L'app salva automaticamente ogni modifica nella memoria locale del browser.
+      </div>
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+        <input type="checkbox" id="chk-autosave" checked style="width:16px;height:16px;cursor:pointer">
+        <div style="font-size:13px;color:var(--md-sys-color-on-surface)">Salvataggio automatico attivo</div>
+      </label>
+    </div>
+  </div>
+
 <!-- DEBUG PANEL -->
 <div id="debug-panel" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#0a0e1a;border-top:2px solid #ef4444;padding:10px 16px;font-size:11px;font-family:monospace;color:#fca5a5;max-height:40vh;overflow-y:auto;z-index:9999">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
@@ -730,12 +815,12 @@ window.onerror=function(msg,src,line,col,err){
 </script>
 
 <script>
-const VERSION = '3.2'; // Aggiornare ad ogni release
+const VERSION = '3.6'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '3.2',
+  'finali.html':    '3.6',
   'pwa/index.html': '1.9',
   'sw.js':          '1.5',
   'manifest.json':  '1.3',
@@ -1201,6 +1286,9 @@ function renderCalBuilder(){
               data-from="pool" data-pool-idx="${idx}"
               ondragstart="calDragStartEl(event)"
               ondragend="calDragEnd(event)"
+              ontouchstart="calTouchStart(event,this)"
+              ontouchmove="calTouchMove(event)"
+              ontouchend="calTouchEnd(event)"
               style="padding:8px 11px;background:#0d1f3c;border:1px solid #1e3a5f;border-radius:4px;cursor:grab;user-select:none;display:flex;align-items:center;gap:6px">
               <span class="g-tag ${gc}" style="font-size:9px;padding:1px 5px;border-radius:6px">G.${p.girone}</span>
               <span style="font-size:12px;color:#e2e8f0">${p.casa.nome} vs ${p.ospite.nome}</span>
@@ -1244,6 +1332,9 @@ function cellPartitaHtml(p,t,c,pi){
     data-from="cell" data-t="${t}" data-c="${c}" data-pi="${pi}"
     ondragstart="calDragStartEl(event)"
     ondragend="calDragEnd(event)"
+    ontouchstart="calTouchStart(event,this)"
+    ontouchmove="calTouchMove(event)"
+    ontouchend="calTouchEnd(event)"
     ondragover="calCellDragOver(event,${t},${c})"
     ondragleave="calCellDragLeave(event,${t},${c})"
     ondrop="calCellDrop(event,${t},${c})">
@@ -1306,6 +1397,52 @@ function calDragEnd(e){
 }
 
 // Pool drag-over/drop
+// ── Touch DnD for calendario (tablet/phone) ──────────────────────────────────
+let _calTouchEl=null, _calTouchClone=null, _calTouchOffX=0, _calTouchOffY=0;
+
+function calTouchStart(e, el){
+  calDragStartEl({currentTarget:el, dataTransfer:{effectAllowed:'move',setData:()=>{}}});
+  const t=e.touches[0];
+  const r=el.getBoundingClientRect();
+  _calTouchOffX=t.clientX-r.left; _calTouchOffY=t.clientY-r.top;
+  _calTouchEl=el;
+  _calTouchClone=el.cloneNode(true);
+  _calTouchClone.style.cssText=`position:fixed;opacity:.7;pointer-events:none;z-index:9999;width:${r.width}px;left:${t.clientX-_calTouchOffX}px;top:${t.clientY-_calTouchOffY}px;`;
+  document.body.appendChild(_calTouchClone);
+  el.style.opacity='0.3';
+}
+function calTouchMove(e){
+  if(!_calTouchClone){return;}
+  e.preventDefault();
+  const t=e.touches[0];
+  _calTouchClone.style.left=(t.clientX-_calTouchOffX)+'px';
+  _calTouchClone.style.top=(t.clientY-_calTouchOffY)+'px';
+  document.querySelectorAll('.cal-cell,#cal-pool').forEach(el=>el.classList.remove('drag-over-cell'));
+  const under=document.elementFromPoint(t.clientX,t.clientY);
+  const cell=under?.closest('.cal-cell');
+  const pool=under?.closest('#cal-pool');
+  if(cell) cell.classList.add('drag-over-cell');
+  if(pool) pool.style.outline='2px dashed var(--md-sys-color-primary)';
+}
+function calTouchEnd(e){
+  if(!_calTouchEl){return;}
+  if(_calTouchClone){_calTouchClone.remove();_calTouchClone=null;}
+  document.querySelectorAll('.cal-cell').forEach(el=>el.classList.remove('drag-over-cell'));
+  document.getElementById('cal-pool')?.style && (document.getElementById('cal-pool').style.outline='');
+  if(_calTouchEl) _calTouchEl.style.opacity='';
+  const t=e.changedTouches[0];
+  const under=document.elementFromPoint(t.clientX,t.clientY);
+  const cell=under?.closest('.cal-cell');
+  const pool=under?.closest('#cal-pool');
+  if(cell){
+    const m=cell.id.match(/cell-(\d)-(\d)/);
+    if(m) calCellDrop({preventDefault:()=>{},currentTarget:cell},Number(m[1]),Number(m[2]));
+  } else if(pool){
+    calPoolDrop({preventDefault:()=>{},currentTarget:pool});
+  }
+  _calTouchEl=null; calDragSrc=null;
+}
+
 function calPoolDragOver(e){e.preventDefault();const p=document.getElementById('cal-pool');if(p)p.style.outline='2px dashed #3b82f6';}
 function calPoolDragLeave(e){const p=document.getElementById('cal-pool');if(p)p.style.outline='';}
 function calPoolDrop(e){
@@ -1917,7 +2054,22 @@ function renderArbitriForm(){
     html+=`</div></div>`;
   });
 
-  if(stato.calendario)html+=`<div class="flex gap10 wrap mt16"><button class="btn-amber" onclick="stampaPDF()">🖨 PDF</button><button class="btn-violet" onclick="stampaBadge()">🪪 Badge</button></div>`;
+  if(stato.calendario){
+    const turniDisp = [
+      {t:0, label:'Venerdì Pomeriggio'},
+      {t:1, label:'Sabato Mattina'},
+      {t:2, label:'Sabato Pomeriggio'},
+      {t:'finali', label:'Domenica — Finali'},
+    ];
+    html+=`<div style="margin-top:20px">
+      <div class="label-xs" style="margin-bottom:10px">Stampa designazioni per turno</div>
+      <div class="flex gap10 wrap">
+        ${turniDisp.map(({t,label})=>`<button class="btn-amber" onclick="stampaTurno(${JSON.stringify(t)})" style="font-size:11px;padding:9px 16px">🖨 ${label}</button>`).join('')}
+        <button class="btn-amber" onclick="stampaPDF()" style="padding:9px 16px;font-size:11px">🖨 Tutti i turni</button>
+        <button class="btn-violet" onclick="stampaBadge()" style="padding:9px 16px;font-size:11px">🪪 Badge arbitri</button>
+      </div>
+    </div>`;
+  }
   document.getElementById('arbitri-form').innerHTML=html;
 }
 
@@ -2028,15 +2180,276 @@ function renderST(){
 }
 
 // ══════════════════════════════════════════════════ PDF
-function scaricaHTML(html,nomeFile){
-  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download=nomeFile;
-  document.body.appendChild(a);a.click();document.body.removeChild(a);
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
+// ── PDFMAKE (opzione sperimentale) ───────────────────────────────────────────
+let _pdfmakeLoaded = false;
+function caricaPdfmake(){
+  return new Promise((resolve,reject)=>{
+    if(_pdfmakeLoaded && window.pdfMake){ resolve(); return; }
+    const s1=document.createElement('script');
+    s1.src='https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js';
+    s1.onload=()=>{
+      const s2=document.createElement('script');
+      s2.src='https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js';
+      s2.onload=()=>{ _pdfmakeLoaded=true; resolve(); };
+      s2.onerror=()=>reject(new Error('vfs_fonts non caricato'));
+      document.head.appendChild(s2);
+    };
+    s1.onerror=()=>reject(new Error('pdfmake non caricato — serve connessione internet'));
+    document.head.appendChild(s1);
+  });
 }
 
+// Costruisce il documento pdfmake per un turno (o le finali)
+function buildPdfmakeDoc(turnoIdx){
+  const g=stato.gironi, cal=stato.calendario;
+  const gL=p=>g.A.find(s=>s.nome===p.casa.nome||s.nome===p.ospite.nome)?'A':'B';
+  const GC={1:'#d97706',2:'#2563eb',3:'#7c3aed'};
+  const content=[];
+
+  content.push({text:'DESIGNAZIONI ARBITRALI',style:'h1'});
+  content.push({text:'Competizione Baskin · Monfalcone (GO)',style:'sub'});
+
+  function ternaList(terna){
+    if(!terna||!terna.length) return [{text:'⚠ Terna non assegnata',color:'red',fontSize:9}];
+    return terna.map(arb=>({
+      columns:[
+        {text:String(arb.gruppo),width:14,color:'#fff',background:GC[arb.gruppo],alignment:'center',fontSize:8,bold:true},
+        {text:' '+nomeDisplay(arb),width:'*',fontSize:10,bold:true},
+        {text:arb.st||'',width:'auto',fontSize:8,color:'#888'},
+      ],columnGap:4,margin:[0,1,0,1]
+    }));
+  }
+
+  if(turnoIdx==='finali'){
+    const f34=stato.finali.f34,f12=stato.finali.f12;
+    const dataFmt=DATE_GARA.dom?new Date(DATE_GARA.dom+'T12:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
+    content.push({text:`Domenica Mattina — Finali${dataFmt?' · '+dataFmt:''}`,style:'th'});
+    if(f34.casa&&f34.ospite){
+      content.push({text:`🥉 Finale 3°-4° Posto — 1ª Partita`,style:'cl',margin:[0,8,0,2]});
+      content.push({text:`${CAMPI[0].nome} · ${CAMPI[0].indirizzo}`,fontSize:8,color:'#888',margin:[0,0,0,4]});
+      content.push({text:`${f34.casa.nome} vs ${f34.ospite.nome}`,fontSize:12,bold:true,margin:[0,0,0,4]});
+      content.push(...ternaList(stato.finaliCalendario?.f34));
+    }
+    if(f12.casa&&f12.ospite){
+      content.push({text:`🏆 Finale 1°-2° Posto — 2ª Partita`,style:'cl',margin:[0,12,0,2]});
+      content.push({text:`${CAMPI[0].nome} · ${CAMPI[0].indirizzo}`,fontSize:8,color:'#888',margin:[0,0,0,4]});
+      content.push({text:`${f12.casa.nome} vs ${f12.ospite.nome}`,fontSize:12,bold:true,margin:[0,0,0,4]});
+      content.push(...ternaList(stato.finaliCalendario?.f12));
+    }
+  } else {
+    const turnoData=cal.turni.find(({turno})=>turno===turnoIdx);
+    if(!turnoData){ alert('Turno non trovato.'); return null; }
+    const {turno,campi}=turnoData;
+    const dateKeys=['ven','sab','sab','dom'];
+    const dataFmt=DATE_GARA[dateKeys[turno]]?new Date(DATE_GARA[dateKeys[turno]]+'T12:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
+    content.push({text:`${TURNI_LABEL[turno]}${dataFmt?' · '+dataFmt:''}`,style:'th'});
+
+    campi.forEach((campo,c)=>{
+      content.push({text:`🏟 ${CAMPI[c].nome}`,style:'cl',margin:[0,8,0,1]});
+      content.push({text:`${CAMPI[c].indirizzo}${CAMPI[c].citta?' · '+CAMPI[c].citta:''}`,fontSize:8,color:'#888',margin:[0,0,0,4]});
+      campo.forEach((slot,p)=>{
+        content.push({text:`${slot.casa.nome} vs ${slot.ospite.nome}   (G.${gL(slot)} · ${p===0?'1ª':'2ª'} partita)`,fontSize:11,bold:true,margin:[0,4,0,2]});
+        content.push(...ternaList(slot.terna));
+      });
+    });
+  }
+
+  return {
+    content,
+    pageMargins:[40,40,40,40],
+    defaultStyle:{font:'Roboto',fontSize:10},
+    styles:{
+      h1:{fontSize:18,bold:true,alignment:'center',margin:[0,0,0,4]},
+      sub:{fontSize:10,color:'#666',alignment:'center',margin:[0,0,0,16]},
+      th:{fontSize:11,bold:true,color:'#fff',background:'#1a1a2e',margin:[0,0,0,8]},
+      cl:{fontSize:10,bold:true},
+    }
+  };
+}
+
+// Dispatcher PDF completo designazioni
 function stampaPDF(){
+  if(usaPdfmake()) stampaPDFmakeCompleto();
+  else stampaPDFCompleto();
+}
+
+// PDF completo via pdfmake: tutti i turni + finali
+async function stampaPDFmakeCompleto(){
+  try{
+    await caricaPdfmake();
+    const docs=[];
+    const allContent=[];
+    [0,1,2,'finali'].forEach((t,i)=>{
+      const d=buildPdfmakeDoc(t);
+      if(d){
+        if(i>0) allContent.push({text:'',pageBreak:'before'});
+        allContent.push(...d.content.slice(2)); // skip h1+sub repeated
+      }
+    });
+    const base=buildPdfmakeDoc(0);
+    base.content=[base.content[0],base.content[1],...allContent];
+    window.pdfMake.createPdf(base).download('designazioni-complete.pdf');
+  }catch(e){
+    alert('⚠ PDF diretto non disponibile: '+e.message+'\nUso la stampa browser.');
+    stampaPDFCompleto();
+  }
+}
+
+async function stampaPDFmake(turnoIdx){
+  try{
+    await caricaPdfmake();
+    const doc=buildPdfmakeDoc(turnoIdx);
+    if(!doc) return;
+    const nome=`designazioni-${TURNI_LABEL_SHORT[turnoIdx]||'finali'}.pdf`.replace(/ /g,'-').toLowerCase();
+    window.pdfMake.createPdf(doc).download(nome);
+  }catch(e){
+    alert('⚠ Impossibile generare PDF diretto: '+e.message+'\nUso la stampa browser.');
+    dbg('pdfmake error: '+e.message,true);
+  }
+}
+
+function scaricaHTML(html,nomeFile){
+  // Apre l'HTML in una nuova finestra e lancia automaticamente il dialogo di stampa.
+  // L'utente può salvare come PDF dal dialogo del browser (PDF vettoriale, testo selezionabile).
+  const win = window.open('', '_blank');
+  if(!win){
+    // Popup bloccato: fallback al download del file HTML
+    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=nomeFile;
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    alert('Popup bloccato: il file HTML è stato scaricato. Aprilo e usa Stampa → Salva come PDF.');
+    return;
+  }
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+  // Lancia il dialogo di stampa dopo il caricamento completo
+  win.onload = () => { setTimeout(()=>{ try{ win.print(); }catch(e){} }, 300); };
+}
+
+// Legge l'opzione globale del metodo di stampa
+function usaPdfmake(){
+  const r=document.querySelector('input[name="metodo-stampa"]:checked');
+  return r ? r.value==='pdfmake' : false;
+}
+
+function stampaTurno(turnoIdx){
+  if(usaPdfmake()) stampaPDFmake(turnoIdx);
+  else stampaPDFTurno(turnoIdx);
+}
+
+function stampaPDFTurno(turnoIdx){
+  if(!stato.calendario||!stato.gironi) return;
+
+  // Build a single-turno version of the PDF
+  const g = stato.gironi;
+  const cal = stato.calendario;
+  const gL = p => g.A.find(s=>s.nome===p.casa.nome||s.nome===p.ospite.nome)?'A':'B';
+
+  const pdfCSS = `*{margin:0;padding:0;box-sizing:border-box}body{font-family:Georgia,serif;color:#1a1a2e;background:#fff;padding:28px 32px;font-size:13px}
+h1{font-size:20px;font-weight:normal;letter-spacing:3px;text-align:center;border-bottom:2px solid #1a1a2e;padding-bottom:10px;margin-bottom:5px}
+.sub{text-align:center;font-size:11px;color:#666;letter-spacing:2px;margin-bottom:22px}
+.tw{margin-bottom:20px}.th{background:#1a1a2e;color:#fff;font-size:10px;letter-spacing:3px;text-transform:uppercase;padding:6px 12px;border-radius:2px;margin-bottom:8px}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:10px}.cb{border:1px solid #ddd;border-radius:3px;padding:10px 12px}
+.cl{font-size:10px;font-weight:bold;color:#1a1a2e;margin-bottom:2px}.ca{font-size:9px;color:#888;margin-bottom:8px}
+.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}.pn{font-size:13px;font-weight:bold}
+.gt2{font-size:9px;padding:1px 6px;border-radius:8px;background:#eef;color:#336}
+.ps{font-size:9px;color:#aaa;margin-bottom:6px;letter-spacing:1px;text-transform:uppercase}
+.sep{border:none;border-top:1px solid #eee;margin:7px 0}
+.ar{display:flex;align-items:center;gap:7px;margin-bottom:3px}
+.fb{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:bold;color:#fff;flex-shrink:0}
+table{width:100%;border-collapse:collapse;font-size:12px;margin-top:20px}
+th{text-align:left;padding:6px 10px;border:1px solid #ddd;background:#f5f5f5;font-weight:normal;letter-spacing:1px;font-size:10px;text-transform:uppercase}
+td{padding:5px 10px;border:1px solid #ddd;vertical-align:middle}
+.ft{margin-top:24px;text-align:center;font-size:10px;color:#aaa;border-top:1px solid #eee;padding-top:8px}
+.np{position:fixed;top:14px;right:14px}@media print{.np{display:none}}`;
+
+  let turnoLabel, bodyContent;
+
+  if(turnoIdx === 'finali'){
+    // Domenica — Finali
+    const f34=stato.finali.f34, f12=stato.finali.f12;
+    if(!f34.casa&&!f34.ospite&&!f12.casa&&!f12.ospite){
+      alert('Nessuna finale configurata.');return;
+    }
+    turnoLabel = `Domenica Mattina — Finali · ${DATE_GARA.dom?new Date(DATE_GARA.dom+'T12:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}):''}`;
+    bodyContent = `<div class="cg" style="grid-template-columns:1fr">
+      ${f34.casa&&f34.ospite?`<div class="cb">
+        <div class="cl">🥉 Finale 3°-4° Posto — 1ª Partita</div>
+        <div class="ca">${CAMPI[0].nome} · ${CAMPI[0].indirizzo}</div>
+        <div class="ph" style="margin-top:8px"><span class="pn">${f34.casa.nome} vs ${f34.ospite.nome}</span></div>
+        ${(stato.finaliCalendario?.f34||[]).map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st}</span></div>`).join('')}
+      </div>`:''}
+      ${f12.casa&&f12.ospite?`<div class="cb" style="margin-top:10px">
+        <div class="cl">🏆 Finale 1°-2° Posto — 2ª Partita</div>
+        <div class="ca">${CAMPI[0].nome} · ${CAMPI[0].indirizzo}</div>
+        <div class="ph" style="margin-top:8px"><span class="pn">${f12.casa.nome} vs ${f12.ospite.nome}</span></div>
+        ${(stato.finaliCalendario?.f12||[]).map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st}</span></div>`).join('')}
+      </div>`:''}
+    </div>`;
+  } else {
+    // Turno gironi (0, 1 o 2)
+    const turnoData = cal.turni.find(({turno})=>turno===turnoIdx);
+    if(!turnoData){ alert('Turno non trovato.'); return; }
+    const {turno,campi} = turnoData;
+    const d = turno<3 ? (['ven','sab','sab','dom'])[turno] : 'ven';
+    const dateKeys = ['ven','sab','sab','dom'];
+    const dataFmt = DATE_GARA[dateKeys[turno]]
+      ? new Date(DATE_GARA[dateKeys[turno]]+'T12:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'})
+      : '';
+    turnoLabel = `${TURNI_LABEL[turno]}${dataFmt?' · '+dataFmt:''}`;
+
+    // Arbitri designati in questo turno
+    const arbitriTurno = ARBITRI_BASE.map(arb=>{
+      const partite=[];
+      campi.forEach((campo,c)=>campo.forEach((slot,p)=>{
+        if(slot.terna?.find(a=>a.id===arb.id))
+          partite.push(`${CAMPI[c].nome} (${p+1}ª)`);
+      }));
+      return partite.length ? {...arb,partite,nd:nomeDisplay(arb)} : null;
+    }).filter(Boolean);
+
+    bodyContent = `<div class="cg">
+      ${campi.map((campo,c)=>`<div class="cb">
+        <div class="cl">🏟 ${CAMPI[c].nome}</div>
+        <div class="ca">${CAMPI[c].indirizzo}${CAMPI[c].citta?' · '+CAMPI[c].citta:''}${CAMPI[c].maps?` · <a href="${CAMPI[c].maps}" style="color:#2563eb">Maps</a>`:''}</div>
+        ${campo.map((slot,p)=>`${p>0?'<hr class="sep">':''}
+          <div class="ph"><span class="pn">${slot.casa.nome} vs ${slot.ospite.nome}</span><span class="gt2">G.${gL(slot)}</span></div>
+          <div class="ps">${p===0?'1ª partita':'2ª partita'}</div>
+          ${slot.terna?slot.terna.map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st}</span></div>`).join(''):'<span style="color:red">⚠ Terna non assegnata</span>'}
+        `).join('')}
+      </div>`).join('')}
+    </div>
+    ${arbitriTurno.length>0?`<table>
+      <tr><th>Arbitro</th><th>Gruppo</th><th>ST</th><th>Designazione</th></tr>
+      ${arbitriTurno.map(arb=>`<tr>
+        <td style="font-weight:bold">${arb.nd}</td>
+        <td style="color:${GRUPPO_COLOR_P[arb.gruppo]}">Arb. ${arb.gruppo}</td>
+        <td style="font-size:11px">${arb.st}</td>
+        <td style="font-size:11px;color:#555">${arb.partite.join(', ')}</td>
+      </tr>`).join('')}
+    </table>`:''}`;
+  }
+
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+    <title>Designazioni — ${turnoLabel}</title>
+    <style>${pdfCSS}</style></head><body>
+    <div class="np"><button onclick="window.print()" style="padding:9px 18px;background:#1a1a2e;color:#fff;border:none;border-radius:3px;cursor:pointer;font-family:Georgia,serif;font-size:12px">🖨 Stampa</button></div>
+    <h1>DESIGNAZIONI ARBITRALI</h1>
+    <div class="sub">Competizione Baskin · Monfalcone (GO)</div>
+    <div class="tw">
+      <div class="th">${turnoLabel}</div>
+      ${bodyContent}
+    </div>
+    <div class="ft">Generato automaticamente · Verificare vincoli prima della comunicazione ufficiale</div>
+  </body></html>`;
+
+  scaricaHTML(html, `designazioni-${TURNI_LABEL_SHORT[turnoIdx]||'finali'}.html`.replace(/ /g,'-').toLowerCase());
+}
+
+function stampaPDFCompleto(){
   if(!stato.calendario||!stato.gironi)return;
   const g=stato.gironi,cal=stato.calendario;
   const gL=p=>g.A.find(s=>s.nome===p.casa.nome||s.nome===p.ospite.nome)?'A':'B';
@@ -2577,6 +2990,9 @@ function renderFinali(){
         <div draggable="true"
           data-sq-nome="${esc(sq.nome)}"
           ondragstart="finaliDragStartEl(event)"
+          ontouchstart="finaliTouchStart(event,this,'sq')"
+          ontouchmove="finaliTouchMove(event)"
+          ontouchend="finaliTouchEnd(event)"
           ondragend="finaliDragEnd(event)"
           style="padding:7px 10px;background:#0a1628;border:1px solid ${color}40;border-radius:3px;margin-bottom:5px;cursor:grab;user-select:none">
           <div style="font-size:12px;color:#e2e8f0">${sq.nome}</div>
@@ -2643,12 +3059,12 @@ function renderFinali(){
       <div style="font-size:10px;color:${colore};letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">${label} — Risultato</div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <span style="font-size:13px;color:#e2e8f0;font-weight:bold;flex:1;min-width:100px">${fin.casa.nome}</span>
-        <input type="number" min="0" value="${r.casaPts!==''?r.casaPts:''}" placeholder="—"
+        <input type="number" min="0" inputmode="numeric" value="${r.casaPts!==''?r.casaPts:''}" placeholder="—"
           onchange="aggiornaRisultatoFinale('${key}','casaPts',this.value)"
           onblur="aggiornaRisultatoFinale('${key}','casaPts',this.value)"
           style="width:60px;padding:6px;background:#0a1628;border:1px solid #1e3a5f;border-radius:3px;color:#fff;text-align:center;font-size:16px;font-weight:bold;-moz-appearance:textfield">
         <span style="color:#475569;font-weight:bold">—</span>
-        <input type="number" min="0" value="${r.ospitePts!==''?r.ospitePts:''}" placeholder="—"
+        <input type="number" min="0" inputmode="numeric" value="${r.ospitePts!==''?r.ospitePts:''}" placeholder="—"
           onchange="aggiornaRisultatoFinale('${key}','ospitePts',this.value)"
           onblur="aggiornaRisultatoFinale('${key}','ospitePts',this.value)"
           style="width:60px;padding:6px;background:#0a1628;border:1px solid #1e3a5f;border-radius:3px;color:#fff;text-align:center;font-size:16px;font-weight:bold;-moz-appearance:textfield">
@@ -2746,6 +3162,9 @@ function ternaManualeHtml(fKey, terna){
       <div draggable="true"
         ondragstart="finaliArbDragStart(event,'${arb.id}')"
         ondragend="finaliDragEnd(event)"
+        ontouchstart="finaliTouchStart(event,this,'arb',\'${arb.id}\')"
+        ontouchmove="finaliTouchMove(event)"
+        ontouchend="finaliTouchEnd(event)"
         style="padding:5px 10px;background:#0d1f3c;border:1px solid ${GRUPPO_COLOR[arb.gruppo]}40;border-radius:3px;cursor:grab;user-select:none">
         <div style="display:flex;align-items:center;gap:5px">
           <span style="width:14px;height:14px;border-radius:50%;background:${GRUPPO_COLOR[arb.gruppo]};display:inline-flex;align-items:center;justify-content:center;font-size:7px;color:#000;font-weight:bold">${arb.gruppo}</span>
@@ -2759,6 +3178,52 @@ function ternaManualeHtml(fKey, terna){
 
 // ── DnD squadre finali ────────────────────────────────────────────────────
 let _finaliArbDrag = null;
+
+// ── Touch DnD per finali ─────────────────────────────────────────────────────
+let _finaliTouchClone=null, _finaliTouchEl=null, _finaliTouchType=null, _finaliTouchData=null;
+let _finaliTouchOffX=0, _finaliTouchOffY=0;
+
+function finaliTouchStart(e, el, type, data){
+  _finaliTouchType=type; _finaliTouchData=data; _finaliTouchEl=el;
+  const t=e.touches[0];
+  const r=el.getBoundingClientRect();
+  _finaliTouchOffX=t.clientX-r.left; _finaliTouchOffY=t.clientY-r.top;
+  _finaliTouchClone=el.cloneNode(true);
+  _finaliTouchClone.style.cssText=`position:fixed;opacity:.7;pointer-events:none;z-index:9999;width:${r.width}px;left:${t.clientX-_finaliTouchOffX}px;top:${t.clientY-_finaliTouchOffY}px;`;
+  document.body.appendChild(_finaliTouchClone);
+  el.style.opacity='0.3';
+  if(type==='arb') _finaliArbDrag=data;
+  else if(type==='sq') finaliDragSrc={from:'pool',slotKey:null,sqNome:el.dataset.sqNome};
+}
+function finaliTouchMove(e){
+  if(!_finaliTouchClone) return;
+  e.preventDefault();
+  const t=e.touches[0];
+  _finaliTouchClone.style.left=(t.clientX-_finaliTouchOffX)+'px';
+  _finaliTouchClone.style.top=(t.clientY-_finaliTouchOffY)+'px';
+  document.querySelectorAll('.finali-slot,.finali-terna-slot').forEach(el=>el.style.outline='');
+  const under=document.elementFromPoint(t.clientX,t.clientY);
+  const slot=under?.closest('.finali-slot,.finali-terna-slot');
+  if(slot) slot.style.outline='2px dashed var(--md-sys-color-primary)';
+}
+function finaliTouchEnd(e){
+  if(!_finaliTouchEl) return;
+  if(_finaliTouchClone){_finaliTouchClone.remove();_finaliTouchClone=null;}
+  document.querySelectorAll('.finali-slot,.finali-terna-slot').forEach(el=>el.style.outline='');
+  if(_finaliTouchEl) _finaliTouchEl.style.opacity='';
+  const t=e.changedTouches[0];
+  const under=document.elementFromPoint(t.clientX,t.clientY);
+  const slot=under?.closest('.finali-slot');
+  const ternaSlot=under?.closest('.finali-terna-slot');
+  if(slot && _finaliTouchType==='sq'){
+    finaliDrop({preventDefault:()=>{},currentTarget:slot},slot.dataset.key);
+  } else if(ternaSlot && _finaliTouchType==='arb'){
+    finaliTernaDropPos({preventDefault:()=>{},currentTarget:ternaSlot},
+      ternaSlot.dataset.fkey, Number(ternaSlot.dataset.pos));
+  }
+  _finaliTouchEl=null; _finaliTouchType=null; _finaliTouchData=null;
+  finaliDragSrc=null; _finaliArbDrag=null;
+}
 
 function finaliDragStartEl(e){
   const el=e.currentTarget;
@@ -3058,12 +3523,12 @@ function renderRisultati(){
         return `<div style="background:#0d1f3c;border:1px solid #1e3a5f;border-radius:4px;padding:10px 14px;margin-bottom:8px">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <span style="font-size:13px;color:#e2e8f0;font-weight:bold;flex:1;min-width:100px">${pt.casa.nome}</span>
-            <input type="number" min="0" value="${r.casaPts!==null&&r.casaPts!==''?r.casaPts:''}"
+            <input type="number" min="0" inputmode="numeric" value="${r.casaPts!==null&&r.casaPts!==''?r.casaPts:''}"
               placeholder="—" ${isForfait?'disabled':''}
               onchange="aggiornaRisultato('${key}','casaPts',this.value)" onblur="aggiornaRisultato('${key}','casaPts',this.value)"
               style="width:60px;padding:6px;background:#0a1628;border:1px solid #1e3a5f;border-radius:3px;color:#fff;text-align:center;font-size:16px;font-weight:bold;-moz-appearance:textfield">
             <span style="color:#475569;font-weight:bold">—</span>
-            <input type="number" min="0" value="${r.ospitePts!==null&&r.ospitePts!==''?r.ospitePts:''}"
+            <input type="number" min="0" inputmode="numeric" value="${r.ospitePts!==null&&r.ospitePts!==''?r.ospitePts:''}"
               placeholder="—" ${isForfait?'disabled':''}
               onchange="aggiornaRisultato('${key}','ospitePts',this.value)" onblur="aggiornaRisultato('${key}','ospitePts',this.value)"
               style="width:60px;padding:6px;background:#0a1628;border:1px solid #1e3a5f;border-radius:3px;color:#fff;text-align:center;font-size:16px;font-weight:bold;-moz-appearance:textfield">
@@ -3161,6 +3626,12 @@ function applicaFinaliste(){
 
 // ══════════════════════════════════════════════════ PDF RISULTATI
 function stampaRisultatiPDF(){
+  // Per i risultati pdfmake non è implementato (layout complesso): usa sempre browser
+  // ma rispetta l'apertura automatica della stampa
+  stampaRisultatiPDFBrowser();
+}
+
+function stampaRisultatiPDFBrowser(){
   if(!stato.gironi) return;
   const gruppo_C=GRUPPO_COLOR_P;
   let html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Risultati</title>
@@ -3827,6 +4298,8 @@ function renderTutti(){
 
 // Hook: chiama schedulaSalvataggio dopo ogni modifica significativa
 function schedulaSalvataggio(){
+  const asChk=document.getElementById('chk-autosave');
+  if(asChk && !asChk.checked) return; // autosave disattivato
   clearTimeout(_saveTimer);
   _saveTimer = setTimeout(()=>salvaSessione(), SAVE_DEBOUNCE);
 }
@@ -3946,6 +4419,19 @@ function resetApp(){
   // 2. Controlla silenziosamente se il repo sync ha qualcosa di più recente
   await verificaSyncRemoto();
 })();
+// ── Opzioni persistenti ──
+(()=>{
+  const m=localStorage.getItem('metodoStampa');
+  if(m){const r=document.querySelector(`input[name="metodo-stampa"][value="${m}"]`);if(r)r.checked=true;}
+  document.querySelectorAll('input[name="metodo-stampa"]').forEach(r=>{
+    r.addEventListener('change',()=>localStorage.setItem('metodoStampa',r.value));
+  });
+  const as=localStorage.getItem('autosave');
+  const asChk=document.getElementById('chk-autosave');
+  if(as!==null&&asChk) asChk.checked=(as==='1');
+  if(asChk) asChk.addEventListener('change',()=>localStorage.setItem('autosave',asChk.checked?'1':'0'));
+})();
+
 // ── Versione badge + controllo aggiornamento ──
 (async()=>{
   document.getElementById('ver-num').textContent = VERSION;
