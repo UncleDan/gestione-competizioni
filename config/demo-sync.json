@@ -1,0 +1,12 @@
+{
+  "_nota": "Copia in sync-config.json e compila. Non committare sync-config.json.",
+  "provider": "github",
+  "repo": "UncleDan/gestione-competizioni-private",
+  "branch": "main",
+  "path": "saves",
+  "token": "IL_TUO_PERSONAL_ACCESS_TOKEN",
+  "user": "SIGLA_UTENTE",
+  "_campi_opzionali": {
+    "email": "utente@example.com (opzionale, default: user@gestione-competizioni.local)"
+  }
+}

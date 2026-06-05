@@ -1,0 +1,150 @@
+{
+  "_versione": 1,
+  "_nota": "File demo con dati fittizi. Sostituire con finali-2026.json per i dati reali.",
+  "squadre": [
+    {
+      "nome": "Reggio Emilia",
+      "citta": "Reggio Emilia",
+      "st": "Emilia-Romagna"
+    },
+    {
+      "nome": "Udine",
+      "citta": "Udine",
+      "st": "Friuli-Venezia Giulia"
+    },
+    {
+      "nome": "Cerrano",
+      "citta": "Cerrano",
+      "st": "Valle d'Aosta/Piemonte/Liguria"
+    },
+    {
+      "nome": "Schio",
+      "citta": "Schio",
+      "st": "Veneto"
+    },
+    {
+      "nome": "Bergamo",
+      "citta": "Bergamo",
+      "st": "Lombardia Est"
+    },
+    {
+      "nome": "Cremona",
+      "citta": "Cremona",
+      "st": "Lombardia Sud"
+    },
+    {
+      "nome": "Pesaro",
+      "citta": "Pesaro",
+      "st": "Marche"
+    },
+    {
+      "nome": "Siena",
+      "citta": "Siena",
+      "st": "Toscana"
+    }
+  ],
+  "arbitri": [
+    {
+      "id": "ER1",
+      "label": "Emilia-Romagna 1",
+      "fascia": 1,
+      "st": "Emilia-Romagna",
+      "cognome": "LANDI",
+      "nome": "Diego"
+    },
+    {
+      "id": "MA1",
+      "label": "Marche 1",
+      "fascia": 1,
+      "st": "Marche",
+      "cognome": "VECCHI",
+      "nome": "Matteo"
+    },
+    {
+      "id": "FV1",
+      "label": "FVG 1",
+      "fascia": 1,
+      "st": "Friuli-Venezia Giulia",
+      "cognome": "CONTE",
+      "nome": "Claudio"
+    },
+    {
+      "id": "VE1",
+      "label": "Veneto 1",
+      "fascia": 1,
+      "st": "Veneto",
+      "cognome": "BARDI",
+      "nome": "Giorgio"
+    },
+    {
+      "id": "LO2",
+      "label": "Lombardia",
+      "fascia": 2,
+      "st": "Lombardia Est",
+      "cognome": "LANDI",
+      "nome": "Maria Rita"
+    },
+    {
+      "id": "TO2",
+      "label": "Toscana",
+      "fascia": 2,
+      "st": "Toscana",
+      "cognome": "PRATI",
+      "nome": "Aldo"
+    },
+    {
+      "id": "VE2",
+      "label": "Veneto 2",
+      "fascia": 2,
+      "st": "Veneto",
+      "cognome": "LO VISCO",
+      "nome": "Alberto"
+    },
+    {
+      "id": "MA2",
+      "label": "Marche 2",
+      "fascia": 2,
+      "st": "Marche",
+      "cognome": "MELLI",
+      "nome": "Elia"
+    },
+    {
+      "id": "PI3",
+      "label": "Piemonte",
+      "fascia": 3,
+      "st": "Valle d'Aosta/Piemonte/Liguria",
+      "cognome": "CONTI",
+      "nome": "Luca"
+    },
+    {
+      "id": "LA3",
+      "label": "Lazio",
+      "fascia": 3,
+      "st": "Lazio",
+      "cognome": "SENSI",
+      "nome": "Alessio"
+    },
+    {
+      "id": "ER2",
+      "label": "Emilia-Romagna 2",
+      "fascia": 3,
+      "st": "Emilia-Romagna",
+      "cognome": "ANGELI",
+      "nome": "Claudio"
+    },
+    {
+      "id": "FV2",
+      "label": "FVG 2",
+      "fascia": 3,
+      "st": "Friuli-Venezia Giulia",
+      "cognome": "MARZO",
+      "nome": "Grazia"
+    }
+  ],
+  "_release": {
+    "finali.html": "2.9.1.1",
+    "pwa/index.html": "1.9",
+    "sw.js": "1.5",
+    "manifest.json": "1.3"
+  }
+}
