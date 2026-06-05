@@ -151,7 +151,7 @@ button,input,select{font-family:Georgia,serif}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:#475569;letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">2.9.1</span>
+    finali.html v <span id="ver-num">3.0</span>
     <span id="ver-update" style="display:none;color:#f59e0b;margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -449,12 +449,12 @@ window.onerror=function(msg,src,line,col,err){
 </script>
 
 <script>
-const VERSION = '2.9.1'; // Aggiornare ad ogni release
+const VERSION = '3.0'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '2.9.1',
+  'finali.html':    '3.0',
   'pwa/index.html': '1.9',
   'sw.js':          '1.5',
   'manifest.json':  '1.3',
@@ -1099,30 +1099,41 @@ function campoOccupato(arbId, campo, assT){
 //  2: conflitto macro-regione → rilassato a ST esatta (stessa macro ok, solo ST esatta vietata)
 //  3: conflitto ST esatta ammesso (qualsiasi conflitto territoriale ok)
 //  4: ST duplicate in terna ok (ultimo vincolo rilassabile)
+//
+// INTOCCABILE AGGIUNTIVO: ogni arbitro arbitra esattamente 1 partita per turno.
+// Con 12 arbitri e 3 turni × 4 partite, ogni arbitro compare una volta per turno.
+// Questo vincolo NON è mai derogabile — ha priorità su tutto tranne i gruppi.
 function* generaCoppie(p0,p1,cnt,assT,livello){
   const byF=f=>ARBITRI_BASE.filter(a=>a.gruppo===f&&cnt[a.id]<3);
   const f1=byF(1),f2=byF(2),f3=byF(3);
-  const okC=(a,p,campo)=>{
+
+  // Arbitri già usati in questo turno in qualsiasi campo — INTOCCABILE
+  const usatiTurno=new Set([...assT[0],...assT[1]]);
+
+  const okC=(a,p,campo,usati)=>{
+    // INTOCCABILE: 1 partita per turno per arbitro
+    if(usati.has(a.id))return false;
+    // Vincolo campo (derogabile)
     if(livello<1&&campoOccupato(a.id,campo,assT))return false;
-    // lv 0,1: no conflitto macro-regione
+    // Vincoli territoriali
     if(livello<2&&conflittoLasco(a,p))return false;
-    // lv 2: macro ok ma no conflitto ST esatta
     if(livello===2&&conflittoStretto(a,p))return false;
-    // lv>=3: qualsiasi conflitto territoriale ok
     return true;
   };
-  // ST duplicate in terna: vietato solo a lv<4
   const stOk=(a,b)=>livello>=4||a.st!==b.st;
-  for(const a1 of f1){ if(!okC(a1,p0,0))continue;
-    for(const a2 of f2){ if(!okC(a2,p0,0))continue;
+
+  for(const a1 of f1){ if(!okC(a1,p0,0,usatiTurno))continue;
+    for(const a2 of f2){ if(!okC(a2,p0,0,usatiTurno))continue;
       if(!stOk(a1,a2))continue;
-      for(const a3 of f3){ if(!okC(a3,p0,0))continue;
+      for(const a3 of f3){ if(!okC(a3,p0,0,usatiTurno))continue;
         if(!stOk(a1,a3)||!stOk(a2,a3))continue;
+        // Dopo la prima terna, questi sono usati nel turno
+        const usatiConT0=new Set([...usatiTurno,a1.id,a2.id,a3.id]);
         const u=new Set([a1.id,a2.id,a3.id]);
-        for(const b1 of f1){ if(u.has(b1.id)||!okC(b1,p1,1))continue;
-          for(const b2 of f2){ if(u.has(b2.id)||!okC(b2,p1,1))continue;
+        for(const b1 of f1){ if(u.has(b1.id)||!okC(b1,p1,1,usatiConT0))continue;
+          for(const b2 of f2){ if(u.has(b2.id)||!okC(b2,p1,1,usatiConT0))continue;
             if(!stOk(b1,b2))continue;
-            for(const b3 of f3){ if(u.has(b3.id)||!okC(b3,p1,1))continue;
+            for(const b3 of f3){ if(u.has(b3.id)||!okC(b3,p1,1,usatiConT0))continue;
               if(!stOk(b1,b3)||!stOk(b2,b3))continue;
               yield{terne:[[a1,a2,a3],[b1,b2,b3]],livello};
             }
