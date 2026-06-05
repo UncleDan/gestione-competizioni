@@ -8,457 +8,140 @@
 <meta name="theme-color" content="#3b82f6">
 <title>Baskin — Sorteggio & Designazioni</title>
 <style>
-/* ── NOTO SANS (FOSS, OFL) via Google Fonts CDN — fallback system fonts offline ── */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
-
-/* ── MD3 TOKENS ── */
-:root{
-  --md-sys-color-primary:#1a56db;
-  --md-sys-color-primary-container:#dbeafe;
-  --md-sys-color-on-primary:#fff;
-  --md-sys-color-on-primary-container:#1e3a8a;
-  --md-sys-color-secondary:#0e7490;
-  --md-sys-color-secondary-container:#e0f2fe;
-  --md-sys-color-tertiary:#7c3aed;
-  --md-sys-color-tertiary-container:#ede9fe;
-  --md-sys-color-error:#dc2626;
-  --md-sys-color-error-container:#fee2e2;
-  --md-sys-color-success:#16a34a;
-  --md-sys-color-success-container:#dcfce7;
-  --md-sys-color-warning:#d97706;
-  --md-sys-color-warning-container:#fef3c7;
-  --md-sys-color-surface:#f8fafc;
-  --md-sys-color-surface-variant:#f1f5f9;
-  --md-sys-color-surface-container:#e2e8f0;
-  --md-sys-color-surface-container-high:#cbd5e1;
-  --md-sys-color-outline:#94a3b8;
-  --md-sys-color-outline-variant:#e2e8f0;
-  --md-sys-color-on-surface:#0f172a;
-  --md-sys-color-on-surface-variant:#475569;
-  --md-sys-color-background:#f1f5f9;
-  --md-sys-shape-corner-small:6px;
-  --md-sys-shape-corner-medium:12px;
-  --md-sys-shape-corner-large:16px;
-  --md-sys-elevation-1:0 1px 3px rgba(0,0,0,.10),0 1px 2px rgba(0,0,0,.06);
-  --md-sys-elevation-2:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.06);
-  --md-sys-elevation-3:0 10px 15px rgba(0,0,0,.07),0 4px 6px rgba(0,0,0,.05);
-  --md-ref-typeface-brand:'Noto Sans','Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
-}
-
-/* ── RESET + BASE ── */
 *{margin:0;padding:0;box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{
-  font-family:var(--md-ref-typeface-brand);
-  font-size:14px;line-height:1.5;
-  background:var(--md-sys-color-background);
-  color:var(--md-sys-color-on-surface);
-  min-height:100vh;
-}
-button,input,select,textarea{font-family:inherit}
+body{font-family:Georgia,serif;background:linear-gradient(135deg,#0a0e1a,#0f172a,#0a1628);min-height:100vh;color:#e2e8f0}
+button,input,select{font-family:Georgia,serif}
 
-/* ── HEADER ── */
-#header{
-  background:var(--md-sys-color-primary);
-  padding:20px 24px 16px;text-align:center;
-  box-shadow:var(--md-sys-elevation-2);
-}
-#header .eyebrow{
-  font-size:11px;font-weight:500;letter-spacing:4px;
-  color:rgba(255,255,255,.75);text-transform:uppercase;margin-bottom:4px;
-}
-#header h1{
-  font-size:20px;font-weight:700;letter-spacing:.5px;color:#fff;
-}
-#header .sub{font-size:12px;color:rgba(255,255,255,.7);margin-top:4px;letter-spacing:.5px}
+#header{background:linear-gradient(90deg,#0f2044,#1a3a6e,#0f2044);border-bottom:2px solid #3b82f6;padding:18px 28px;text-align:center;position:relative;overflow:hidden}
+#header::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 60px,rgba(59,130,246,0.04) 60px,rgba(59,130,246,0.04) 61px);pointer-events:none}
+#header .eyebrow{font-size:10px;letter-spacing:6px;color:#60a5fa;text-transform:uppercase;margin-bottom:4px}
+#header h1{font-size:22px;font-weight:normal;letter-spacing:2px;color:#fff;position:relative}
+#header .sub{font-size:11px;color:#94a3b8;margin-top:4px;letter-spacing:1px}
 
-/* ── SESSION BANNER ── */
-#session-banner{
-  margin:0;background:#fff;border-left:4px solid var(--md-sys-color-primary);
-  border-radius:0;box-shadow:var(--md-sys-elevation-1);
-}
+#tabbar{display:flex;border-bottom:1px solid #1e3a5f;background:#0a1628;align-items:center;flex-wrap:wrap}
+.tab-btn{padding:12px 20px;background:transparent;border:none;border-bottom:2px solid transparent;color:#64748b;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;transition:all .2s;cursor:pointer}
+.tab-btn.active{background:#0f2044;border-bottom-color:#3b82f6;color:#fff}
+.tab-btn:disabled{opacity:.35;cursor:default}
+#btn-pdf{margin-left:auto;padding:12px 14px;background:transparent;border:none;color:#f59e0b;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer}
+#btn-badge{padding:12px 14px;background:transparent;border:none;color:#a78bfa;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer}
 
-/* ── TABBAR ── */
-#tabbar{
-  display:flex;background:#fff;
-  border-bottom:1px solid var(--md-sys-color-outline-variant);
-  align-items:center;flex-wrap:nowrap;
-  overflow-x:auto;overflow-y:hidden;
-  -webkit-overflow-scrolling:touch;
-  scrollbar-width:none;
-  box-shadow:var(--md-sys-elevation-1);
-  position:sticky;top:0;z-index:100;
-}
-#tabbar::-webkit-scrollbar{display:none}
-.tab-btn{
-  padding:14px 16px;background:transparent;border:none;
-  border-bottom:3px solid transparent;
-  color:var(--md-sys-color-on-surface-variant);
-  font-size:12px;font-weight:500;letter-spacing:.5px;
-  text-transform:uppercase;transition:all .15s;cursor:pointer;
-  white-space:nowrap;
-}
-.tab-btn:hover{background:var(--md-sys-color-surface-variant);color:var(--md-sys-color-on-surface)}
-.tab-btn.active{
-  border-bottom-color:var(--md-sys-color-primary);
-  color:var(--md-sys-color-primary);
-  background:var(--md-sys-color-primary-container);
-}
-.tab-btn:disabled{opacity:.38;cursor:default;pointer-events:none}
-#btn-pdf{margin-left:auto;padding:12px 14px;background:transparent;border:none;
-  color:var(--md-sys-color-warning);font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap}
-#btn-badge{padding:12px 14px;background:transparent;border:none;
-  color:var(--md-sys-color-tertiary);font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap}
-
-/* ── MAIN CONTENT ── */
 #main{max-width:1000px;margin:0 auto;padding:24px 16px}
 .tab-panel{display:none}.tab-panel.active{display:block}
 
-/* ── CARDS ── */
-.card{
-  background:#fff;
-  border:1px solid var(--md-sys-color-outline-variant);
-  border-radius:var(--md-sys-shape-corner-medium);
-  padding:16px;
-  box-shadow:var(--md-sys-elevation-1);
-}
-.card-top-blue{border-top:3px solid var(--md-sys-color-primary)}
-.card-top-green{border-top:3px solid var(--md-sys-color-success)}
+.card{background:#0d1f3c;border:1px solid #1e3a5f;border-radius:4px;padding:12px 16px}
+.card-top-blue{border-top:2px solid #3b82f6}
+.card-top-green{border-top:2px solid #22c55e}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.grid-auto{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.eyebrow-sm{font-size:10px;letter-spacing:4px;color:#64748b;text-transform:uppercase;margin-bottom:12px}
+.label-xs{font-size:9px;color:#475569;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
 
-/* ── LAYOUT HELPERS ── */
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-.grid-auto{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
-.eyebrow-sm{
-  font-size:11px;font-weight:600;letter-spacing:2px;
-  color:var(--md-sys-color-primary);text-transform:uppercase;margin-bottom:14px;
-}
-.label-xs{
-  font-size:11px;font-weight:500;
-  color:var(--md-sys-color-on-surface-variant);
-  letter-spacing:.5px;margin-bottom:4px;
-}
+.btn-primary{padding:12px 26px;background:linear-gradient(135deg,#1d4ed8,#3b82f6);border:none;border-radius:4px;color:#fff;font-size:12px;letter-spacing:2px;text-transform:uppercase;box-shadow:0 4px 18px rgba(59,130,246,.35);cursor:pointer}
+.btn-outline{padding:10px 20px;background:transparent;border:1px solid #3b82f6;border-radius:4px;color:#3b82f6;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer}
+.btn-green{padding:11px 22px;background:linear-gradient(135deg,#065f46,#22c55e);border:none;border-radius:3px;color:#fff;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer}
+.btn-amber{padding:10px 20px;background:linear-gradient(135deg,#92400e,#f59e0b);border:none;border-radius:4px;color:#fff;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer}
+.btn-violet{padding:10px 20px;background:linear-gradient(135deg,#4c1d95,#a78bfa);border:none;border-radius:4px;color:#fff;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer}
+.btn-sm{padding:4px 10px;border:none;border-radius:3px;font-size:11px;cursor:pointer;letter-spacing:1px}
 
-/* ── BUTTONS ── */
-.btn-primary{
-  padding:10px 24px;background:var(--md-sys-color-primary);
-  border:none;border-radius:20px;color:var(--md-sys-color-on-primary);
-  font-size:13px;font-weight:600;letter-spacing:.5px;
-  box-shadow:var(--md-sys-elevation-1);cursor:pointer;
-  transition:box-shadow .15s,filter .15s;
-}
-.btn-primary:hover{filter:brightness(1.08);box-shadow:var(--md-sys-elevation-2)}
-.btn-outline{
-  padding:9px 20px;background:transparent;
-  border:1.5px solid var(--md-sys-color-primary);
-  border-radius:20px;color:var(--md-sys-color-primary);
-  font-size:12px;font-weight:600;letter-spacing:.5px;cursor:pointer;
-  transition:background .15s;
-}
-.btn-outline:hover{background:var(--md-sys-color-primary-container)}
-.btn-green{
-  padding:10px 22px;background:var(--md-sys-color-success);
-  border:none;border-radius:20px;color:#fff;
-  font-size:12px;font-weight:600;letter-spacing:.5px;cursor:pointer;
-  transition:filter .15s;
-}
-.btn-green:hover{filter:brightness(1.08)}
-.btn-amber{
-  padding:9px 20px;background:var(--md-sys-color-warning);
-  border:none;border-radius:20px;color:#fff;
-  font-size:12px;font-weight:600;cursor:pointer;transition:filter .15s;
-}
-.btn-amber:hover{filter:brightness(1.08)}
-.btn-violet{
-  padding:9px 20px;background:var(--md-sys-color-tertiary);
-  border:none;border-radius:20px;color:#fff;
-  font-size:12px;font-weight:600;cursor:pointer;transition:filter .15s;
-}
-.btn-violet:hover{filter:brightness(1.08)}
-.btn-sm{
-  padding:4px 12px;border:none;
-  border-radius:12px;font-size:11px;font-weight:500;cursor:pointer;
-}
-
-/* ── INPUTS ── */
-.inp{
-  padding:10px 12px;
-  background:var(--md-sys-color-surface-variant);
-  border:1.5px solid var(--md-sys-color-outline-variant);
-  border-radius:var(--md-sys-shape-corner-small);
-  color:var(--md-sys-color-on-surface);
-  font-size:14px;width:100%;
-  transition:border-color .15s;
-}
-.inp:focus{outline:none;border-color:var(--md-sys-color-primary);background:#fff}
-.inp:disabled{opacity:.5}
-.errore{
-  background:var(--md-sys-color-error-container);
-  border:1px solid var(--md-sys-color-error);
-  border-radius:var(--md-sys-shape-corner-small);
-  padding:12px 16px;color:var(--md-sys-color-error);
-  margin-bottom:16px;font-size:13px;font-weight:500;
-}
+.inp{padding:7px 10px;background:#0a1628;border:1px solid #1e3a5f;border-radius:3px;color:#e2e8f0;font-size:13px;width:100%}
+.errore{background:#2d1515;border:1px solid #ef4444;border-radius:4px;padding:11px 15px;color:#fca5a5;margin-bottom:18px;font-size:12px}
 
 /* ── SORTEGGIO DND ── */
 #dnd-area{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px}
-.dnd-col{
-  background:#fff;
-  border:2px solid var(--md-sys-color-outline-variant);
-  border-radius:var(--md-sys-shape-corner-medium);
-  padding:14px;min-height:200px;
-  box-shadow:var(--md-sys-elevation-1);
-}
-.dnd-col-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;text-align:center}
-.dnd-col.girone-a .dnd-col-title{color:var(--md-sys-color-primary)}
-.dnd-col.girone-b .dnd-col-title{color:var(--md-sys-color-success)}
-.dnd-col.pool .dnd-col-title{color:var(--md-sys-color-on-surface-variant)}
-.dnd-item{
-  padding:10px 13px;background:var(--md-sys-color-surface-variant);
-  border:1px solid var(--md-sys-color-outline-variant);
-  border-radius:var(--md-sys-shape-corner-small);
-  margin-bottom:6px;cursor:grab;user-select:none;
-  display:flex;justify-content:space-between;align-items:center;
-  transition:box-shadow .15s;
-}
-.dnd-item:hover{box-shadow:var(--md-sys-elevation-2)}
+.dnd-col{background:#0a1628;border:1px solid #1e3a5f;border-radius:6px;padding:12px;min-height:200px}
+.dnd-col-title{font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;text-align:center}
+.dnd-col.girone-a .dnd-col-title{color:#3b82f6}
+.dnd-col.girone-b .dnd-col-title{color:#22c55e}
+.dnd-col.pool .dnd-col-title{color:#94a3b8}
+.dnd-item{padding:9px 12px;background:#0d1f3c;border:1px solid #1e3a5f;border-radius:4px;margin-bottom:6px;cursor:grab;user-select:none;display:flex;justify-content:space-between;align-items:center}
 .dnd-item.dragging{opacity:.4}
-.dnd-item .sq-nome{font-size:13px;font-weight:600;color:var(--md-sys-color-on-surface)}
-.dnd-item .sq-reg{font-size:11px;color:var(--md-sys-color-on-surface-variant)}
-.dnd-col.drag-over{border-color:var(--md-sys-color-primary);background:var(--md-sys-color-primary-container)}
-.dnd-count{font-size:11px;color:var(--md-sys-color-on-surface-variant);text-align:center;margin-top:8px}
-.dnd-full .dnd-count{color:var(--md-sys-color-success);font-weight:600}
+.dnd-item .sq-nome{font-size:13px;color:#e2e8f0}
+.dnd-item .sq-reg{font-size:10px;color:#64748b}
+.dnd-col.drag-over{border-color:#3b82f6;background:#0d2040}
+.dnd-count{font-size:10px;color:#475569;text-align:center;margin-top:6px}
+.dnd-full .dnd-count{color:#22c55e}
 
 /* ── CALENDARIO BUILDER ── */
-.cal-grid{
-  display:grid;grid-template-columns:80px 1fr 1fr;
-  gap:0;border:1px solid var(--md-sys-color-outline-variant);
-  border-radius:var(--md-sys-shape-corner-medium);
-  overflow:hidden;margin-bottom:20px;
-  box-shadow:var(--md-sys-elevation-1);
-}
-.cal-hdr{
-  background:var(--md-sys-color-surface-variant);
-  padding:10px 12px;font-size:11px;font-weight:600;letter-spacing:1px;
-  color:var(--md-sys-color-on-surface-variant);text-transform:uppercase;
-  border-bottom:1px solid var(--md-sys-color-outline-variant);
-  border-right:1px solid var(--md-sys-color-outline-variant);
-  display:flex;align-items:center;justify-content:center;text-align:center;
-}
+.cal-grid{display:grid;grid-template-columns:80px 1fr 1fr;gap:0;border:1px solid #1e3a5f;border-radius:6px;overflow:hidden;margin-bottom:20px}
+.cal-hdr{background:#0a1628;padding:8px 12px;font-size:10px;letter-spacing:2px;color:#475569;text-transform:uppercase;border-bottom:1px solid #1e3a5f;border-right:1px solid #1e3a5f;display:flex;align-items:center;justify-content:center;text-align:center}
 .cal-hdr:last-child{border-right:none}
-.cal-turno-lbl{
-  background:var(--md-sys-color-primary-container);
-  padding:8px 6px;font-size:10px;font-weight:700;letter-spacing:1px;
-  color:var(--md-sys-color-on-primary-container);text-transform:uppercase;
-  border-bottom:1px solid var(--md-sys-color-outline-variant);
-  border-right:1px solid var(--md-sys-color-outline-variant);
-  display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.3;
-}
-.cal-cell{
-  background:#fff;
-  border-bottom:1px solid var(--md-sys-color-outline-variant);
-  border-right:1px solid var(--md-sys-color-outline-variant);
-  padding:8px;min-height:110px;position:relative;
-}
+.cal-turno-lbl{background:#071428;padding:8px 6px;font-size:10px;letter-spacing:1px;color:#60a5fa;text-transform:uppercase;border-bottom:1px solid #1e3a5f;border-right:1px solid #1e3a5f;display:flex;align-items:center;justify-content:center;text-align:center;writing-mode:horizontal-tb;line-height:1.3}
+.cal-cell{background:#0d1f3c;border-bottom:1px solid #1e3a5f;border-right:1px solid #1e3a5f;padding:8px;min-height:110px;position:relative}
 .cal-cell:last-child,.cal-turno-lbl:last-of-type{border-right:none}
-.cal-cell.drag-over-cell{background:var(--md-sys-color-primary-container);outline:2px dashed var(--md-sys-color-primary);outline-offset:-2px}
-.cal-campo-lbl{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--md-sys-color-on-surface-variant);text-transform:uppercase;margin-bottom:6px}
+.cal-cell.drag-over-cell{background:#0d2040;outline:2px dashed #3b82f6;outline-offset:-2px}
+.cal-campo-lbl{font-size:9px;letter-spacing:2px;color:#475569;text-transform:uppercase;margin-bottom:6px}
 
 /* partita nel builder */
-.pbuilder{
-  background:var(--md-sys-color-surface-variant);
-  border:1px solid var(--md-sys-color-outline-variant);
-  border-radius:var(--md-sys-shape-corner-small);
-  padding:8px 10px;margin-bottom:5px;position:relative;
-}
+.pbuilder{background:#0a1628;border:1px solid #1e3a5f;border-radius:3px;padding:7px 9px;margin-bottom:5px;position:relative}
 .pbuilder.dragging-p{opacity:.35}
-.pbuilder .p-teams{
-  font-size:12px;font-weight:600;color:var(--md-sys-color-on-surface);
-  display:flex;align-items:center;gap:4px;flex-wrap:wrap;
-}
-.pbuilder .p-girone{font-size:10px;padding:2px 7px;border-radius:10px;margin-left:auto;flex-shrink:0;font-weight:600}
-.pbuilder .p-girone.ga{background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container)}
-.pbuilder .p-girone.gb{background:var(--md-sys-color-success-container);color:#14532d}
-.pbuilder .p-actions{display:flex;gap:4px;margin-top:6px}
-.btn-swap{
-  background:var(--md-sys-color-primary-container);color:var(--md-sys-color-primary);
-  border:none;border-radius:10px;padding:3px 10px;font-size:11px;font-weight:600;cursor:pointer;
-}
-.btn-swap:hover{filter:brightness(.95)}
-.btn-remove{
-  background:var(--md-sys-color-error-container);color:var(--md-sys-color-error);
-  border:none;border-radius:10px;padding:3px 10px;font-size:11px;font-weight:600;cursor:pointer;
-}
+.pbuilder .p-teams{font-size:12px;color:#e2e8f0;font-weight:bold;display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.pbuilder .p-girone{font-size:9px;padding:1px 5px;border-radius:7px;margin-left:auto;flex-shrink:0}
+.pbuilder .p-girone.ga{background:#1e3a5f;color:#60a5fa}
+.pbuilder .p-girone.gb{background:#1e3a2f;color:#4ade80}
+.pbuilder .p-actions{display:flex;gap:4px;margin-top:5px}
+.btn-swap{background:#1e3a5f;color:#93c5fd;border:none;border-radius:3px;padding:3px 8px;font-size:10px;cursor:pointer;letter-spacing:1px}
+.btn-swap:hover{background:#2d4f7c}
+.btn-remove{background:#2d1515;color:#fca5a5;border:none;border-radius:3px;padding:3px 8px;font-size:10px;cursor:pointer}
+.btn-remove:hover{background:#3d1f1f}
 
 /* pool partite */
 #partite-pool-wrap{margin-bottom:20px}
-.pool-partite{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:8px}
-.pool-item{
-  padding:9px 12px;background:#fff;
-  border:1px solid var(--md-sys-color-outline-variant);
-  border-radius:var(--md-sys-shape-corner-small);
-  cursor:grab;user-select:none;display:flex;align-items:center;gap:8px;
-  box-shadow:var(--md-sys-elevation-1);transition:box-shadow .15s;
-}
-.pool-item:hover{box-shadow:var(--md-sys-elevation-2)}
+.pool-partite{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:7px;margin-top:8px}
+.pool-item{padding:8px 11px;background:#0d1f3c;border:1px solid #1e3a5f;border-radius:4px;cursor:grab;user-select:none;display:flex;align-items:center;gap:6px}
 .pool-item.dragging{opacity:.4}
-.pool-item .pi-nome{font-size:12px;font-weight:600;color:var(--md-sys-color-on-surface)}
-.pool-item .pi-g{font-size:10px;padding:2px 7px;border-radius:10px;flex-shrink:0;font-weight:600}
+.pool-item .pi-nome{font-size:12px;color:#e2e8f0}
+.pool-item .pi-g{font-size:9px;padding:1px 5px;border-radius:6px;flex-shrink:0}
 
 /* ── CALENDARIO DESIGNAZIONI ── */
-.turno-sep{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-.turno-sep .line{height:1px;flex:1;background:var(--md-sys-color-outline-variant)}
-.turno-sep .lbl{
-  font-size:11px;font-weight:700;letter-spacing:2px;
-  color:var(--md-sys-color-primary);text-transform:uppercase;white-space:nowrap;
-}
-.campo-header{
-  background:var(--md-sys-color-surface-variant);
-  padding:8px 14px;font-size:11px;font-weight:600;letter-spacing:1px;
-  color:var(--md-sys-color-on-surface-variant);text-transform:uppercase;
-  border-bottom:1px solid var(--md-sys-color-outline-variant);
-}
-.campo-addr{font-size:10px;color:var(--md-sys-color-on-surface-variant);font-weight:400;letter-spacing:0}
-.slot{padding:14px}
-.slot+.slot{border-top:1px solid var(--md-sys-color-outline-variant)}
-.slot-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.slot-partita{font-size:14px;font-weight:700;color:var(--md-sys-color-on-surface)}
-.slot-seq{font-size:11px;color:var(--md-sys-color-on-surface-variant);margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.g-tag{font-size:10px;padding:2px 8px;border-radius:10px;margin-left:6px;flex-shrink:0;font-weight:600}
-.g-tag.ga{background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container)}
-.g-tag.gb{background:var(--md-sys-color-success-container);color:#14532d}
+.turno-sep{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.turno-sep .line{height:1px;flex:1;background:#1e3a5f}
+.turno-sep .lbl{font-size:10px;letter-spacing:4px;color:#94a3b8;text-transform:uppercase;white-space:nowrap}
+.campo-header{background:#0a1628;padding:6px 14px;font-size:10px;letter-spacing:2px;color:#475569;text-transform:uppercase;border-bottom:1px solid #1e3a5f}
+.campo-addr{font-size:9px;color:#334155;letter-spacing:0}
+.slot{padding:12px 14px}
+.slot+.slot{border-top:1px solid #1e3a5f}
+.slot-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.slot-partita{font-size:13px;color:#fff;font-weight:bold}
+.slot-seq{font-size:9px;color:#475569;letter-spacing:1px;margin-bottom:7px;display:flex;align-items:center;gap:8px}
+.g-tag{font-size:9px;padding:1px 7px;border-radius:9px;margin-left:6px;flex-shrink:0}
+.g-tag.ga{background:#1e3a5f;color:#60a5fa}
+.g-tag.gb{background:#1e3a2f;color:#4ade80}
 
 /* ── ARBITRO ROW ── */
-.arb-row{
-  display:flex;align-items:center;gap:8px;padding:6px 10px;
-  background:var(--md-sys-color-surface-variant);
-  border-radius:var(--md-sys-shape-corner-small);
-  margin-bottom:4px;cursor:grab;user-select:none;
-  border:1.5px solid transparent;transition:border-color .15s,background .15s;
-}
-.arb-row:hover{border-color:var(--md-sys-color-outline)}
+.arb-row{display:flex;align-items:center;gap:7px;padding:4px 9px;background:#0a1628;border-radius:3px;margin-bottom:3px;cursor:grab;user-select:none;border:1px solid transparent}
+.arb-row:hover{border-color:#3b82f660}
 .arb-row.dragging-arb{opacity:.35}
-.arb-row.drop-target{border:1.5px dashed var(--md-sys-color-warning)!important;background:var(--md-sys-color-warning-container)}
-.arb-row.violazione{border:1.5px solid var(--md-sys-color-error)!important;background:var(--md-sys-color-error-container)}
-.arb-nome{font-size:13px;font-weight:600;color:var(--md-sys-color-on-surface)}
-.arb-reg{font-size:10px;color:var(--md-sys-color-on-surface-variant);margin-left:auto}
-.f-dot{
-  width:20px;height:20px;border-radius:50%;display:inline-flex;
-  align-items:center;justify-content:center;font-size:9px;font-weight:700;
-  color:#fff;flex-shrink:0;
-}
+.arb-row.drop-target{border:1px dashed #f59e0b!important;background:#1a1500}
+.arb-row.violazione{border:1px solid #ef4444!important;background:#1a0a0a}
+.arb-nome{font-size:12px;color:#cbd5e1;font-weight:bold}
+.arb-reg{font-size:9px;color:#475569;margin-left:auto}
+.f-dot{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:8px;color:#0a0e1a;font-weight:bold;flex-shrink:0}
 
 /* ── VINCOLI ── */
-#vincoli-panel{
-  background:#fff;border:1px solid var(--md-sys-color-outline-variant);
-  border-radius:var(--md-sys-shape-corner-medium);
-  padding:16px;margin-bottom:20px;
-  box-shadow:var(--md-sys-elevation-1);
-}
-#vincoli-panel h3{
-  font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
-  color:var(--md-sys-color-on-surface-variant);margin-bottom:14px;
-}
-.violazione-item{
-  background:var(--md-sys-color-error-container);
-  border:1px solid var(--md-sys-color-error);
-  border-radius:var(--md-sys-shape-corner-small);
-  padding:10px 14px;margin-bottom:8px;
-}
-.violazione-item .v-titolo{font-size:13px;font-weight:600;color:var(--md-sys-color-error);margin-bottom:4px}
-.violazione-item .v-desc{font-size:12px;color:var(--md-sys-color-error);margin-bottom:6px}
-.suggerimento{
-  background:var(--md-sys-color-success-container);
-  border:1px solid var(--md-sys-color-success);
-  border-radius:var(--md-sys-shape-corner-small);
-  padding:6px 10px;margin-top:4px;font-size:12px;color:#14532d;font-weight:500;
-}
-.ok-box{
-  background:var(--md-sys-color-success-container);
-  border:1px solid var(--md-sys-color-success);
-  border-radius:var(--md-sys-shape-corner-small);
-  padding:12px 16px;color:#14532d;font-size:13px;font-weight:500;
-}
+#vincoli-panel{background:#0d1f3c;border:1px solid #1e3a5f;border-radius:6px;padding:16px;margin-bottom:20px}
+#vincoli-panel h3{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#94a3b8;font-weight:normal;margin-bottom:12px}
+.violazione-item{background:#1a0a0a;border:1px solid #ef444460;border-radius:4px;padding:10px 14px;margin-bottom:8px}
+.violazione-item .v-titolo{font-size:12px;color:#fca5a5;margin-bottom:4px}
+.violazione-item .v-desc{font-size:11px;color:#ef4444;margin-bottom:6px}
+.suggerimento{background:#0a1500;border:1px solid #22c55e40;border-radius:3px;padding:5px 10px;margin-top:3px;font-size:11px;color:#86efac}
+.ok-box{background:#0a1500;border:1px solid #22c55e;border-radius:4px;padding:10px 14px;color:#4ade80;font-size:12px}
 
 /* ── ARBITRI FORM ── */
-.arb-card{
-  padding:14px;background:#fff;
-  border:1px solid var(--md-sys-color-outline-variant);
-  border-radius:var(--md-sys-shape-corner-medium);
-  box-shadow:var(--md-sys-elevation-1);
-}
-.arb-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
-.arb-label{font-size:14px;font-weight:700;color:var(--md-sys-color-on-surface)}
-.arb-sub{font-size:11px;color:var(--md-sys-color-on-surface-variant);margin-top:2px}
-.count-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;flex-shrink:0}
-.conflict-tag{
-  font-size:11px;color:var(--md-sys-color-error);
-  background:var(--md-sys-color-error-container);
-  border-radius:12px;padding:2px 8px;
-  margin-right:4px;display:inline-block;margin-bottom:3px;font-weight:500;
-}
-.gruppo-section{margin-bottom:24px}
-.gruppo-hdr{
-  display:flex;align-items:center;gap:10px;margin-bottom:12px;
-  border-bottom:2px solid var(--md-sys-color-outline-variant);padding-bottom:8px;
-}
-.gruppo-dot{
-  width:28px;height:28px;border-radius:50%;display:flex;
-  align-items:center;justify-content:center;font-size:12px;
-  font-weight:700;color:#fff;
-}
-.arb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.arb-card{padding:12px 14px;background:#0d1f3c;border:1px solid #1e3a5f;border-radius:4px}
+.arb-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.arb-label{font-size:13px;color:#e2e8f0;font-weight:bold}
+.arb-sub{font-size:10px;color:#64748b;letter-spacing:1px;margin-top:1px}
+.count-badge{font-size:10px;padding:1px 6px;border-radius:9px;flex-shrink:0}
+.conflict-tag{font-size:9px;color:#fca5a5;background:#2d1515;border-radius:3px;padding:1px 5px;margin-right:3px;display:inline-block;margin-bottom:2px}
+.gruppo-section{margin-bottom:22px}
+.gruppo-hdr{display:flex;align-items:center;gap:9px;margin-bottom:10px;border-bottom:1px solid #1e3a5f;padding-bottom:6px}
+.gruppo-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#0a0e1a;font-weight:bold}
+.arb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px}
 
-/* ── DEBUG PANEL ── */
-#debug-panel{background:#1e293b;color:#94a3b8;font-family:'Courier New',monospace;font-size:11px;padding:12px 16px;border-top:2px solid #334155;max-height:200px;overflow-y:auto}
-
-/* ── UTILITY ── */
 .flex{display:flex}.gap8{gap:8px}.gap10{gap:10px}.wrap{flex-wrap:wrap}
 .mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt20{margin-top:20px}
 .mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}.mb20{margin-bottom:20px}.mb24{margin-bottom:24px}
-
-/* ── RESPONSIVE ── */
-@media(max-width:640px){
-  #header{padding:14px 16px 12px}
-  #header h1{font-size:16px}
-  #header .sub{display:none}
-  #main{padding:16px 12px}
-
-  /* Tab labels compatti */
-  .tab-btn{padding:12px 12px;font-size:11px}
-
-  /* Grids → colonna singola */
-  .grid2,.grid3{grid-template-columns:1fr!important}
-  #dnd-area{grid-template-columns:1fr!important}
-  .arb-grid{grid-template-columns:1fr!important}
-
-  /* Calendario: font più grande */
-  .cal-grid{grid-template-columns:60px 1fr 1fr;font-size:12px}
-  .cal-turno-lbl{font-size:9px;padding:6px 4px}
-  .slot-partita{font-size:13px}
-
-  /* Font size minimo leggibile */
-  .label-xs{font-size:12px}
-  .eyebrow-sm{font-size:12px}
-
-  /* Bottoni full-width su mobile */
-  .flex.wrap .btn-primary,
-  .flex.wrap .btn-outline,
-  .flex.wrap .btn-green{min-width:0;flex:1}
-}
-
-@media(max-width:480px){
-  .cal-grid{grid-template-columns:50px 1fr 1fr}
-  .slot{padding:10px}
-  .slot-partita{font-size:12px}
-  .arb-nome{font-size:12px}
-}
-
-@media(min-width:641px) and (max-width:1024px){
-  /* Tablet: grid 2 colonne invece di 3 */
-  .grid3{grid-template-columns:1fr 1fr}
-  #dnd-area{grid-template-columns:1fr 1fr 1fr} /* OK a 3 su tablet */
-}
 </style>
 </head>
 <body>
@@ -467,16 +150,16 @@ button,input,select,textarea{font-family:inherit}
   <div class="eyebrow">Gestione Competizione Baskin</div>
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
-  <div id="version-badge" style="font-size:10px;color:rgba(255,255,255,.65);letter-spacing:1px;margin-top:6px">
-    finali.html v <span id="ver-num">3.6</span>
-    <span id="ver-update" style="display:none;color:#fde68a;margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
+  <div id="version-badge" style="font-size:10px;color:#475569;letter-spacing:2px;margin-top:5px">
+    finali.html v <span id="ver-num">2.9.1</span>
+    <span id="ver-update" style="display:none;color:#f59e0b;margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
 
-<div id="session-banner" style="display:none;background:#eff6ff;border-left:4px solid #1a56db;padding:14px 20px;margin:0;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:0 1px 3px rgba(0,0,0,.08)">
+<div id="session-banner" style="display:none;background:#0d1f3c;border:1px solid #3b82f6;border-radius:6px;padding:12px 16px;margin:0 0 12px;display:none;align-items:center;gap:12px;flex-wrap:wrap">
   <div style="flex:1;min-width:200px">
-    <div style="font-size:13px;color:#1a56db;font-weight:700;margin-bottom:2px">☁ Aggiornamento disponibile nel repo sync</div>
-    <div id="session-banner-info" style="font-size:12px;color:#475569"></div>
+    <div style="font-size:12px;color:#60a5fa;font-weight:bold;margin-bottom:2px">☁ Aggiornamento disponibile nel repo sync</div>
+    <div id="session-banner-info" style="font-size:11px;color:#64748b"></div>
   </div>
   <div style="display:flex;gap:8px;flex-shrink:0">
     <button onclick="ripristinaUltimaSessione()" style="padding:7px 14px;background:#1d4ed8;border:none;color:#fff;border-radius:4px;font-size:11px;cursor:pointer;font-family:Georgia,serif">⬇ Carica dal repo</button>
@@ -498,12 +181,11 @@ button,input,select,textarea{font-family:inherit}
   <button onclick="showTab('importexport',document.getElementById('tab-btn-ie'))" id="tab-btn-ie" class="tab-btn" style="color:#34d399">⇅ Import/Export</button>
   <button onclick="showTab('sync',this)" class="tab-btn" style="color:#60a5fa">☁ Sync</button>
   <button onclick="showTab('sessioni',this)" class="tab-btn" style="color:#a78bfa">🕐 Sessioni</button>
-  <button onclick="showTab('opzioni',this)" class="tab-btn" style="color:#0e7490">⚙ Opzioni</button>
-  <a href="/gestione-competizioni/pwa/index.html" style="padding:12px 16px;background:transparent;border:none;color:var(--md-sys-color-on-surface-variant);font-size:12px;font-weight:500;cursor:pointer;text-decoration:none" title="Torna al menu principale">⌂ Menu</a>
-  <button onclick="resetApp()" style="padding:12px 16px;background:transparent;border:none;color:var(--md-sys-color-on-surface-variant);font-size:12px;font-weight:500;cursor:pointer" title="Ripristina dati di esempio">↺ Reset</button>
-  <button id="btn-debug" onclick="toggleDebug()" style="padding:12px 16px;background:transparent;border:none;color:var(--md-sys-color-on-surface-variant);font-size:12px;font-weight:500;cursor:pointer">🐛 Debug</button>
-  <button id="btn-pdf"   onclick="stampaPDF()"   style="display:none;padding:12px 16px;background:transparent;border:none;color:var(--md-sys-color-warning);font-size:12px;font-weight:600;cursor:pointer">🖨 PDF</button>
-  <button id="btn-badge" onclick="stampaBadge()" style="display:none;padding:12px 16px;background:transparent;border:none;color:var(--md-sys-color-tertiary);font-size:12px;font-weight:600;cursor:pointer">🪪 Badge</button>
+  <a href="/gestione-competizioni/pwa/index.html" style="padding:12px 14px;background:transparent;border:none;color:#475569;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;text-decoration:none" title="Torna al menu principale">⌂ Menu</a>
+  <button onclick="resetApp()" style="padding:12px 14px;background:transparent;border:none;color:#475569;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer" title="Ripristina dati di esempio">↺ Reset</button>
+  <button id="btn-debug" onclick="toggleDebug()" style="padding:12px 14px;background:transparent;border:none;color:#475569;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer">🐛 Debug</button>
+  <button id="btn-pdf"   onclick="stampaPDF()"   style="display:none">🖨 PDF</button>
+  <button id="btn-badge" onclick="stampaBadge()" style="display:none">🪪 Badge</button>
 </div>
 
 <div id="main">
@@ -556,13 +238,6 @@ button,input,select,textarea{font-family:inherit}
         <div>
           <div style="font-size:13px;color:#e2e8f0">Preferenza: varia i colleghi</div>
           <div style="font-size:11px;color:#64748b">Evita che gli stessi arbitri lavorino insieme più volte — si applica tra mezze giornate (preferenza, non obbligo)</div>
-        </div>
-      </label>
-      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-top:4px" id="lbl-bilancia-difficolta">
-        <input type="checkbox" id="chk-bilancia-difficolta" style="width:16px;height:16px;cursor:pointer">
-        <div>
-          <div style="font-size:13px;color:#e2e8f0">Bilancia difficoltà / esperienza</div>
-          <div style="font-size:11px;color:#64748b">Assegna arbitri esperti alle partite difficili (configura indici in Squadre e Arbitri)</div>
         </div>
       </label>
     </div>
@@ -701,10 +376,6 @@ button,input,select,textarea{font-family:inherit}
           📂 Carica sync-config.json
           <input type="file" accept=".json" onchange="caricaConfigSync(event)" style="display:none">
         </label>
-        <button id="btn-disconnetti-sync" onclick="disconnettiSync()"
-          style="display:none;padding:8px 16px;background:transparent;border:1px solid #ef4444;border-radius:4px;color:#ef4444;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:Georgia,serif">
-          ✕ Scollega repo
-        </button>
       </div>
     </div>
 
@@ -735,43 +406,6 @@ button,input,select,textarea{font-family:inherit}
     </div>
 
     <div id="sync-feedback" style="display:none;font-size:12px;padding:10px 14px;background:#0a1628;border-radius:4px;border:1px solid #1e3a5f"></div>
-  </div>
-
-  <!-- ══ OPZIONI ══ -->
-  <div id="tab-opzioni" class="tab-panel">
-    <div class="eyebrow-sm">Opzioni Applicazione</div>
-
-    <div class="card mb16">
-      <div style="font-size:13px;font-weight:600;color:var(--md-sys-color-on-surface);margin-bottom:6px">Metodo di stampa report</div>
-      <div style="font-size:12px;color:var(--md-sys-color-on-surface-variant);margin-bottom:14px">
-        Si applica a tutti i report: designazioni per turno, designazioni complete, risultati e classifica.
-      </div>
-      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:12px;background:var(--md-sys-color-surface-variant);border-radius:8px;margin-bottom:8px">
-        <input type="radio" name="metodo-stampa" value="browser" checked style="margin-top:2px;width:16px;height:16px;cursor:pointer">
-        <div>
-          <div style="font-size:13px;font-weight:600;color:var(--md-sys-color-on-surface)">Stampa browser (consigliato)</div>
-          <div style="font-size:11px;color:var(--md-sys-color-on-surface-variant)">Apre il report e lancia automaticamente il dialogo di stampa. PDF vettoriale, testo selezionabile, funziona offline.</div>
-        </div>
-      </label>
-      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:12px;background:var(--md-sys-color-surface-variant);border-radius:8px">
-        <input type="radio" name="metodo-stampa" value="pdfmake" style="margin-top:2px;width:16px;height:16px;cursor:pointer">
-        <div>
-          <div style="font-size:13px;font-weight:600;color:var(--md-sys-color-on-surface)">PDF diretto (sperimentale)</div>
-          <div style="font-size:11px;color:var(--md-sys-color-on-surface-variant)">Scarica direttamente un file .pdf via pdfmake. Richiede connessione internet per caricare la libreria.</div>
-        </div>
-      </label>
-    </div>
-
-    <div class="card">
-      <div style="font-size:13px;font-weight:600;color:var(--md-sys-color-on-surface);margin-bottom:6px">Salvataggio automatico</div>
-      <div style="font-size:12px;color:var(--md-sys-color-on-surface-variant);margin-bottom:14px">
-        L'app salva automaticamente ogni modifica nella memoria locale del browser.
-      </div>
-      <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
-        <input type="checkbox" id="chk-autosave" checked style="width:16px;height:16px;cursor:pointer">
-        <div style="font-size:13px;color:var(--md-sys-color-on-surface)">Salvataggio automatico attivo</div>
-      </label>
-    </div>
   </div>
 
 <!-- DEBUG PANEL -->
@@ -815,12 +449,12 @@ window.onerror=function(msg,src,line,col,err){
 </script>
 
 <script>
-const VERSION = '3.6'; // Aggiornare ad ogni release
+const VERSION = '2.9.1'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '3.6',
+  'finali.html':    '2.9.1',
   'pwa/index.html': '1.9',
   'sw.js':          '1.5',
   'manifest.json':  '1.3',
@@ -1220,9 +854,8 @@ function svuotaCalendarioManuale(){
 
 function getOpzioni(){
   return {
-    vincoloCampo:       document.getElementById('chk-vincolo-campo')?.checked||false,
-    variaColleghi:      document.getElementById('chk-varia-colleghi')?.checked||false,
-    bilanciaDifficolta: document.getElementById('chk-bilancia-difficolta')?.checked||false,
+    vincoloCampo:  document.getElementById('chk-vincolo-campo')?.checked||false,
+    variaColleghi: document.getElementById('chk-varia-colleghi')?.checked||false,
   };
 }
 
@@ -1286,9 +919,6 @@ function renderCalBuilder(){
               data-from="pool" data-pool-idx="${idx}"
               ondragstart="calDragStartEl(event)"
               ondragend="calDragEnd(event)"
-              ontouchstart="calTouchStart(event,this)"
-              ontouchmove="calTouchMove(event)"
-              ontouchend="calTouchEnd(event)"
               style="padding:8px 11px;background:#0d1f3c;border:1px solid #1e3a5f;border-radius:4px;cursor:grab;user-select:none;display:flex;align-items:center;gap:6px">
               <span class="g-tag ${gc}" style="font-size:9px;padding:1px 5px;border-radius:6px">G.${p.girone}</span>
               <span style="font-size:12px;color:#e2e8f0">${p.casa.nome} vs ${p.ospite.nome}</span>
@@ -1332,9 +962,6 @@ function cellPartitaHtml(p,t,c,pi){
     data-from="cell" data-t="${t}" data-c="${c}" data-pi="${pi}"
     ondragstart="calDragStartEl(event)"
     ondragend="calDragEnd(event)"
-    ontouchstart="calTouchStart(event,this)"
-    ontouchmove="calTouchMove(event)"
-    ontouchend="calTouchEnd(event)"
     ondragover="calCellDragOver(event,${t},${c})"
     ondragleave="calCellDragLeave(event,${t},${c})"
     ondrop="calCellDrop(event,${t},${c})">
@@ -1397,52 +1024,6 @@ function calDragEnd(e){
 }
 
 // Pool drag-over/drop
-// ── Touch DnD for calendario (tablet/phone) ──────────────────────────────────
-let _calTouchEl=null, _calTouchClone=null, _calTouchOffX=0, _calTouchOffY=0;
-
-function calTouchStart(e, el){
-  calDragStartEl({currentTarget:el, dataTransfer:{effectAllowed:'move',setData:()=>{}}});
-  const t=e.touches[0];
-  const r=el.getBoundingClientRect();
-  _calTouchOffX=t.clientX-r.left; _calTouchOffY=t.clientY-r.top;
-  _calTouchEl=el;
-  _calTouchClone=el.cloneNode(true);
-  _calTouchClone.style.cssText=`position:fixed;opacity:.7;pointer-events:none;z-index:9999;width:${r.width}px;left:${t.clientX-_calTouchOffX}px;top:${t.clientY-_calTouchOffY}px;`;
-  document.body.appendChild(_calTouchClone);
-  el.style.opacity='0.3';
-}
-function calTouchMove(e){
-  if(!_calTouchClone){return;}
-  e.preventDefault();
-  const t=e.touches[0];
-  _calTouchClone.style.left=(t.clientX-_calTouchOffX)+'px';
-  _calTouchClone.style.top=(t.clientY-_calTouchOffY)+'px';
-  document.querySelectorAll('.cal-cell,#cal-pool').forEach(el=>el.classList.remove('drag-over-cell'));
-  const under=document.elementFromPoint(t.clientX,t.clientY);
-  const cell=under?.closest('.cal-cell');
-  const pool=under?.closest('#cal-pool');
-  if(cell) cell.classList.add('drag-over-cell');
-  if(pool) pool.style.outline='2px dashed var(--md-sys-color-primary)';
-}
-function calTouchEnd(e){
-  if(!_calTouchEl){return;}
-  if(_calTouchClone){_calTouchClone.remove();_calTouchClone=null;}
-  document.querySelectorAll('.cal-cell').forEach(el=>el.classList.remove('drag-over-cell'));
-  document.getElementById('cal-pool')?.style && (document.getElementById('cal-pool').style.outline='');
-  if(_calTouchEl) _calTouchEl.style.opacity='';
-  const t=e.changedTouches[0];
-  const under=document.elementFromPoint(t.clientX,t.clientY);
-  const cell=under?.closest('.cal-cell');
-  const pool=under?.closest('#cal-pool');
-  if(cell){
-    const m=cell.id.match(/cell-(\d)-(\d)/);
-    if(m) calCellDrop({preventDefault:()=>{},currentTarget:cell},Number(m[1]),Number(m[2]));
-  } else if(pool){
-    calPoolDrop({preventDefault:()=>{},currentTarget:pool});
-  }
-  _calTouchEl=null; calDragSrc=null;
-}
-
 function calPoolDragOver(e){e.preventDefault();const p=document.getElementById('cal-pool');if(p)p.style.outline='2px dashed #3b82f6';}
 function calPoolDragLeave(e){const p=document.getElementById('cal-pool');if(p)p.style.outline='';}
 function calPoolDrop(e){
@@ -1518,41 +1099,30 @@ function campoOccupato(arbId, campo, assT){
 //  2: conflitto macro-regione → rilassato a ST esatta (stessa macro ok, solo ST esatta vietata)
 //  3: conflitto ST esatta ammesso (qualsiasi conflitto territoriale ok)
 //  4: ST duplicate in terna ok (ultimo vincolo rilassabile)
-//
-// INTOCCABILE AGGIUNTIVO: ogni arbitro arbitra esattamente 1 partita per turno.
-// Con 12 arbitri e 3 turni × 4 partite, ogni arbitro compare una volta per turno.
-// Questo vincolo NON è mai derogabile — ha priorità su tutto tranne i gruppi.
 function* generaCoppie(p0,p1,cnt,assT,livello){
   const byF=f=>ARBITRI_BASE.filter(a=>a.gruppo===f&&cnt[a.id]<3);
   const f1=byF(1),f2=byF(2),f3=byF(3);
-
-  // Arbitri già usati in questo turno in qualsiasi campo — INTOCCABILE
-  const usatiTurno=new Set([...assT[0],...assT[1]]);
-
-  const okC=(a,p,campo,usati)=>{
-    // INTOCCABILE: 1 partita per turno per arbitro
-    if(usati.has(a.id))return false;
-    // Vincolo campo (derogabile)
+  const okC=(a,p,campo)=>{
     if(livello<1&&campoOccupato(a.id,campo,assT))return false;
-    // Vincoli territoriali
+    // lv 0,1: no conflitto macro-regione
     if(livello<2&&conflittoLasco(a,p))return false;
+    // lv 2: macro ok ma no conflitto ST esatta
     if(livello===2&&conflittoStretto(a,p))return false;
+    // lv>=3: qualsiasi conflitto territoriale ok
     return true;
   };
+  // ST duplicate in terna: vietato solo a lv<4
   const stOk=(a,b)=>livello>=4||a.st!==b.st;
-
-  for(const a1 of f1){ if(!okC(a1,p0,0,usatiTurno))continue;
-    for(const a2 of f2){ if(!okC(a2,p0,0,usatiTurno))continue;
+  for(const a1 of f1){ if(!okC(a1,p0,0))continue;
+    for(const a2 of f2){ if(!okC(a2,p0,0))continue;
       if(!stOk(a1,a2))continue;
-      for(const a3 of f3){ if(!okC(a3,p0,0,usatiTurno))continue;
+      for(const a3 of f3){ if(!okC(a3,p0,0))continue;
         if(!stOk(a1,a3)||!stOk(a2,a3))continue;
-        // Dopo la prima terna, questi sono usati nel turno
-        const usatiConT0=new Set([...usatiTurno,a1.id,a2.id,a3.id]);
         const u=new Set([a1.id,a2.id,a3.id]);
-        for(const b1 of f1){ if(u.has(b1.id)||!okC(b1,p1,1,usatiConT0))continue;
-          for(const b2 of f2){ if(u.has(b2.id)||!okC(b2,p1,1,usatiConT0))continue;
+        for(const b1 of f1){ if(u.has(b1.id)||!okC(b1,p1,1))continue;
+          for(const b2 of f2){ if(u.has(b2.id)||!okC(b2,p1,1))continue;
             if(!stOk(b1,b2))continue;
-            for(const b3 of f3){ if(u.has(b3.id)||!okC(b3,p1,1,usatiConT0))continue;
+            for(const b3 of f3){ if(u.has(b3.id)||!okC(b3,p1,1))continue;
               if(!stOk(b1,b3)||!stOk(b2,b3))continue;
               yield{terne:[[a1,a2,a3],[b1,b2,b3]],livello};
             }
@@ -1636,15 +1206,6 @@ function backtrack(slots, idx, cnt, assPerTurno, correnti, punteggioCorrente, mi
       const ripT1=opzioni.variaColleghi?contaColleghiRipetuti(coppia.terne[1],correnti,turnoCorrente):0;
       const deltaRip=ripT0+ripT1;
 
-      // Calcola sbilanciamento difficoltà/esperienza (solo se opzione attiva)
-      const calcSbil=(terna,p)=>{
-        if(!opzioni.bilanciaDifficolta) return 0;
-        const diff=((p.casa.livello||3)+(p.ospite.livello||3))/2;
-        const esp=terna.reduce((s,a)=>s+(a.esperienza||3),0)/terna.length;
-        return Math.round(Math.abs(diff-esp)*10);
-      };
-      const deltaSbil=calcSbil(coppia.terne[0],p0)+calcSbil(coppia.terne[1],p1);
-
       // Applica
       coppia.terne[0].forEach(a=>{cnt[a.id]++;assT[0].add(a.id);});
       coppia.terne[1].forEach(a=>{cnt[a.id]++;assT[1].add(a.id);});
@@ -1654,7 +1215,6 @@ function backtrack(slots, idx, cnt, assPerTurno, correnti, punteggioCorrente, mi
       punteggioCorrente[0]=Math.max(prev[0],lvEff);
       punteggioCorrente[1]=prev[1]+(lvEff>0?1:0);
       punteggioCorrente[2]=prev[2]+deltaRip;
-      punteggioCorrente[3]=prev[3]+deltaSbil;
 
       backtrack(slots,idx+1,cnt,assPerTurno,correnti,punteggioCorrente,migliore,opzioni);
 
@@ -1662,10 +1222,10 @@ function backtrack(slots, idx, cnt, assPerTurno, correnti, punteggioCorrente, mi
       correnti.pop();
       coppia.terne[0].forEach(a=>{cnt[a.id]--;assT[0].delete(a.id);});
       coppia.terne[1].forEach(a=>{cnt[a.id]--;assT[1].delete(a.id);});
-      punteggioCorrente[0]=prev[0];punteggioCorrente[1]=prev[1];punteggioCorrente[2]=prev[2];punteggioCorrente[3]=prev[3];
+      punteggioCorrente[0]=prev[0];punteggioCorrente[1]=prev[1];punteggioCorrente[2]=prev[2];
 
       // Soluzione perfetta: livello 0, 0 deroghe, 0 ripetizioni → non c'è niente di meglio
-      if(migliore.trovato&&migliore.punteggio[0]===0&&migliore.punteggio[1]===0&&migliore.punteggio[2]===0&&migliore.punteggio[3]===0)return;
+      if(migliore.trovato&&migliore.punteggio[0]===0&&migliore.punteggio[1]===0&&migliore.punteggio[2]===0)return;
     }
   }
 }
@@ -2037,14 +1597,7 @@ function renderArbitriForm(){
             <select class="inp" onchange="aggiornaArbitroST('${arb.id}',this.value)">${stOptions(arb.st)}</select>
           </div>
         </div>
-        <div style="font-size:10px;color:#475569;margin-bottom:6px">Macro-ST: ${macroST(arb.st)}</div>
-        <div style="margin-bottom:8px">
-          <div class="label-xs">Esperienza (1-5)</div>
-          <div style="display:flex;gap:4px;margin-top:4px">${[1,2,3,4,5].map(v=>`
-            <button onclick="aggiornaArbitroEsperienza('${arb.id}',${v})"
-              style="width:26px;height:26px;border-radius:50%;border:1px solid ${v===(arb.esperienza||3)?'#22c55e':'#1e3a5f'};background:${v===(arb.esperienza||3)?'#22c55e':'#0a1628'};color:${v===(arb.esperienza||3)?'#000':'#475569'};cursor:pointer;font-size:11px;font-weight:bold">${v}</button>`).join('')}
-          </div>
-        </div>`;
+        <div style="font-size:10px;color:#475569;margin-bottom:6px">Macro-ST: ${macroST(arb.st)}</div>`;
       if(conflitti.length>0){
         html+=`<div style="font-size:9px;color:#ef4444;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Escluso da:</div>`;
         conflitti.forEach(s=>{html+=`<span class="conflict-tag">${s.nome}</span>`;});
@@ -2054,29 +1607,8 @@ function renderArbitriForm(){
     html+=`</div></div>`;
   });
 
-  if(stato.calendario){
-    const turniDisp = [
-      {t:0, label:'Venerdì Pomeriggio'},
-      {t:1, label:'Sabato Mattina'},
-      {t:2, label:'Sabato Pomeriggio'},
-      {t:'finali', label:'Domenica — Finali'},
-    ];
-    html+=`<div style="margin-top:20px">
-      <div class="label-xs" style="margin-bottom:10px">Stampa designazioni per turno</div>
-      <div class="flex gap10 wrap">
-        ${turniDisp.map(({t,label})=>`<button class="btn-amber" onclick="stampaTurno(${JSON.stringify(t)})" style="font-size:11px;padding:9px 16px">🖨 ${label}</button>`).join('')}
-        <button class="btn-amber" onclick="stampaPDF()" style="padding:9px 16px;font-size:11px">🖨 Tutti i turni</button>
-        <button class="btn-violet" onclick="stampaBadge()" style="padding:9px 16px;font-size:11px">🪪 Badge arbitri</button>
-      </div>
-    </div>`;
-  }
+  if(stato.calendario)html+=`<div class="flex gap10 wrap mt16"><button class="btn-amber" onclick="stampaPDF()">🖨 PDF</button><button class="btn-violet" onclick="stampaBadge()">🪪 Badge</button></div>`;
   document.getElementById('arbitri-form').innerHTML=html;
-}
-
-function aggiornaArbitroEsperienza(id, val){
-  const arb=ARBITRI_BASE.find(a=>a.id===id);
-  if(arb) arb.esperienza=val;
-  renderArbitriForm();
 }
 
 function aggiornaArbitroGruppo(id, newGruppo){
@@ -2136,13 +1668,6 @@ function renderSquadreForm(){
         <select class="inp" onchange="aggiornaSquadra(${i},'st',this.value)">${stOptions(s.st)}</select>
       </div>
       <div style="font-size:10px;color:#475569;margin-top:3px">Macro-ST: ${macroST(s.st)}</div>
-      <div style="margin-top:8px">
-        <div class="label-xs">Difficoltà (1-5)</div>
-        <div style="display:flex;gap:4px;margin-top:4px">${[1,2,3,4,5].map(v=>`
-          <button onclick="aggiornaSquadra(${i},'livello',${v})"
-            style="width:28px;height:28px;border-radius:50%;border:1px solid ${v===(s.livello||3)?'#f59e0b':'#1e3a5f'};background:${v===(s.livello||3)?'#f59e0b':'#0a1628'};color:${v===(s.livello||3)?'#000':'#475569'};cursor:pointer;font-size:12px;font-weight:bold">${v}</button>`).join('')}
-        </div>
-      </div>
     </div>`;
   });
   const el=document.getElementById('squadre-form');
@@ -2180,276 +1705,15 @@ function renderST(){
 }
 
 // ══════════════════════════════════════════════════ PDF
-// ── PDFMAKE (opzione sperimentale) ───────────────────────────────────────────
-let _pdfmakeLoaded = false;
-function caricaPdfmake(){
-  return new Promise((resolve,reject)=>{
-    if(_pdfmakeLoaded && window.pdfMake){ resolve(); return; }
-    const s1=document.createElement('script');
-    s1.src='https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js';
-    s1.onload=()=>{
-      const s2=document.createElement('script');
-      s2.src='https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js';
-      s2.onload=()=>{ _pdfmakeLoaded=true; resolve(); };
-      s2.onerror=()=>reject(new Error('vfs_fonts non caricato'));
-      document.head.appendChild(s2);
-    };
-    s1.onerror=()=>reject(new Error('pdfmake non caricato — serve connessione internet'));
-    document.head.appendChild(s1);
-  });
-}
-
-// Costruisce il documento pdfmake per un turno (o le finali)
-function buildPdfmakeDoc(turnoIdx){
-  const g=stato.gironi, cal=stato.calendario;
-  const gL=p=>g.A.find(s=>s.nome===p.casa.nome||s.nome===p.ospite.nome)?'A':'B';
-  const GC={1:'#d97706',2:'#2563eb',3:'#7c3aed'};
-  const content=[];
-
-  content.push({text:'DESIGNAZIONI ARBITRALI',style:'h1'});
-  content.push({text:'Competizione Baskin · Monfalcone (GO)',style:'sub'});
-
-  function ternaList(terna){
-    if(!terna||!terna.length) return [{text:'⚠ Terna non assegnata',color:'red',fontSize:9}];
-    return terna.map(arb=>({
-      columns:[
-        {text:String(arb.gruppo),width:14,color:'#fff',background:GC[arb.gruppo],alignment:'center',fontSize:8,bold:true},
-        {text:' '+nomeDisplay(arb),width:'*',fontSize:10,bold:true},
-        {text:arb.st||'',width:'auto',fontSize:8,color:'#888'},
-      ],columnGap:4,margin:[0,1,0,1]
-    }));
-  }
-
-  if(turnoIdx==='finali'){
-    const f34=stato.finali.f34,f12=stato.finali.f12;
-    const dataFmt=DATE_GARA.dom?new Date(DATE_GARA.dom+'T12:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
-    content.push({text:`Domenica Mattina — Finali${dataFmt?' · '+dataFmt:''}`,style:'th'});
-    if(f34.casa&&f34.ospite){
-      content.push({text:`🥉 Finale 3°-4° Posto — 1ª Partita`,style:'cl',margin:[0,8,0,2]});
-      content.push({text:`${CAMPI[0].nome} · ${CAMPI[0].indirizzo}`,fontSize:8,color:'#888',margin:[0,0,0,4]});
-      content.push({text:`${f34.casa.nome} vs ${f34.ospite.nome}`,fontSize:12,bold:true,margin:[0,0,0,4]});
-      content.push(...ternaList(stato.finaliCalendario?.f34));
-    }
-    if(f12.casa&&f12.ospite){
-      content.push({text:`🏆 Finale 1°-2° Posto — 2ª Partita`,style:'cl',margin:[0,12,0,2]});
-      content.push({text:`${CAMPI[0].nome} · ${CAMPI[0].indirizzo}`,fontSize:8,color:'#888',margin:[0,0,0,4]});
-      content.push({text:`${f12.casa.nome} vs ${f12.ospite.nome}`,fontSize:12,bold:true,margin:[0,0,0,4]});
-      content.push(...ternaList(stato.finaliCalendario?.f12));
-    }
-  } else {
-    const turnoData=cal.turni.find(({turno})=>turno===turnoIdx);
-    if(!turnoData){ alert('Turno non trovato.'); return null; }
-    const {turno,campi}=turnoData;
-    const dateKeys=['ven','sab','sab','dom'];
-    const dataFmt=DATE_GARA[dateKeys[turno]]?new Date(DATE_GARA[dateKeys[turno]]+'T12:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
-    content.push({text:`${TURNI_LABEL[turno]}${dataFmt?' · '+dataFmt:''}`,style:'th'});
-
-    campi.forEach((campo,c)=>{
-      content.push({text:`🏟 ${CAMPI[c].nome}`,style:'cl',margin:[0,8,0,1]});
-      content.push({text:`${CAMPI[c].indirizzo}${CAMPI[c].citta?' · '+CAMPI[c].citta:''}`,fontSize:8,color:'#888',margin:[0,0,0,4]});
-      campo.forEach((slot,p)=>{
-        content.push({text:`${slot.casa.nome} vs ${slot.ospite.nome}   (G.${gL(slot)} · ${p===0?'1ª':'2ª'} partita)`,fontSize:11,bold:true,margin:[0,4,0,2]});
-        content.push(...ternaList(slot.terna));
-      });
-    });
-  }
-
-  return {
-    content,
-    pageMargins:[40,40,40,40],
-    defaultStyle:{font:'Roboto',fontSize:10},
-    styles:{
-      h1:{fontSize:18,bold:true,alignment:'center',margin:[0,0,0,4]},
-      sub:{fontSize:10,color:'#666',alignment:'center',margin:[0,0,0,16]},
-      th:{fontSize:11,bold:true,color:'#fff',background:'#1a1a2e',margin:[0,0,0,8]},
-      cl:{fontSize:10,bold:true},
-    }
-  };
-}
-
-// Dispatcher PDF completo designazioni
-function stampaPDF(){
-  if(usaPdfmake()) stampaPDFmakeCompleto();
-  else stampaPDFCompleto();
-}
-
-// PDF completo via pdfmake: tutti i turni + finali
-async function stampaPDFmakeCompleto(){
-  try{
-    await caricaPdfmake();
-    const docs=[];
-    const allContent=[];
-    [0,1,2,'finali'].forEach((t,i)=>{
-      const d=buildPdfmakeDoc(t);
-      if(d){
-        if(i>0) allContent.push({text:'',pageBreak:'before'});
-        allContent.push(...d.content.slice(2)); // skip h1+sub repeated
-      }
-    });
-    const base=buildPdfmakeDoc(0);
-    base.content=[base.content[0],base.content[1],...allContent];
-    window.pdfMake.createPdf(base).download('designazioni-complete.pdf');
-  }catch(e){
-    alert('⚠ PDF diretto non disponibile: '+e.message+'\nUso la stampa browser.');
-    stampaPDFCompleto();
-  }
-}
-
-async function stampaPDFmake(turnoIdx){
-  try{
-    await caricaPdfmake();
-    const doc=buildPdfmakeDoc(turnoIdx);
-    if(!doc) return;
-    const nome=`designazioni-${TURNI_LABEL_SHORT[turnoIdx]||'finali'}.pdf`.replace(/ /g,'-').toLowerCase();
-    window.pdfMake.createPdf(doc).download(nome);
-  }catch(e){
-    alert('⚠ Impossibile generare PDF diretto: '+e.message+'\nUso la stampa browser.');
-    dbg('pdfmake error: '+e.message,true);
-  }
-}
-
 function scaricaHTML(html,nomeFile){
-  // Apre l'HTML in una nuova finestra e lancia automaticamente il dialogo di stampa.
-  // L'utente può salvare come PDF dal dialogo del browser (PDF vettoriale, testo selezionabile).
-  const win = window.open('', '_blank');
-  if(!win){
-    // Popup bloccato: fallback al download del file HTML
-    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');a.href=url;a.download=nomeFile;
-    document.body.appendChild(a);a.click();document.body.removeChild(a);
-    setTimeout(()=>URL.revokeObjectURL(url),1000);
-    alert('Popup bloccato: il file HTML è stato scaricato. Aprilo e usa Stampa → Salva come PDF.');
-    return;
-  }
-  win.document.open();
-  win.document.write(html);
-  win.document.close();
-  // Lancia il dialogo di stampa dopo il caricamento completo
-  win.onload = () => { setTimeout(()=>{ try{ win.print(); }catch(e){} }, 300); };
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=nomeFile;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 
-// Legge l'opzione globale del metodo di stampa
-function usaPdfmake(){
-  const r=document.querySelector('input[name="metodo-stampa"]:checked');
-  return r ? r.value==='pdfmake' : false;
-}
-
-function stampaTurno(turnoIdx){
-  if(usaPdfmake()) stampaPDFmake(turnoIdx);
-  else stampaPDFTurno(turnoIdx);
-}
-
-function stampaPDFTurno(turnoIdx){
-  if(!stato.calendario||!stato.gironi) return;
-
-  // Build a single-turno version of the PDF
-  const g = stato.gironi;
-  const cal = stato.calendario;
-  const gL = p => g.A.find(s=>s.nome===p.casa.nome||s.nome===p.ospite.nome)?'A':'B';
-
-  const pdfCSS = `*{margin:0;padding:0;box-sizing:border-box}body{font-family:Georgia,serif;color:#1a1a2e;background:#fff;padding:28px 32px;font-size:13px}
-h1{font-size:20px;font-weight:normal;letter-spacing:3px;text-align:center;border-bottom:2px solid #1a1a2e;padding-bottom:10px;margin-bottom:5px}
-.sub{text-align:center;font-size:11px;color:#666;letter-spacing:2px;margin-bottom:22px}
-.tw{margin-bottom:20px}.th{background:#1a1a2e;color:#fff;font-size:10px;letter-spacing:3px;text-transform:uppercase;padding:6px 12px;border-radius:2px;margin-bottom:8px}
-.cg{display:grid;grid-template-columns:1fr 1fr;gap:10px}.cb{border:1px solid #ddd;border-radius:3px;padding:10px 12px}
-.cl{font-size:10px;font-weight:bold;color:#1a1a2e;margin-bottom:2px}.ca{font-size:9px;color:#888;margin-bottom:8px}
-.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}.pn{font-size:13px;font-weight:bold}
-.gt2{font-size:9px;padding:1px 6px;border-radius:8px;background:#eef;color:#336}
-.ps{font-size:9px;color:#aaa;margin-bottom:6px;letter-spacing:1px;text-transform:uppercase}
-.sep{border:none;border-top:1px solid #eee;margin:7px 0}
-.ar{display:flex;align-items:center;gap:7px;margin-bottom:3px}
-.fb{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:bold;color:#fff;flex-shrink:0}
-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:20px}
-th{text-align:left;padding:6px 10px;border:1px solid #ddd;background:#f5f5f5;font-weight:normal;letter-spacing:1px;font-size:10px;text-transform:uppercase}
-td{padding:5px 10px;border:1px solid #ddd;vertical-align:middle}
-.ft{margin-top:24px;text-align:center;font-size:10px;color:#aaa;border-top:1px solid #eee;padding-top:8px}
-.np{position:fixed;top:14px;right:14px}@media print{.np{display:none}}`;
-
-  let turnoLabel, bodyContent;
-
-  if(turnoIdx === 'finali'){
-    // Domenica — Finali
-    const f34=stato.finali.f34, f12=stato.finali.f12;
-    if(!f34.casa&&!f34.ospite&&!f12.casa&&!f12.ospite){
-      alert('Nessuna finale configurata.');return;
-    }
-    turnoLabel = `Domenica Mattina — Finali · ${DATE_GARA.dom?new Date(DATE_GARA.dom+'T12:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}):''}`;
-    bodyContent = `<div class="cg" style="grid-template-columns:1fr">
-      ${f34.casa&&f34.ospite?`<div class="cb">
-        <div class="cl">🥉 Finale 3°-4° Posto — 1ª Partita</div>
-        <div class="ca">${CAMPI[0].nome} · ${CAMPI[0].indirizzo}</div>
-        <div class="ph" style="margin-top:8px"><span class="pn">${f34.casa.nome} vs ${f34.ospite.nome}</span></div>
-        ${(stato.finaliCalendario?.f34||[]).map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st}</span></div>`).join('')}
-      </div>`:''}
-      ${f12.casa&&f12.ospite?`<div class="cb" style="margin-top:10px">
-        <div class="cl">🏆 Finale 1°-2° Posto — 2ª Partita</div>
-        <div class="ca">${CAMPI[0].nome} · ${CAMPI[0].indirizzo}</div>
-        <div class="ph" style="margin-top:8px"><span class="pn">${f12.casa.nome} vs ${f12.ospite.nome}</span></div>
-        ${(stato.finaliCalendario?.f12||[]).map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st}</span></div>`).join('')}
-      </div>`:''}
-    </div>`;
-  } else {
-    // Turno gironi (0, 1 o 2)
-    const turnoData = cal.turni.find(({turno})=>turno===turnoIdx);
-    if(!turnoData){ alert('Turno non trovato.'); return; }
-    const {turno,campi} = turnoData;
-    const d = turno<3 ? (['ven','sab','sab','dom'])[turno] : 'ven';
-    const dateKeys = ['ven','sab','sab','dom'];
-    const dataFmt = DATE_GARA[dateKeys[turno]]
-      ? new Date(DATE_GARA[dateKeys[turno]]+'T12:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'})
-      : '';
-    turnoLabel = `${TURNI_LABEL[turno]}${dataFmt?' · '+dataFmt:''}`;
-
-    // Arbitri designati in questo turno
-    const arbitriTurno = ARBITRI_BASE.map(arb=>{
-      const partite=[];
-      campi.forEach((campo,c)=>campo.forEach((slot,p)=>{
-        if(slot.terna?.find(a=>a.id===arb.id))
-          partite.push(`${CAMPI[c].nome} (${p+1}ª)`);
-      }));
-      return partite.length ? {...arb,partite,nd:nomeDisplay(arb)} : null;
-    }).filter(Boolean);
-
-    bodyContent = `<div class="cg">
-      ${campi.map((campo,c)=>`<div class="cb">
-        <div class="cl">🏟 ${CAMPI[c].nome}</div>
-        <div class="ca">${CAMPI[c].indirizzo}${CAMPI[c].citta?' · '+CAMPI[c].citta:''}${CAMPI[c].maps?` · <a href="${CAMPI[c].maps}" style="color:#2563eb">Maps</a>`:''}</div>
-        ${campo.map((slot,p)=>`${p>0?'<hr class="sep">':''}
-          <div class="ph"><span class="pn">${slot.casa.nome} vs ${slot.ospite.nome}</span><span class="gt2">G.${gL(slot)}</span></div>
-          <div class="ps">${p===0?'1ª partita':'2ª partita'}</div>
-          ${slot.terna?slot.terna.map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st}</span></div>`).join(''):'<span style="color:red">⚠ Terna non assegnata</span>'}
-        `).join('')}
-      </div>`).join('')}
-    </div>
-    ${arbitriTurno.length>0?`<table>
-      <tr><th>Arbitro</th><th>Gruppo</th><th>ST</th><th>Designazione</th></tr>
-      ${arbitriTurno.map(arb=>`<tr>
-        <td style="font-weight:bold">${arb.nd}</td>
-        <td style="color:${GRUPPO_COLOR_P[arb.gruppo]}">Arb. ${arb.gruppo}</td>
-        <td style="font-size:11px">${arb.st}</td>
-        <td style="font-size:11px;color:#555">${arb.partite.join(', ')}</td>
-      </tr>`).join('')}
-    </table>`:''}`;
-  }
-
-  const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
-    <title>Designazioni — ${turnoLabel}</title>
-    <style>${pdfCSS}</style></head><body>
-    <div class="np"><button onclick="window.print()" style="padding:9px 18px;background:#1a1a2e;color:#fff;border:none;border-radius:3px;cursor:pointer;font-family:Georgia,serif;font-size:12px">🖨 Stampa</button></div>
-    <h1>DESIGNAZIONI ARBITRALI</h1>
-    <div class="sub">Competizione Baskin · Monfalcone (GO)</div>
-    <div class="tw">
-      <div class="th">${turnoLabel}</div>
-      ${bodyContent}
-    </div>
-    <div class="ft">Generato automaticamente · Verificare vincoli prima della comunicazione ufficiale</div>
-  </body></html>`;
-
-  scaricaHTML(html, `designazioni-${TURNI_LABEL_SHORT[turnoIdx]||'finali'}.html`.replace(/ /g,'-').toLowerCase());
-}
-
-function stampaPDFCompleto(){
+function stampaPDF(){
   if(!stato.calendario||!stato.gironi)return;
   const g=stato.gironi,cal=stato.calendario;
   const gL=p=>g.A.find(s=>s.nome===p.casa.nome||s.nome===p.ospite.nome)?'A':'B';
@@ -2648,9 +1912,9 @@ function getSezioniSelezionate(){
 function costruisciExport(sezioni){
   const out={_versione:1, _data:new Date().toISOString(), _release:{...VERSIONS}};
   if(sezioni.includes('squadre'))
-    out.squadre=SQUADRE.map(s=>({nome:s.nome,citta:s.citta||'',st:s.st,livello:s.livello||3}));
+    out.squadre=SQUADRE.map(s=>({nome:s.nome,citta:s.citta||'',st:s.st}));
   if(sezioni.includes('arbitri'))
-    out.arbitri=ARBITRI_BASE.map(a=>({id:a.id,label:a.label,gruppo:a.gruppo,st:a.st,esperienza:a.esperienza||3,
+    out.arbitri=ARBITRI_BASE.map(a=>({id:a.id,label:a.label,gruppo:a.gruppo,st:a.st,
       nome:stato.nomiArbitri[a.id]?.nome||'',
       cognome:stato.nomiArbitri[a.id]?.cognome||''}));
   if(sezioni.includes('palestre'))
@@ -2807,7 +2071,7 @@ function importaJSON(event){
       const msgs=[];
 
       if(sezioni.includes('squadre')&&data.squadre){
-        data.squadre.forEach((s,i)=>{if(SQUADRE[i]){SQUADRE[i].nome=s.nome;if(s.citta!==undefined)SQUADRE[i].citta=s.citta;SQUADRE[i].st=s.st||SQUADRE[i].st;if(s.livello!==undefined)SQUADRE[i].livello=s.livello;}});
+        data.squadre.forEach((s,i)=>{if(SQUADRE[i]){SQUADRE[i].nome=s.nome;if(s.citta!==undefined)SQUADRE[i].citta=s.citta;SQUADRE[i].st=s.st||SQUADRE[i].st;}});
         renderSquadre();renderSquadreForm();
         msgs.push('✓ Squadre importate');
       }
@@ -2990,9 +2254,6 @@ function renderFinali(){
         <div draggable="true"
           data-sq-nome="${esc(sq.nome)}"
           ondragstart="finaliDragStartEl(event)"
-          ontouchstart="finaliTouchStart(event,this,'sq')"
-          ontouchmove="finaliTouchMove(event)"
-          ontouchend="finaliTouchEnd(event)"
           ondragend="finaliDragEnd(event)"
           style="padding:7px 10px;background:#0a1628;border:1px solid ${color}40;border-radius:3px;margin-bottom:5px;cursor:grab;user-select:none">
           <div style="font-size:12px;color:#e2e8f0">${sq.nome}</div>
@@ -3059,12 +2320,12 @@ function renderFinali(){
       <div style="font-size:10px;color:${colore};letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">${label} — Risultato</div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <span style="font-size:13px;color:#e2e8f0;font-weight:bold;flex:1;min-width:100px">${fin.casa.nome}</span>
-        <input type="number" min="0" inputmode="numeric" value="${r.casaPts!==''?r.casaPts:''}" placeholder="—"
+        <input type="number" min="0" value="${r.casaPts!==''?r.casaPts:''}" placeholder="—"
           onchange="aggiornaRisultatoFinale('${key}','casaPts',this.value)"
           onblur="aggiornaRisultatoFinale('${key}','casaPts',this.value)"
           style="width:60px;padding:6px;background:#0a1628;border:1px solid #1e3a5f;border-radius:3px;color:#fff;text-align:center;font-size:16px;font-weight:bold;-moz-appearance:textfield">
         <span style="color:#475569;font-weight:bold">—</span>
-        <input type="number" min="0" inputmode="numeric" value="${r.ospitePts!==''?r.ospitePts:''}" placeholder="—"
+        <input type="number" min="0" value="${r.ospitePts!==''?r.ospitePts:''}" placeholder="—"
           onchange="aggiornaRisultatoFinale('${key}','ospitePts',this.value)"
           onblur="aggiornaRisultatoFinale('${key}','ospitePts',this.value)"
           style="width:60px;padding:6px;background:#0a1628;border:1px solid #1e3a5f;border-radius:3px;color:#fff;text-align:center;font-size:16px;font-weight:bold;-moz-appearance:textfield">
@@ -3162,9 +2423,6 @@ function ternaManualeHtml(fKey, terna){
       <div draggable="true"
         ondragstart="finaliArbDragStart(event,'${arb.id}')"
         ondragend="finaliDragEnd(event)"
-        ontouchstart="finaliTouchStart(event,this,'arb',\'${arb.id}\')"
-        ontouchmove="finaliTouchMove(event)"
-        ontouchend="finaliTouchEnd(event)"
         style="padding:5px 10px;background:#0d1f3c;border:1px solid ${GRUPPO_COLOR[arb.gruppo]}40;border-radius:3px;cursor:grab;user-select:none">
         <div style="display:flex;align-items:center;gap:5px">
           <span style="width:14px;height:14px;border-radius:50%;background:${GRUPPO_COLOR[arb.gruppo]};display:inline-flex;align-items:center;justify-content:center;font-size:7px;color:#000;font-weight:bold">${arb.gruppo}</span>
@@ -3178,52 +2436,6 @@ function ternaManualeHtml(fKey, terna){
 
 // ── DnD squadre finali ────────────────────────────────────────────────────
 let _finaliArbDrag = null;
-
-// ── Touch DnD per finali ─────────────────────────────────────────────────────
-let _finaliTouchClone=null, _finaliTouchEl=null, _finaliTouchType=null, _finaliTouchData=null;
-let _finaliTouchOffX=0, _finaliTouchOffY=0;
-
-function finaliTouchStart(e, el, type, data){
-  _finaliTouchType=type; _finaliTouchData=data; _finaliTouchEl=el;
-  const t=e.touches[0];
-  const r=el.getBoundingClientRect();
-  _finaliTouchOffX=t.clientX-r.left; _finaliTouchOffY=t.clientY-r.top;
-  _finaliTouchClone=el.cloneNode(true);
-  _finaliTouchClone.style.cssText=`position:fixed;opacity:.7;pointer-events:none;z-index:9999;width:${r.width}px;left:${t.clientX-_finaliTouchOffX}px;top:${t.clientY-_finaliTouchOffY}px;`;
-  document.body.appendChild(_finaliTouchClone);
-  el.style.opacity='0.3';
-  if(type==='arb') _finaliArbDrag=data;
-  else if(type==='sq') finaliDragSrc={from:'pool',slotKey:null,sqNome:el.dataset.sqNome};
-}
-function finaliTouchMove(e){
-  if(!_finaliTouchClone) return;
-  e.preventDefault();
-  const t=e.touches[0];
-  _finaliTouchClone.style.left=(t.clientX-_finaliTouchOffX)+'px';
-  _finaliTouchClone.style.top=(t.clientY-_finaliTouchOffY)+'px';
-  document.querySelectorAll('.finali-slot,.finali-terna-slot').forEach(el=>el.style.outline='');
-  const under=document.elementFromPoint(t.clientX,t.clientY);
-  const slot=under?.closest('.finali-slot,.finali-terna-slot');
-  if(slot) slot.style.outline='2px dashed var(--md-sys-color-primary)';
-}
-function finaliTouchEnd(e){
-  if(!_finaliTouchEl) return;
-  if(_finaliTouchClone){_finaliTouchClone.remove();_finaliTouchClone=null;}
-  document.querySelectorAll('.finali-slot,.finali-terna-slot').forEach(el=>el.style.outline='');
-  if(_finaliTouchEl) _finaliTouchEl.style.opacity='';
-  const t=e.changedTouches[0];
-  const under=document.elementFromPoint(t.clientX,t.clientY);
-  const slot=under?.closest('.finali-slot');
-  const ternaSlot=under?.closest('.finali-terna-slot');
-  if(slot && _finaliTouchType==='sq'){
-    finaliDrop({preventDefault:()=>{},currentTarget:slot},slot.dataset.key);
-  } else if(ternaSlot && _finaliTouchType==='arb'){
-    finaliTernaDropPos({preventDefault:()=>{},currentTarget:ternaSlot},
-      ternaSlot.dataset.fkey, Number(ternaSlot.dataset.pos));
-  }
-  _finaliTouchEl=null; _finaliTouchType=null; _finaliTouchData=null;
-  finaliDragSrc=null; _finaliArbDrag=null;
-}
 
 function finaliDragStartEl(e){
   const el=e.currentTarget;
@@ -3523,12 +2735,12 @@ function renderRisultati(){
         return `<div style="background:#0d1f3c;border:1px solid #1e3a5f;border-radius:4px;padding:10px 14px;margin-bottom:8px">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <span style="font-size:13px;color:#e2e8f0;font-weight:bold;flex:1;min-width:100px">${pt.casa.nome}</span>
-            <input type="number" min="0" inputmode="numeric" value="${r.casaPts!==null&&r.casaPts!==''?r.casaPts:''}"
+            <input type="number" min="0" value="${r.casaPts!==null&&r.casaPts!==''?r.casaPts:''}"
               placeholder="—" ${isForfait?'disabled':''}
               onchange="aggiornaRisultato('${key}','casaPts',this.value)" onblur="aggiornaRisultato('${key}','casaPts',this.value)"
               style="width:60px;padding:6px;background:#0a1628;border:1px solid #1e3a5f;border-radius:3px;color:#fff;text-align:center;font-size:16px;font-weight:bold;-moz-appearance:textfield">
             <span style="color:#475569;font-weight:bold">—</span>
-            <input type="number" min="0" inputmode="numeric" value="${r.ospitePts!==null&&r.ospitePts!==''?r.ospitePts:''}"
+            <input type="number" min="0" value="${r.ospitePts!==null&&r.ospitePts!==''?r.ospitePts:''}"
               placeholder="—" ${isForfait?'disabled':''}
               onchange="aggiornaRisultato('${key}','ospitePts',this.value)" onblur="aggiornaRisultato('${key}','ospitePts',this.value)"
               style="width:60px;padding:6px;background:#0a1628;border:1px solid #1e3a5f;border-radius:3px;color:#fff;text-align:center;font-size:16px;font-weight:bold;-moz-appearance:textfield">
@@ -3626,12 +2838,6 @@ function applicaFinaliste(){
 
 // ══════════════════════════════════════════════════ PDF RISULTATI
 function stampaRisultatiPDF(){
-  // Per i risultati pdfmake non è implementato (layout complesso): usa sempre browser
-  // ma rispetta l'apertura automatica della stampa
-  stampaRisultatiPDFBrowser();
-}
-
-function stampaRisultatiPDFBrowser(){
   if(!stato.gironi) return;
   const gruppo_C=GRUPPO_COLOR_P;
   let html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Risultati</title>
@@ -3750,7 +2956,7 @@ async function caricaConfigSync(event){
     }
     syncConfig = cfg;
     // Salva in sessionStorage (non persiste tra sessioni — sicurezza)
-    localStorage.setItem('syncConfig', JSON.stringify(cfg));
+    sessionStorage.setItem('syncConfig', JSON.stringify(cfg));
     aggiornaConfigStatus();
     syncListFiles();
   } catch(e){
@@ -3761,11 +2967,9 @@ async function caricaConfigSync(event){
 
 function aggiornaConfigStatus(){
   const el = document.getElementById('sync-config-info');
-  const btnDisconnetti = document.getElementById('btn-disconnetti-sync');
   if(!el) return;
   if(!syncConfig){
     el.innerHTML = '<span style="color:#ef4444">⚠ Nessuna configurazione caricata</span><br><span style="font-size:10px">Carica sync-config.json per abilitare la sincronizzazione</span>';
-    if(btnDisconnetti) btnDisconnetti.style.display='none';
   } else {
     el.innerHTML = `<span style="color:#22c55e">✓ Connesso</span><br>
       <span style="font-size:10px;color:#64748b">
@@ -3774,16 +2978,7 @@ function aggiornaConfigStatus(){
         Path: <strong style="color:#94a3b8">${syncConfig.path||'/'}</strong>
         ${syncConfig.user?` · Utente: <strong style="color:#60a5fa">${syncConfig.user}</strong>`:''}
       </span>`;
-    if(btnDisconnetti) btnDisconnetti.style.display='inline-block';
   }
-}
-
-function disconnettiSync(){
-  if(!confirm('Scollegare il repository sync?\nLa configurazione verrà rimossa dalla sessione corrente.')) return;
-  syncConfig = null;
-  localStorage.removeItem('syncConfig');
-  aggiornaConfigStatus();
-  syncFeedback('✓ Repository scollegato','#4ade80');
 }
 
 function syncFeedback(msg, color){
@@ -3943,7 +3138,7 @@ async function syncPull(path, filename){
 
 // Ripristina config da sessionStorage se presente
 (()=>{
-  const saved = localStorage.getItem('syncConfig');
+  const saved = sessionStorage.getItem('syncConfig');
   if(saved){ try{ syncConfig=JSON.parse(saved); }catch(e){} }
 })();
 
@@ -4298,8 +3493,6 @@ function renderTutti(){
 
 // Hook: chiama schedulaSalvataggio dopo ogni modifica significativa
 function schedulaSalvataggio(){
-  const asChk=document.getElementById('chk-autosave');
-  if(asChk && !asChk.checked) return; // autosave disattivato
   clearTimeout(_saveTimer);
   _saveTimer = setTimeout(()=>salvaSessione(), SAVE_DEBOUNCE);
 }
@@ -4311,8 +3504,8 @@ function resetApp(){
   // Reset SQUADRE
   SQUADRE.length=0;
   SQUADRE.push(
-    {nome:"Reggio Emilia", citta:"Reggio Emilia",  st:"Emilia-Romagna",             livello:3},
-    {nome:"Udine",         citta:"Udine",           st:"Friuli-Venezia Giulia",      livello:3},
+    {nome:"Reggio Emilia", citta:"Reggio Emilia",  st:"Emilia-Romagna"},
+    {nome:"Udine",         citta:"Udine",           st:"Friuli-Venezia Giulia"},
     {nome:"Cerrano",       citta:"Cerrano",         st:"Valle d'Aosta/Piemonte/Liguria"},
     {nome:"Schio",         citta:"Schio",           st:"Veneto"},
     {nome:"Bergamo",       citta:"Bergamo",         st:"Lombardia Est"},
@@ -4419,19 +3612,6 @@ function resetApp(){
   // 2. Controlla silenziosamente se il repo sync ha qualcosa di più recente
   await verificaSyncRemoto();
 })();
-// ── Opzioni persistenti ──
-(()=>{
-  const m=localStorage.getItem('metodoStampa');
-  if(m){const r=document.querySelector(`input[name="metodo-stampa"][value="${m}"]`);if(r)r.checked=true;}
-  document.querySelectorAll('input[name="metodo-stampa"]').forEach(r=>{
-    r.addEventListener('change',()=>localStorage.setItem('metodoStampa',r.value));
-  });
-  const as=localStorage.getItem('autosave');
-  const asChk=document.getElementById('chk-autosave');
-  if(as!==null&&asChk) asChk.checked=(as==='1');
-  if(asChk) asChk.addEventListener('change',()=>localStorage.setItem('autosave',asChk.checked?'1':'0'));
-})();
-
 // ── Versione badge + controllo aggiornamento ──
 (async()=>{
   document.getElementById('ver-num').textContent = VERSION;
