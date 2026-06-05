@@ -151,7 +151,7 @@ button,input,select{font-family:Georgia,serif}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:#475569;letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">3.0</span>
+    finali.html v <span id="ver-num">3.1.1</span>
     <span id="ver-update" style="display:none;color:#f59e0b;margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -238,6 +238,13 @@ button,input,select{font-family:Georgia,serif}
         <div>
           <div style="font-size:13px;color:#e2e8f0">Preferenza: varia i colleghi</div>
           <div style="font-size:11px;color:#64748b">Evita che gli stessi arbitri lavorino insieme più volte — si applica tra mezze giornate (preferenza, non obbligo)</div>
+        </div>
+      </label>
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-top:4px" id="lbl-bilancia-difficolta">
+        <input type="checkbox" id="chk-bilancia-difficolta" style="width:16px;height:16px;cursor:pointer">
+        <div>
+          <div style="font-size:13px;color:#e2e8f0">Bilancia difficoltà / esperienza</div>
+          <div style="font-size:11px;color:#64748b">Assegna arbitri esperti alle partite difficili (configura indici in Squadre e Arbitri)</div>
         </div>
       </label>
     </div>
@@ -376,6 +383,10 @@ button,input,select{font-family:Georgia,serif}
           📂 Carica sync-config.json
           <input type="file" accept=".json" onchange="caricaConfigSync(event)" style="display:none">
         </label>
+        <button id="btn-disconnetti-sync" onclick="disconnettiSync()"
+          style="display:none;padding:8px 16px;background:transparent;border:1px solid #ef4444;border-radius:4px;color:#ef4444;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:Georgia,serif">
+          ✕ Scollega repo
+        </button>
       </div>
     </div>
 
@@ -449,12 +460,12 @@ window.onerror=function(msg,src,line,col,err){
 </script>
 
 <script>
-const VERSION = '3.0'; // Aggiornare ad ogni release
+const VERSION = '3.1.1'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '3.0',
+  'finali.html':    '3.1.1',
   'pwa/index.html': '1.9',
   'sw.js':          '1.5',
   'manifest.json':  '1.3',
@@ -854,8 +865,9 @@ function svuotaCalendarioManuale(){
 
 function getOpzioni(){
   return {
-    vincoloCampo:  document.getElementById('chk-vincolo-campo')?.checked||false,
-    variaColleghi: document.getElementById('chk-varia-colleghi')?.checked||false,
+    vincoloCampo:       document.getElementById('chk-vincolo-campo')?.checked||false,
+    variaColleghi:      document.getElementById('chk-varia-colleghi')?.checked||false,
+    bilanciaDifficolta: document.getElementById('chk-bilancia-difficolta')?.checked||false,
   };
 }
 
@@ -1217,6 +1229,15 @@ function backtrack(slots, idx, cnt, assPerTurno, correnti, punteggioCorrente, mi
       const ripT1=opzioni.variaColleghi?contaColleghiRipetuti(coppia.terne[1],correnti,turnoCorrente):0;
       const deltaRip=ripT0+ripT1;
 
+      // Calcola sbilanciamento difficoltà/esperienza (solo se opzione attiva)
+      const calcSbil=(terna,p)=>{
+        if(!opzioni.bilanciaDifficolta) return 0;
+        const diff=((p.casa.livello||3)+(p.ospite.livello||3))/2;
+        const esp=terna.reduce((s,a)=>s+(a.esperienza||3),0)/terna.length;
+        return Math.round(Math.abs(diff-esp)*10);
+      };
+      const deltaSbil=calcSbil(coppia.terne[0],p0)+calcSbil(coppia.terne[1],p1);
+
       // Applica
       coppia.terne[0].forEach(a=>{cnt[a.id]++;assT[0].add(a.id);});
       coppia.terne[1].forEach(a=>{cnt[a.id]++;assT[1].add(a.id);});
@@ -1226,6 +1247,7 @@ function backtrack(slots, idx, cnt, assPerTurno, correnti, punteggioCorrente, mi
       punteggioCorrente[0]=Math.max(prev[0],lvEff);
       punteggioCorrente[1]=prev[1]+(lvEff>0?1:0);
       punteggioCorrente[2]=prev[2]+deltaRip;
+      punteggioCorrente[3]=prev[3]+deltaSbil;
 
       backtrack(slots,idx+1,cnt,assPerTurno,correnti,punteggioCorrente,migliore,opzioni);
 
@@ -1233,10 +1255,10 @@ function backtrack(slots, idx, cnt, assPerTurno, correnti, punteggioCorrente, mi
       correnti.pop();
       coppia.terne[0].forEach(a=>{cnt[a.id]--;assT[0].delete(a.id);});
       coppia.terne[1].forEach(a=>{cnt[a.id]--;assT[1].delete(a.id);});
-      punteggioCorrente[0]=prev[0];punteggioCorrente[1]=prev[1];punteggioCorrente[2]=prev[2];
+      punteggioCorrente[0]=prev[0];punteggioCorrente[1]=prev[1];punteggioCorrente[2]=prev[2];punteggioCorrente[3]=prev[3];
 
       // Soluzione perfetta: livello 0, 0 deroghe, 0 ripetizioni → non c'è niente di meglio
-      if(migliore.trovato&&migliore.punteggio[0]===0&&migliore.punteggio[1]===0&&migliore.punteggio[2]===0)return;
+      if(migliore.trovato&&migliore.punteggio[0]===0&&migliore.punteggio[1]===0&&migliore.punteggio[2]===0&&migliore.punteggio[3]===0)return;
     }
   }
 }
@@ -1608,7 +1630,14 @@ function renderArbitriForm(){
             <select class="inp" onchange="aggiornaArbitroST('${arb.id}',this.value)">${stOptions(arb.st)}</select>
           </div>
         </div>
-        <div style="font-size:10px;color:#475569;margin-bottom:6px">Macro-ST: ${macroST(arb.st)}</div>`;
+        <div style="font-size:10px;color:#475569;margin-bottom:6px">Macro-ST: ${macroST(arb.st)}</div>
+        <div style="margin-bottom:8px">
+          <div class="label-xs">Esperienza (1-5)</div>
+          <div style="display:flex;gap:4px;margin-top:4px">${[1,2,3,4,5].map(v=>`
+            <button onclick="aggiornaArbitroEsperienza('${arb.id}',${v})"
+              style="width:26px;height:26px;border-radius:50%;border:1px solid ${v===(arb.esperienza||3)?'#22c55e':'#1e3a5f'};background:${v===(arb.esperienza||3)?'#22c55e':'#0a1628'};color:${v===(arb.esperienza||3)?'#000':'#475569'};cursor:pointer;font-size:11px;font-weight:bold">${v}</button>`).join('')}
+          </div>
+        </div>`;
       if(conflitti.length>0){
         html+=`<div style="font-size:9px;color:#ef4444;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Escluso da:</div>`;
         conflitti.forEach(s=>{html+=`<span class="conflict-tag">${s.nome}</span>`;});
@@ -1620,6 +1649,12 @@ function renderArbitriForm(){
 
   if(stato.calendario)html+=`<div class="flex gap10 wrap mt16"><button class="btn-amber" onclick="stampaPDF()">🖨 PDF</button><button class="btn-violet" onclick="stampaBadge()">🪪 Badge</button></div>`;
   document.getElementById('arbitri-form').innerHTML=html;
+}
+
+function aggiornaArbitroEsperienza(id, val){
+  const arb=ARBITRI_BASE.find(a=>a.id===id);
+  if(arb) arb.esperienza=val;
+  renderArbitriForm();
 }
 
 function aggiornaArbitroGruppo(id, newGruppo){
@@ -1679,6 +1714,13 @@ function renderSquadreForm(){
         <select class="inp" onchange="aggiornaSquadra(${i},'st',this.value)">${stOptions(s.st)}</select>
       </div>
       <div style="font-size:10px;color:#475569;margin-top:3px">Macro-ST: ${macroST(s.st)}</div>
+      <div style="margin-top:8px">
+        <div class="label-xs">Difficoltà (1-5)</div>
+        <div style="display:flex;gap:4px;margin-top:4px">${[1,2,3,4,5].map(v=>`
+          <button onclick="aggiornaSquadra(${i},'livello',${v})"
+            style="width:28px;height:28px;border-radius:50%;border:1px solid ${v===(s.livello||3)?'#f59e0b':'#1e3a5f'};background:${v===(s.livello||3)?'#f59e0b':'#0a1628'};color:${v===(s.livello||3)?'#000':'#475569'};cursor:pointer;font-size:12px;font-weight:bold">${v}</button>`).join('')}
+        </div>
+      </div>
     </div>`;
   });
   const el=document.getElementById('squadre-form');
@@ -1923,9 +1965,9 @@ function getSezioniSelezionate(){
 function costruisciExport(sezioni){
   const out={_versione:1, _data:new Date().toISOString(), _release:{...VERSIONS}};
   if(sezioni.includes('squadre'))
-    out.squadre=SQUADRE.map(s=>({nome:s.nome,citta:s.citta||'',st:s.st}));
+    out.squadre=SQUADRE.map(s=>({nome:s.nome,citta:s.citta||'',st:s.st,livello:s.livello||3}));
   if(sezioni.includes('arbitri'))
-    out.arbitri=ARBITRI_BASE.map(a=>({id:a.id,label:a.label,gruppo:a.gruppo,st:a.st,
+    out.arbitri=ARBITRI_BASE.map(a=>({id:a.id,label:a.label,gruppo:a.gruppo,st:a.st,esperienza:a.esperienza||3,
       nome:stato.nomiArbitri[a.id]?.nome||'',
       cognome:stato.nomiArbitri[a.id]?.cognome||''}));
   if(sezioni.includes('palestre'))
@@ -2082,7 +2124,7 @@ function importaJSON(event){
       const msgs=[];
 
       if(sezioni.includes('squadre')&&data.squadre){
-        data.squadre.forEach((s,i)=>{if(SQUADRE[i]){SQUADRE[i].nome=s.nome;if(s.citta!==undefined)SQUADRE[i].citta=s.citta;SQUADRE[i].st=s.st||SQUADRE[i].st;}});
+        data.squadre.forEach((s,i)=>{if(SQUADRE[i]){SQUADRE[i].nome=s.nome;if(s.citta!==undefined)SQUADRE[i].citta=s.citta;SQUADRE[i].st=s.st||SQUADRE[i].st;if(s.livello!==undefined)SQUADRE[i].livello=s.livello;}});
         renderSquadre();renderSquadreForm();
         msgs.push('✓ Squadre importate');
       }
@@ -2978,9 +3020,11 @@ async function caricaConfigSync(event){
 
 function aggiornaConfigStatus(){
   const el = document.getElementById('sync-config-info');
+  const btnDisconnetti = document.getElementById('btn-disconnetti-sync');
   if(!el) return;
   if(!syncConfig){
     el.innerHTML = '<span style="color:#ef4444">⚠ Nessuna configurazione caricata</span><br><span style="font-size:10px">Carica sync-config.json per abilitare la sincronizzazione</span>';
+    if(btnDisconnetti) btnDisconnetti.style.display='none';
   } else {
     el.innerHTML = `<span style="color:#22c55e">✓ Connesso</span><br>
       <span style="font-size:10px;color:#64748b">
@@ -2989,7 +3033,16 @@ function aggiornaConfigStatus(){
         Path: <strong style="color:#94a3b8">${syncConfig.path||'/'}</strong>
         ${syncConfig.user?` · Utente: <strong style="color:#60a5fa">${syncConfig.user}</strong>`:''}
       </span>`;
+    if(btnDisconnetti) btnDisconnetti.style.display='inline-block';
   }
+}
+
+function disconnettiSync(){
+  if(!confirm('Scollegare il repository sync?\nLa configurazione verrà rimossa dalla sessione corrente.')) return;
+  syncConfig = null;
+  sessionStorage.removeItem('syncConfig');
+  aggiornaConfigStatus();
+  syncFeedback('✓ Repository scollegato','#4ade80');
 }
 
 function syncFeedback(msg, color){
@@ -3515,8 +3568,8 @@ function resetApp(){
   // Reset SQUADRE
   SQUADRE.length=0;
   SQUADRE.push(
-    {nome:"Reggio Emilia", citta:"Reggio Emilia",  st:"Emilia-Romagna"},
-    {nome:"Udine",         citta:"Udine",           st:"Friuli-Venezia Giulia"},
+    {nome:"Reggio Emilia", citta:"Reggio Emilia",  st:"Emilia-Romagna",             livello:3},
+    {nome:"Udine",         citta:"Udine",           st:"Friuli-Venezia Giulia",      livello:3},
     {nome:"Cerrano",       citta:"Cerrano",         st:"Valle d'Aosta/Piemonte/Liguria"},
     {nome:"Schio",         citta:"Schio",           st:"Veneto"},
     {nome:"Bergamo",       citta:"Bergamo",         st:"Lombardia Est"},
