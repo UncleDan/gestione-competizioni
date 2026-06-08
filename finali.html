@@ -352,6 +352,49 @@ button,input,select{font-family:Georgia,serif}
     <div class="eyebrow-sm">Finali — Domenica Mattina</div>
     <div style="font-size:12px;color:#475569;margin-bottom:20px">Trascina le squadre nelle posizioni. Campo 1 · <span id="finali-data-label">14/06/2026</span></div>
     <div id="finali-builder"></div>
+    <div id="finali-stamp-area" style="display:none;margin-top:16px">
+      <button class="btn-amber" onclick="stampaPDFTurno('finali')" style="font-size:12px">
+        🖨 Stampa Designazioni Finali
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ OPZIONI ══ -->
+  <div id="tab-opzioni" class="tab-panel">
+    <div class="eyebrow-sm">Opzioni</div>
+
+    <div class="card mb16">
+      <div style="font-size:13px;color:#e2e8f0;font-weight:bold;margin-bottom:4px">🖼 Banner stampe</div>
+      <div style="font-size:12px;color:#475569;margin-bottom:14px">Immagine mostrata in cima a tutte le designazioni stampate. Salvata nel DB locale e negli export JSON.</div>
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <div id="banner-preview" style="display:none;max-height:70px;max-width:240px;overflow:hidden;border:1px solid #1e3a5f;border-radius:4px;flex-shrink:0">
+          <img id="banner-img" style="max-height:70px;max-width:240px;display:block">
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <label style="padding:8px 16px;background:#1e3a5f;border-radius:3px;color:#60a5fa;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer">
+            📷 Carica immagine
+            <input type="file" accept="image/*" onchange="caricaBanner(event)" style="display:none">
+          </label>
+          <button id="btn-rimuovi-banner" onclick="rimuviBanner()"
+            style="display:none;padding:8px 14px;background:#2d1515;border:none;color:#fca5a5;border-radius:3px;font-size:11px;cursor:pointer;font-family:Georgia,serif">
+            ✕ Rimuovi banner
+          </button>
+          <span id="banner-nome" style="font-size:10px;color:#475569">Nessun banner caricato</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:13px;color:#e2e8f0;font-weight:bold;margin-bottom:4px">🖨 Metodo stampa</div>
+      <div style="font-size:12px;color:#475569;margin-bottom:14px">Si applica a tutti i report PDF.</div>
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+        <input type="checkbox" id="chk-stampa-popup" style="width:15px;height:15px;cursor:pointer">
+        <div>
+          <div style="font-size:13px;color:#e2e8f0">Apri in nuova finestra (dialogo stampa automatico)</div>
+          <div style="font-size:11px;color:#475569">Se disattivato scarica il file HTML da aprire manualmente</div>
+        </div>
+      </label>
+    </div>
   </div>
 
   <!-- ══ SESSIONI ══ -->
@@ -451,12 +494,12 @@ window.onerror=function(msg,src,line,col,err){
 </script>
 
 <script>
-const VERSION = '2.9.5.3'; // Aggiornare ad ogni release
+const VERSION = '2.9.6'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '2.9.5.3',
+  'finali.html':    '2.9.6',
   'pwa/index.html': '1.9',
   'sw.js':          '1.5',
   'manifest.json':  '1.3',
@@ -1821,6 +1864,22 @@ td{padding:4px 8px;border:1px solid #ddd}
     turnoLabel=`Domenica Mattina — Finali${dataFmt?' · '+dataFmt:''}`;
     // Finali non ha checkbox — usa stato.turniConfermati[2] come proxy
     isConfermato=stato.turniConfermati[2]||false;
+    // Riepilogo arbitri finali + girone
+    const arbitriFinali=ARBITRI_BASE.map(arb=>{
+      const pp=[];
+      // Partite finali
+      if((stato.finaliCalendario?.f34||[]).find(a=>a.id===arb.id)) pp.push(`${ci0.nome} — Fin. 3°-4°`);
+      if((stato.finaliCalendario?.f12||[]).find(a=>a.id===arb.id)) pp.push(`${ci0.nome} — Fin. 1°-2°`);
+      // Partite girone
+      if(cal&&cal.turni) cal.turni.forEach(({turno,campi})=>campi.forEach((campo,c)=>campo.forEach((slot,p)=>{
+        if(slot.terna?.find(a=>a.id===arb.id)){
+          const ci=campoInfo(c,slot);
+          pp.push(`${TURNI_LABEL_SHORT[turno]} · ${ci.nome} (${p+1}ª)`);
+        }
+      })));
+      return pp.length?{...arb,partite:pp,nd:nomeDisplay(arb)}:null;
+    }).filter(Boolean);
+
     bodyHtml=`<div class="cg" style="grid-template-columns:1fr">
       ${f34.casa&&f34.ospite?`<div class="cb">
         <div class="cl">🥉 Finale 3°-4° — 1ª Partita</div>
@@ -1834,7 +1893,17 @@ td{padding:4px 8px;border:1px solid #ddd}
         <div class="ph" style="margin-top:8px"><span class="pn">${nc(f12.casa)} vs ${nc(f12.ospite)}</span></div>
         ${(stato.finaliCalendario?.f12||[]).map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st||arb.regione}</span></div>`).join('')}
       </div>`:''}
-    </div>`;
+    </div>
+    ${arbitriFinali.length?`<div class="rh" style="margin-top:16px">RIEPILOGO ARBITRI — Finali + Gironi</div>
+    <table>
+      <tr><th>Arbitro</th><th>Ruolo</th><th>ST</th><th>Tutte le designazioni</th></tr>
+      ${arbitriFinali.map(arb=>`<tr>
+        <td style="font-weight:bold">${arb.nd}</td>
+        <td style="color:${GRUPPO_COLOR_P[arb.gruppo]}">Arb. ${arb.gruppo}</td>
+        <td style="font-size:11px">${arb.st||arb.regione}</td>
+        <td style="font-size:11px;color:#555">${arb.partite.join(', ')}</td>
+      </tr>`).join('')}
+    </table>`:''}`;
   } else {
     const turnoData=cal.turni.find(({turno})=>turno===turnoIdx);
     if(!turnoData){alert('Turno non trovato.');return;}
@@ -1867,7 +1936,7 @@ td{padding:4px 8px;border:1px solid #ddd}
         </div>`;
       }).join('')}
     </div>
-    ${isConfermato&&arbitriTurno.length?`<table>
+    ${arbitriTurno.length?`<table>
       <tr><th>Arbitro</th><th>Ruolo</th><th>ST</th><th>Campo (partita)</th></tr>
       ${arbitriTurno.map(arb=>`<tr>
         <td style="font-weight:bold">${arb.nd}</td>
@@ -1890,7 +1959,7 @@ td{padding:4px 8px;border:1px solid #ddd}
   <div class="nota ${notaClass}">${notaTesto}</div>
   <div class="th">${turnoLabel}</div>
   ${bodyHtml}
-  <div class="ft">Generato automaticamente${isConfermato?'':' · Verificare vincoli prima della comunicazione ufficiale'}</div>
+  <div class="ft">Gestione Competizioni Baskin · finali.html v ${VERSION}${isConfermato?'':'  —  ⚠ Provvisorie'}</div>
   </body></html>`;
   scaricaHTML(html,`designazioni-${(TURNI_LABEL_SHORT[turnoIdx]||'finali').replace(/ /g,'-').toLowerCase()}.html`);
 }
@@ -1945,10 +2014,10 @@ ${campo.map((slot,p)=>`${p>0?'<hr class="sep">':''}
 <div class="ps">${p===0?'1ª partita':'2ª partita'}</div>
 ${slot.terna?slot.terna.map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st||arb.regione}</span></div>`).join(''):'<span style="color:red">⚠</span>'}
 `).join('')}</div>`).join('')}</div></div>`}).join('')}
-${tuttiTurniConfermati()?`<div class="rh">RIEPILOGO ARBITRI</div>`:`<div style="font-style:italic;color:#b45309;font-size:11px;margin:16px 0">Il riepilogo arbitri viene incluso solo quando tutti i turni sono confermati.</div>`}
-${tuttiTurniConfermati()?`<table><tr><th>Arbitro</th><th>Ruolo</th><th>ST</th><th>Designazioni</th><th style="text-align:center">N.</th></tr>
+<div class="rh">RIEPILOGO ARBITRI — Totale Gironi</div>
+<table><tr><th>Arbitro</th><th>Ruolo</th><th>ST</th><th>Designazioni Gironi</th><th style="text-align:center">N.</th></tr>
 ${arbitroRighe.map(arb=>`<tr><td style="font-weight:bold">${arb.nd}</td><td style="color:${GRUPPO_COLOR_P[arb.gruppo]}">Arb. ${arb.gruppo}</td><td style="font-size:11px">${arb.st||arb.regione}</td><td style="color:#555;font-size:11px">${arb.partite.join(', ')||'—'}</td><td style="text-align:center;font-weight:bold">${arb.partite.length}</td></tr>`).join('')}
-</table>`:''}${(stato.finali.f34.casa&&stato.finali.f34.ospite||stato.finali.f12.casa&&stato.finali.f12.ospite)?`
+</table>${(stato.finali.f34.casa&&stato.finali.f34.ospite||stato.finali.f12.casa&&stato.finali.f12.ospite)?`
 <div class="rh">DOMENICA MATTINA — FINALI · ${DATE_GARA.dom?new Date(DATE_GARA.dom+'T12:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}):''}</div>
 <div class="cg" style="grid-template-columns:1fr">
 ${stato.finali.f34.casa&&stato.finali.f34.ospite?`<div class="cb">
@@ -1964,7 +2033,7 @@ ${stato.finali.f12.casa&&stato.finali.f12.ospite?`<div class="cb" style="margin-
 ${(stato.finaliCalendario?.f12||[]).map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st||arb.regione}</span></div>`).join('')}
 </div>`:''}
 </div>`:''}
-<div class="ft">Generato automaticamente · Verificare vincoli prima della comunicazione ufficiale</div>
+<div class="ft">Gestione Competizioni Baskin · finali.html v ${VERSION}</div>
 </body></html>`;
   scaricaHTML(html,'designazioni-arbitrali.html');
 }
@@ -2042,6 +2111,10 @@ function renderPalestreForm(){
     </div>`;
   });
   el.innerHTML=html;
+  // Show/hide finali stamp button
+  const _hf=stato.finali.f34.casa||stato.finali.f34.ospite||stato.finali.f12.casa||stato.finali.f12.ospite;
+  const _fsa=document.getElementById('finali-stamp-area');
+  if(_fsa) _fsa.style.display=_hf?'block':'none';
 }
 
 function aggiornaPalestra(i,field,val){
