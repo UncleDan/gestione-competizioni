@@ -151,7 +151,7 @@ button,input,select{font-family:Georgia,serif}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:#475569;letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">2.9.1.1</span>
+    finali.html v <span id="ver-num">2.9.1</span>
     <span id="ver-update" style="display:none;color:#f59e0b;margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -274,6 +274,23 @@ button,input,select{font-family:Georgia,serif}
   <!-- ══ PALESTRE ══ -->
   <div id="tab-palestre" class="tab-panel">
     <div class="eyebrow-sm">Palestre</div>
+
+    <div class="card mb16">
+      <div style="font-size:12px;color:#94a3b8;margin-bottom:10px">Immagine banner per le stampe (opzionale)</div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div id="banner-preview" style="display:none;max-height:60px;max-width:200px;overflow:hidden;border:1px solid #1e3a5f;border-radius:3px">
+          <img id="banner-img" style="max-height:60px;max-width:200px;display:block">
+        </div>
+        <div style="flex:1;display:flex;gap:8px;flex-wrap:wrap">
+          <label style="padding:7px 14px;background:#1e3a5f;border-radius:3px;color:#60a5fa;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer">
+            📷 Carica banner
+            <input type="file" accept="image/*" onchange="caricaBanner(event)" style="display:none">
+          </label>
+          <button class="btn-sm" style="background:#2d1515;color:#fca5a5" onclick="rimuviBanner()" id="btn-rimuovi-banner" style="display:none">✕ Rimuovi</button>
+        </div>
+      </div>
+    </div>
+
     <div style="font-size:12px;color:#475569;margin-bottom:20px">Nome, indirizzo e link Google Maps dei campi di gara. Appaiono in designazioni, PDF e badge.</div>
     <div id="palestre-form"></div>
     <div class="flex gap10 wrap mt16">
@@ -449,12 +466,12 @@ window.onerror=function(msg,src,line,col,err){
 </script>
 
 <script>
-const VERSION = '2.9.1.1'; // Aggiornare ad ogni release
+const VERSION = '2.9.3'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '2.9.1.1',
+  'finali.html':    '2.9.3',
   'pwa/index.html': '1.9',
   'sw.js':          '1.5',
   'manifest.json':  '1.3',
@@ -815,7 +832,11 @@ function distribuisciPartite(partiteA,partiteB){
   // Fallback totale
   const sA=shuffle([...partiteA]),sB=shuffle([...partiteB]);
   const slots=[[[],[]],[[],[]],[[],[]]];
-  for(let t=0;t<3;t++){slots[t][0]=[sA[t*2],sB[t*2]];slots[t][1]=[sA[t*2+1],sB[t*2+1]];}
+  for(let t=0;t<3;t++){
+    slots[t][0]=[sA[t*2],sB[t*2]];
+    slots[t][1]=[sA[t*2+1],sB[t*2+1]];
+    for(let c=0;c<2;c++) slots[t][c].forEach(p=>{if(CAMPI[c])p.campoId=CAMPI[c].id;});
+  }
   return slots;
 }
 
@@ -921,7 +942,7 @@ function renderCalBuilder(){
               ondragend="calDragEnd(event)"
               style="padding:8px 11px;background:#0d1f3c;border:1px solid #1e3a5f;border-radius:4px;cursor:grab;user-select:none;display:flex;align-items:center;gap:6px">
               <span class="g-tag ${gc}" style="font-size:9px;padding:1px 5px;border-radius:6px">G.${p.girone}</span>
-              <span style="font-size:12px;color:#e2e8f0">${p.casa.nome} vs ${p.ospite.nome}</span>
+              <span style="font-size:12px;color:#e2e8f0">${p.casa.nome}${p.casa.citta&&p.casa.citta!==p.casa.nome?' ('+p.casa.citta+')':''} vs ${p.ospite.nome}${p.ospite.citta&&p.ospite.citta!==p.ospite.nome?' ('+p.ospite.citta+')':''}</span>
               <span style="color:#475569;font-size:13px;cursor:grab">⠿</span>
             </div>`;
           }).join('')}
@@ -1395,16 +1416,16 @@ function renderDesignazioni(){
     campi.forEach((campo,c)=>{
       html+=`<div style="background:#0d1f3c;border:1px solid #1e3a5f;border-radius:4px;overflow:hidden">
         <div class="campo-header">
-          🏟 ${CAMPI[c].nome}
-          <span class="campo-addr"> · ${CAMPI[c].indirizzo}${CAMPI[c].citta?' · '+CAMPI[c].citta:''}</span>
-          ${CAMPI[c].maps?`<a href="${CAMPI[c].maps}" target="_blank" style="margin-left:8px;font-size:9px;color:#60a5fa;text-decoration:none">🗺 Maps</a>`:''}
+          🏟 ${campoInfo(c,campo[0]).nome}
+          <span class="campo-addr"> · ${campoInfo(c,campo[0]).indirizzo}${campoInfo(c,campo[0]).citta?' · '+campoInfo(c,campo[0]).citta:''}</span>
+          ${campoInfo(c,campo[0]).maps?`<a href="${campoInfo(c,campo[0]).maps}" target="_blank" style="margin-left:8px;font-size:9px;color:#60a5fa;text-decoration:none">🗺 Maps</a>`:''}
         </div>`;
       campo.forEach((slot,p)=>{
         const gl=gLabel(slot);
         const slotKey=`${turno}-${c}-${p}`;
         html+=`<div class="slot">
           <div class="slot-title">
-            <span class="slot-partita">${slot.casa.nome} <span style="color:#475569;font-weight:normal;font-size:11px">vs</span> ${slot.ospite.nome}</span>
+            <span class="slot-partita">${slot.casa.nome}${slot.casa.citta&&slot.casa.citta!==slot.casa.nome?' ('+slot.casa.citta+')':''} <span style="color:#475569;font-weight:normal;font-size:11px">vs</span> ${slot.ospite.nome}${slot.ospite.citta&&slot.ospite.citta!==slot.ospite.nome?' ('+slot.ospite.citta+')':''}</span>
             <span class="g-tag g${gl.toLowerCase()}">${gl}</span>
           </div>
           <div class="slot-seq">
@@ -1483,6 +1504,16 @@ function arbDrop(e,t,c,p,aid){
 }
 
 // ══════════════════════════════════════════════════ CONTROLLO VINCOLI
+function confermaTurno(turno, checked){
+  stato.turniConfermati[turno] = checked;
+  schedulaSalvataggio();
+  renderDesignazioni();
+}
+
+function tuttiTurniConfermati(){
+  return stato.turniConfermati[0]&&stato.turniConfermati[1]&&stato.turniConfermati[2];
+}
+
 function controllaVincoli(){
   if(!stato.calendario)return[];
   const viol=[];
@@ -1713,6 +1744,131 @@ function scaricaHTML(html,nomeFile){
   setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 
+// Risolve campo da id (priorità) oppure da indice corrente
+function campoById(id){ return CAMPI.find(c=>c.id===id)||null; }
+function campoInfo(c, slotOrId){
+  // slotOrId can be a slot object (has .campoId) or a campo index
+  if(slotOrId && typeof slotOrId==='object' && slotOrId.campoId){
+    return campoById(slotOrId.campoId) || CAMPI[c] || {id:'',nome:'Campo '+(c+1),indirizzo:'',citta:'',maps:''};
+  }
+  return CAMPI[c] || {id:'',nome:'Campo '+(c+1),indirizzo:'',citta:'',maps:''};
+}
+
+function stampaPDFTurno(turnoIdx){
+  if(!stato.calendario||!stato.gironi)return;
+  const g=stato.gironi, cal=stato.calendario;
+  const gL=p=>g.A.find(s=>s.nome===p.casa.nome||s.nome===p.ospite.nome)?'A':'B';
+  const nc=(s)=>s.nome+(s.citta&&s.citta!==s.nome?' ('+s.citta+')':'');
+
+  const baseCss=`*{margin:0;padding:0;box-sizing:border-box}body{font-family:Georgia,serif;color:#1a1a2e;background:#fff;padding:28px 32px;font-size:13px}
+h1{font-size:18px;font-weight:normal;letter-spacing:3px;text-align:center;border-bottom:2px solid #1a1a2e;padding-bottom:8px;margin-bottom:4px}
+.sub{text-align:center;font-size:10px;color:#666;letter-spacing:2px;margin-bottom:4px}
+.nota{text-align:center;font-size:11px;font-weight:bold;padding:5px 0 18px}
+.nota.prov{color:#b45309}.nota.def{color:#166534}
+.th{background:#1a1a2e;color:#fff;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:7px 12px;border-radius:2px;margin-bottom:10px}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cb{border:1px solid #ddd;border-radius:3px;padding:10px 12px}
+.cl{font-size:10px;font-weight:bold;color:#1a1a2e;margin-bottom:2px}
+.ca{font-size:9px;color:#888;margin-bottom:8px}
+.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.pn{font-size:13px;font-weight:bold}.gt2{font-size:9px;padding:1px 6px;border-radius:8px;background:#eef;color:#336}
+.ps{font-size:9px;color:#aaa;margin-bottom:6px;letter-spacing:1px;text-transform:uppercase}
+.sep{border:none;border-top:1px solid #eee;margin:7px 0}
+.ar{display:flex;align-items:center;gap:7px;margin-bottom:3px}
+.fb{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:bold;color:#fff;flex-shrink:0}
+table{width:100%;border-collapse:collapse;font-size:12px;margin-top:16px}
+th{text-align:left;padding:5px 8px;border:1px solid #ddd;background:#f5f5f5;font-size:10px;text-transform:uppercase;letter-spacing:1px}
+td{padding:4px 8px;border:1px solid #ddd}
+.banner{max-width:100%;max-height:80px;display:block;margin:0 auto 12px}
+.ft{margin-top:20px;text-align:center;font-size:10px;color:#aaa;border-top:1px solid #eee;padding-top:8px}
+.np{position:fixed;top:12px;right:12px}@media print{.np{display:none}}`;
+
+  const bannerHtml=stato.bannerImage?`<img src="${stato.bannerImage}" class="banner">`:'';
+
+  let turnoLabel, bodyHtml, isConfermato=false;
+
+  if(turnoIdx==='finali'){
+    const f34=stato.finali.f34, f12=stato.finali.f12;
+    if(!f34.casa&&!f34.ospite&&!f12.casa&&!f12.ospite){alert('Nessuna finale configurata.');return;}
+    const ci0=CAMPI[0]||{nome:'Campo 1',indirizzo:'',citta:'',maps:''};
+    const dataFmt=DATE_GARA.dom?new Date(DATE_GARA.dom+'T12:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
+    turnoLabel=`Domenica Mattina — Finali${dataFmt?' · '+dataFmt:''}`;
+    // Finali non ha checkbox — usa stato.turniConfermati[2] come proxy
+    isConfermato=stato.turniConfermati[2]||false;
+    bodyHtml=`<div class="cg" style="grid-template-columns:1fr">
+      ${f34.casa&&f34.ospite?`<div class="cb">
+        <div class="cl">🥉 Finale 3°-4° — 1ª Partita</div>
+        <div class="ca">${ci0.nome}${ci0.indirizzo?' · '+ci0.indirizzo:''}${ci0.citta?' · '+ci0.citta:''}</div>
+        <div class="ph" style="margin-top:8px"><span class="pn">${nc(f34.casa)} vs ${nc(f34.ospite)}</span></div>
+        ${(stato.finaliCalendario?.f34||[]).map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st||arb.regione}</span></div>`).join('')}
+      </div>`:''}
+      ${f12.casa&&f12.ospite?`<div class="cb" style="margin-top:10px">
+        <div class="cl">🏆 Finale 1°-2° — 2ª Partita</div>
+        <div class="ca">${ci0.nome}${ci0.indirizzo?' · '+ci0.indirizzo:''}${ci0.citta?' · '+ci0.citta:''}</div>
+        <div class="ph" style="margin-top:8px"><span class="pn">${nc(f12.casa)} vs ${nc(f12.ospite)}</span></div>
+        ${(stato.finaliCalendario?.f12||[]).map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st||arb.regione}</span></div>`).join('')}
+      </div>`:''}
+    </div>`;
+  } else {
+    const turnoData=cal.turni.find(({turno})=>turno===turnoIdx);
+    if(!turnoData){alert('Turno non trovato.');return;}
+    const {turno,campi}=turnoData;
+    const dateKeys=['ven','sab','sab','dom'];
+    const dataFmt=DATE_GARA[dateKeys[turno]]?new Date(DATE_GARA[dateKeys[turno]]+'T12:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
+    turnoLabel=`${TURNI_LABEL[turno]}${dataFmt?' · '+dataFmt:''}`;
+    isConfermato=stato.turniConfermati[turno]||false;
+    const arbitriTurno=ARBITRI_BASE.map(arb=>{
+      const pp=[];
+      campi.forEach((campo,c)=>campo.forEach((slot,p)=>{
+        if(slot.terna?.find(a=>a.id===arb.id)){
+          const ci=campoInfo(c,slot);
+          pp.push(`${ci.nome} (${p+1}ª)`);
+        }
+      }));
+      return pp.length?{...arb,partite:pp,nd:nomeDisplay(arb)}:null;
+    }).filter(Boolean);
+    bodyHtml=`<div class="cg">
+      ${campi.map((campo,c)=>{
+        const ci=campoInfo(c,campo[0]);
+        return`<div class="cb">
+          <div class="cl">🏟 ${ci.nome}</div>
+          <div class="ca">${ci.indirizzo}${ci.citta?' · '+ci.citta:''}${ci.maps?` · <a href="${ci.maps}" style="color:#2563eb">Maps</a>`:''}</div>
+          ${campo.map((slot,p)=>`${p>0?'<hr class="sep">':''}
+            <div class="ph"><span class="pn">${nc(slot.casa)} vs ${nc(slot.ospite)}</span><span class="gt2">G.${gL(slot)}</span></div>
+            <div class="ps">${p===0?'1ª partita':'2ª partita'}</div>
+            ${slot.terna?slot.terna.map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st||arb.regione}</span></div>`).join(''):'<span style="color:red">⚠ Terna non assegnata</span>'}
+          `).join('')}
+        </div>`;
+      }).join('')}
+    </div>
+    ${isConfermato&&arbitriTurno.length?`<table>
+      <tr><th>Arbitro</th><th>Ruolo</th><th>ST</th><th>Campo (partita)</th></tr>
+      ${arbitriTurno.map(arb=>`<tr>
+        <td style="font-weight:bold">${arb.nd}</td>
+        <td style="color:${GRUPPO_COLOR_P[arb.gruppo]}">Arb. ${arb.gruppo}</td>
+        <td style="font-size:11px">${arb.st||arb.regione}</td>
+        <td style="font-size:11px;color:#555">${arb.partite.join(', ')}</td>
+      </tr>`).join('')}
+    </table>`:''}`;
+  }
+
+  const notaClass=isConfermato?'def':'prov';
+  const notaTesto=isConfermato?'✓ DESIGNAZIONI DEFINITIVE':'⚠ DESIGNAZIONI PROVVISORIE — da controllare prima della comunicazione ufficiale';
+  const html=`<!DOCTYPE html><html><head><meta charset="utf-8">
+  <title>Designazioni — ${turnoLabel}</title>
+  <style>${baseCss}</style></head><body>
+  <div class="np"><button onclick="window.print()" style="padding:8px 16px;background:#1a1a2e;color:#fff;border:none;border-radius:3px;cursor:pointer;font-family:Georgia,serif">🖨 Stampa</button></div>
+  ${bannerHtml}
+  <h1>DESIGNAZIONI ARBITRALI</h1>
+  <div class="sub">Competizione Baskin · Monfalcone (GO)</div>
+  <div class="nota ${notaClass}">${notaTesto}</div>
+  <div class="th">${turnoLabel}</div>
+  ${bodyHtml}
+  <div class="ft">Generato automaticamente${isConfermato?'':' · Verificare vincoli prima della comunicazione ufficiale'}</div>
+  </body></html>`;
+  scaricaHTML(html,`designazioni-${(TURNI_LABEL_SHORT[turnoIdx]||'finali').replace(/ /g,'-').toLowerCase()}.html`);
+}
+
 function stampaPDF(){
   if(!stato.calendario||!stato.gironi)return;
   const g=stato.gironi,cal=stato.calendario;
@@ -1723,7 +1879,7 @@ function stampaPDF(){
       campi.forEach((campo,c)=>{
         campo.forEach((slot,p)=>{
           if(slot.terna&&slot.terna.find(a=>a.id===arb.id))
-            partite.push(`${TURNI_LABEL[turno].split(' ')[0]} ${CAMPI[c].nome} (${p+1}ª)`);
+            partite.push(`${TURNI_LABEL[turno].split(' ')[0]} ${campoInfo(c,slot).nome} (${p+1}ª)`);
         });
       });
     });
@@ -1752,19 +1908,21 @@ td{padding:5px 10px;border:1px solid #ddd;vertical-align:middle}
 .np{position:fixed;top:14px;right:14px}@media print{.np{display:none}}</style></head><body>
 <div class="np"><button onclick="window.print()" style="padding:9px 18px;background:#1a1a2e;color:#fff;border:none;border-radius:3px;cursor:pointer;font-family:Georgia,serif;font-size:12px">🖨 Stampa</button></div>
 <h1>DESIGNAZIONI ARBITRALI</h1><div class="sub">Competizione Baskin · Monfalcone (GO)</div>
-<div class="gironi">${['A','B'].map(gr=>`<div class="gbox"><div class="gt">Girone ${gr}</div>${g[gr].map(s=>`<div style="line-height:1.8">${s.nome}</div>`).join('')}</div>`).join('')}</div>
-${cal.turni.map(({turno,campi})=>`<div class="tw"><div class="th">${TURNI_LABEL[turno]}</div><div class="cg">
+<div style="text-align:center;font-size:11px;font-weight:bold;padding:5px 0 16px;color:${tuttiTurniConfermati()?'#166534':'#b45309'}">${tuttiTurniConfermati()?'✓ DESIGNAZIONI DEFINITIVE':'⚠ DESIGNAZIONI PROVVISORIE — da controllare prima della comunicazione ufficiale'}</div>
+${stato.bannerImage?`<img src="${stato.bannerImage}" style="max-width:100%;max-height:80px;display:block;margin:0 auto 12px">`:''}
+<div class="gironi">${['A','B'].map(gr=>`<div class="gbox"><div class="gt">Girone ${gr}</div>${g[gr].map(s=>`<div style="line-height:1.8">${s.nome}${s.citta&&s.citta!==s.nome?' ('+s.citta+')':''}</div>`).join('')}</div>`).join('')}</div>
+${cal.turni.map(({turno,campi})=>{const tc=stato.turniConfermati[turno]||false;return`<div class="tw"><div class="th">${TURNI_LABEL[turno]} <span style="font-size:9px;font-weight:normal;opacity:.8">${tc?'✓ Definitivo':'⚠ Provvisorio'}</span></div><div class="cg">
 ${campi.map((campo,c)=>`<div class="cb">
-<div class="cl">🏟 ${CAMPI[c].nome}</div><div class="ca">${CAMPI[c].indirizzo}${CAMPI[c].citta?' · '+CAMPI[c].citta:''}</div>${CAMPI[c].maps?`<div class="ca"><a href="${CAMPI[c].maps}" style="color:#2563eb">Google Maps</a></div>`:''}
+<div class="cl">🏟 ${campoInfo(c,campo[0]).nome}</div><div class="ca">${campoInfo(c,campo[0]).indirizzo}${campoInfo(c,campo[0]).citta?' · '+campoInfo(c,campo[0]).citta:''}</div>${campoInfo(c,campo[0]).maps?`<div class="ca"><a href="${campoInfo(c,campo[0]).maps}" style="color:#2563eb">Google Maps</a></div>`:''}
 ${campo.map((slot,p)=>`${p>0?'<hr class="sep">':''}
-<div class="ph"><span class="pn">${slot.casa.nome} vs ${slot.ospite.nome}</span><span class="gt2">G.${gL(slot)}</span></div>
+<div class="ph"><span class="pn">${slot.casa.nome}${slot.casa.citta&&slot.casa.citta!==slot.casa.nome?' ('+slot.casa.citta+')':''} vs ${slot.ospite.nome}${slot.ospite.citta&&slot.ospite.citta!==slot.ospite.nome?' ('+slot.ospite.citta+')':''}</span><span class="gt2">G.${gL(slot)}</span></div>
 <div class="ps">${p===0?'1ª partita':'2ª partita'}</div>
 ${slot.terna?slot.terna.map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st||arb.regione}</span></div>`).join(''):'<span style="color:red">⚠</span>'}
-`).join('')}</div>`).join('')}</div></div>`).join('')}
-<div class="rh">RIEPILOGO ARBITRI</div>
-<table><tr><th>Arbitro</th><th>Ruolo</th><th>ST</th><th>Designazioni</th><th style="text-align:center">N.</th></tr>
+`).join('')}</div>`).join('')}</div></div>`}).join('')}
+${tuttiTurniConfermati()?`<div class="rh">RIEPILOGO ARBITRI</div>`:`<div style="font-style:italic;color:#b45309;font-size:11px;margin:16px 0">Il riepilogo arbitri viene incluso solo quando tutti i turni sono confermati.</div>`}
+${tuttiTurniConfermati()?`<table><tr><th>Arbitro</th><th>Ruolo</th><th>ST</th><th>Designazioni</th><th style="text-align:center">N.</th></tr>
 ${arbitroRighe.map(arb=>`<tr><td style="font-weight:bold">${arb.nd}</td><td style="color:${GRUPPO_COLOR_P[arb.gruppo]}">Arb. ${arb.gruppo}</td><td style="font-size:11px">${arb.st||arb.regione}</td><td style="color:#555;font-size:11px">${arb.partite.join(', ')||'—'}</td><td style="text-align:center;font-weight:bold">${arb.partite.length}</td></tr>`).join('')}
-</table>${(stato.finali.f34.casa&&stato.finali.f34.ospite||stato.finali.f12.casa&&stato.finali.f12.ospite)?`
+</table>`:''}${(stato.finali.f34.casa&&stato.finali.f34.ospite||stato.finali.f12.casa&&stato.finali.f12.ospite)?`
 <div class="rh">DOMENICA MATTINA — FINALI · ${DATE_GARA.dom?new Date(DATE_GARA.dom+'T12:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}):''}</div>
 <div class="cg" style="grid-template-columns:1fr">
 ${stato.finali.f34.casa&&stato.finali.f34.ospite?`<div class="cb">
@@ -1793,7 +1951,7 @@ function stampaBadge(){
     campi.forEach((campo,c)=>{
       campo.forEach((slot,p)=>{
         if(slot.terna)slot.terna.forEach(arb=>{
-          des[arb.id].push({turno:TURNI_LABEL[turno],campo:CAMPI[c].nome,mapsUrl:CAMPI[c].maps||'',partita:`${slot.casa.nome} vs ${slot.ospite.nome}`,seq:p+1});
+          const _ci=campoInfo(c,slot);des[arb.id].push({turno:TURNI_LABEL[turno],campo:_ci.nome,mapsUrl:_ci.maps||'',partita:`${slot.casa.nome}${slot.casa.citta&&slot.casa.citta!==slot.casa.nome?' ('+slot.casa.citta+')':''} vs ${slot.ospite.nome}${slot.ospite.citta&&slot.ospite.citta!==slot.ospite.nome?' ('+slot.ospite.citta+')':''}`,seq:p+1});
         });
       });
     });
@@ -1865,8 +2023,39 @@ function aggiornaPalestra(i,field,val){
   renderPalestreForm();
 }
 
+function caricaBanner(event){
+  const file=event.target.files[0]; if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    stato.bannerImage=e.target.result;
+    aggiornaBannerUI();
+    schedulaSalvataggio();
+  };
+  reader.readAsDataURL(file);
+  event.target.value='';
+}
+
+function rimuviBanner(){
+  stato.bannerImage=null;
+  aggiornaBannerUI();
+  schedulaSalvataggio();
+}
+
+function aggiornaBannerUI(){
+  const prev=document.getElementById('banner-preview');
+  const img=document.getElementById('banner-img');
+  const btn=document.getElementById('btn-rimuovi-banner');
+  if(stato.bannerImage&&prev&&img){
+    img.src=stato.bannerImage; prev.style.display='block';
+    if(btn)btn.style.display='inline-block';
+  } else {
+    if(prev)prev.style.display='none';
+    if(btn)btn.style.display='none';
+  }
+}
+
 function aggiungiPalestra(){
-  CAMPI.push({nome:'', citta:'', indirizzo:'', maps:''});
+  _campoIdCounter++; CAMPI.push({id:'campo_'+_campoIdCounter, nome:'', citta:'', indirizzo:'', maps:''});
   renderPalestreForm();
 }
 
@@ -1913,12 +2102,13 @@ function costruisciExport(sezioni){
   const out={_versione:1, _data:new Date().toISOString(), _release:{...VERSIONS}};
   if(sezioni.includes('squadre'))
     out.squadre=SQUADRE.map(s=>({nome:s.nome,citta:s.citta||'',st:s.st}));
+  if(sezioni.includes('palestre')&&stato.bannerImage) out.bannerImage=stato.bannerImage;
   if(sezioni.includes('arbitri'))
     out.arbitri=ARBITRI_BASE.map(a=>({id:a.id,label:a.label,gruppo:a.gruppo,st:a.st,
       nome:stato.nomiArbitri[a.id]?.nome||'',
       cognome:stato.nomiArbitri[a.id]?.cognome||''}));
   if(sezioni.includes('palestre'))
-    out.palestre=CAMPI.map(c=>({nome:c.nome,citta:c.citta,indirizzo:c.indirizzo,maps:c.maps||''}));
+    out.palestre=CAMPI.map(c=>({id:c.id||'campo_'+(CAMPI.indexOf(c)+1),nome:c.nome,citta:c.citta,indirizzo:c.indirizzo,maps:c.maps||''}));
   if(sezioni.includes('date'))
     out.date={...DATE_GARA};
   if(sezioni.includes('gironi')&&stato.gironi)
@@ -1994,7 +2184,7 @@ function importaStato(data, sezioni){
     }
     if(sezioni.includes('palestre')&&data.palestre){
       CAMPI.length=0;
-      data.palestre.forEach(p=>CAMPI.push({nome:p.nome,citta:p.citta,indirizzo:p.indirizzo,maps:p.maps||''}));
+      data.palestre.forEach((p,i)=>{const id=p.id||'campo_'+(i+1);CAMPI.push({id,nome:p.nome,citta:p.citta,indirizzo:p.indirizzo,maps:p.maps||''});_campoIdCounter=Math.max(_campoIdCounter,parseInt(id.split('_')[1]||0)||0);});
     }
     if(sezioni.includes('date')&&data.date){
       Object.assign(DATE_GARA, data.date);
@@ -2011,7 +2201,7 @@ function importaStato(data, sezioni){
       stato.calSlots=data.calendario.map(turno=>
         turno.map(campo=>campo.map(p=>{
           const casa=trovaSq(p.casa),ospite=trovaSq(p.ospite);
-          return casa&&ospite?{id:`${p.casa}|${p.ospite}`,casa,ospite,girone:p.girone}:null;
+          return casa&&ospite?{id:`${p.casa}|${p.ospite}`,casa,ospite,girone:p.girone,campoId:p.campoId||null}:null;
         }).filter(Boolean))
       );
     }
@@ -2070,6 +2260,7 @@ function importaJSON(event){
       const sezioni=getSezioniSelezionate();
       const msgs=[];
 
+      if(data.bannerImage){stato.bannerImage=data.bannerImage;aggiornaBannerUI();}
       if(sezioni.includes('squadre')&&data.squadre){
         data.squadre.forEach((s,i)=>{if(SQUADRE[i]){SQUADRE[i].nome=s.nome;if(s.citta!==undefined)SQUADRE[i].citta=s.citta;SQUADRE[i].st=s.st||SQUADRE[i].st;}});
         renderSquadre();renderSquadreForm();
@@ -2089,7 +2280,7 @@ function importaJSON(event){
       }
       if(sezioni.includes('palestre')&&data.palestre){
         CAMPI.length=0;
-        data.palestre.forEach(p=>CAMPI.push({nome:p.nome,citta:p.citta,indirizzo:p.indirizzo,maps:p.maps||''}));
+        data.palestre.forEach((p,i)=>{const id=p.id||'campo_'+(i+1);CAMPI.push({id,nome:p.nome,citta:p.citta,indirizzo:p.indirizzo,maps:p.maps||''});_campoIdCounter=Math.max(_campoIdCounter,parseInt(id.split('_')[1]||0)||0);});
         renderPalestreForm();
         msgs.push('✓ Palestre importate');
       }
@@ -2144,6 +2335,7 @@ function importaJSON(event){
         renderFinali();
         msgs.push('✓ Finali importate');
       }
+      if(data.turniConfermati) Object.assign(stato.turniConfermati, data.turniConfermati);
       if(sezioni.includes('designazioni')&&data.designazioni&&stato.gironi){
         const trovaSq=nome=>SQUADRE.find(s=>s.nome===nome);
         const trovArb=id=>ARBITRI_BASE.find(a=>a.id===id);
@@ -3473,6 +3665,7 @@ function renderTutti(){
   renderSquadre();
   renderArbitriForm();
   renderSquadreForm();
+  aggiornaBannerUI();
   renderST();
   renderPalestreForm();
   renderIESezioni();

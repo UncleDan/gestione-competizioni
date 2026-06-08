@@ -152,20 +152,33 @@ async function verificaAggiornamenti(){
       return;
     }
 
-    const aggiornamenti = Object.entries(remote).filter(([k,v]) => current[k] !== v);
+    const diff = Object.entries(remote).filter(([k,v]) => current[k] !== v);
 
-    if(aggiornamenti.length === 0){
+    if(diff.length === 0){
       btn.textContent = '✓ Tutto aggiornato';
       btn.className = 'updated';
       setTimeout(()=>{ btn.textContent='🔄 Verifica aggiornamenti'; btn.className=''; },3000);
     } else {
-      mostraToast(`Aggiornamento disponibile (${aggiornamenti.length} file)`);
-      btn.textContent = `⬆ ${aggiornamenti.length} aggiornament${aggiornamenti.length>1?'i':'o'}`;
-      btn.className = '';
-      // Forza aggiornamento SW
+      const cmp=(a,b)=>{
+        const pa=String(a).split('.').map(Number),pb=String(b).split('.').map(Number);
+        for(let i=0;i<Math.max(pa.length,pb.length);i++){const x=pa[i]||0,y=pb[i]||0;if(x!==y)return x<y?-1:1;}
+        return 0;
+      };
+      const isDowngrade=diff.some(([k,v])=>current[k]&&cmp(v,current[k])<0);
+      if(isDowngrade){
+        const lista=diff.map(([k,v])=>`${k}: ${current[k]} → ${v}`).join('\n');
+        const ok=confirm('⚠ DOWNGRADE RILEVATO\n\nLe versioni online sono più vecchie di quelle installate:\n\n'+lista+'\n\nProcedere con il downgrade?');
+        if(!ok){btn.textContent='✕ Annullato';btn.className='';setTimeout(()=>{btn.textContent='🔄 Verifica aggiornamenti';},3000);return;}
+        mostraToast('Downgrade in corso — ricarica per applicare');
+        btn.textContent='⬇ Downgrade...';
+      } else {
+        mostraToast(`Aggiornamento disponibile (${diff.length} file)`);
+        btn.textContent=`⬆ ${diff.length} aggiornament${diff.length>1?'i':'o'}`;
+      }
+      btn.className='';
       if('serviceWorker' in navigator){
-        const reg = await navigator.serviceWorker.getRegistration(`${BASE}/`);
-        if(reg) await reg.update();
+        const reg=await navigator.serviceWorker.getRegistration(`${BASE}/`);
+        if(reg)await reg.update();
       }
     }
   } catch(err){
@@ -182,7 +195,7 @@ const MODULI = [
     nome: 'Finali Nazionali',
     desc: 'Sorteggio gironi · Designazioni arbitrali · Risultati',
     anno: '2026',
-    versione: '2.9.1.1',
+    versione: '2.9.1',
     file: `${BASE}/finali.html`,
     icon: '🏆',
     attivo: true,
