@@ -466,12 +466,12 @@ window.onerror=function(msg,src,line,col,err){
 </script>
 
 <script>
-const VERSION = '2.9.3.2'; // Aggiornare ad ogni release
+const VERSION = '2.9.4'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '2.9.3.2',
+  'finali.html':    '2.9.4',
   'pwa/index.html': '1.9',
   'sw.js':          '1.5',
   'manifest.json':  '1.3',
@@ -1417,7 +1417,19 @@ function renderDesignazioni(){
   // Turni
   cal.turni.forEach(({turno,campi})=>{
     html+=`<div style="margin-bottom:28px">
-      <div class="turno-sep"><div class="line"></div><div class="lbl">${turnoLabel(turno)}</div><div class="line"></div></div>
+      <div class="turno-sep">
+        <div class="line"></div>
+        <div class="lbl">\${turnoLabel(turno)}</div>
+        <div class="line"></div>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;font-size:10px;color:\${stato.turniConfermati[turno]?'#4ade80':'#f59e0b'};flex-shrink:0;margin-left:8px">
+          <input type="checkbox" \${stato.turniConfermati[turno]?'checked':''} onchange="confermaTurno(\${turno},this.checked)"
+            style="width:14px;height:14px;cursor:pointer;flex-shrink:0;accent-color:\${stato.turniConfermati[turno]?'#22c55e':'#f59e0b'}">
+          \${stato.turniConfermati[turno]?'✓ Definitive':'Provvisorie'}
+        </label>
+      </div>
+      <div style="font-size:10px;padding:5px 10px;border-radius:3px;margin-bottom:10px;\${stato.turniConfermati[turno]?'background:#0a1a0a;color:#4ade80;border:1px solid #22c55e40':'background:#1a1200;color:#f59e0b;border:1px solid #f59e0b40'}">
+        \${stato.turniConfermati[turno]?'✓ Designazioni DEFINITIVE — turno confermato':'⚠ Designazioni PROVVISORIE — verificare prima della comunicazione ufficiale'}
+      </div>
       <div class="grid2">`;
     campi.forEach((campo,c)=>{
       html+=`<div style="background:#0d1f3c;border:1px solid #1e3a5f;border-radius:4px;overflow:hidden">
@@ -1468,10 +1480,18 @@ function renderDesignazioni(){
   const hint=stato.modificatoArbitri
     ?'💡 Trascina un arbitro su un altro per scambiarli. Gli arbitri con ⚠ hanno violazioni.'
     :'💡 Trascina un arbitro su un altro per scambiarli.';
+  const _tlabs2=[
+    {t:0,label:'Ven. Pom.'},
+    {t:1,label:'Sab. Matt.'},
+    {t:2,label:'Sab. Pom.'},
+    {t:'finali',label:'Dom. Finali'},
+  ];
   html+=`<div style="font-size:11px;color:#475569;margin-bottom:12px">${hint}</div>
-  <div class="flex gap10 wrap mt8">
-    <button class="btn-outline" onclick="generaDesignazioni()">🔄 Rigenera Arbitri</button>
-    <button class="btn-amber" onclick="stampaPDF()">🖨 PDF Designazioni</button>
+  <div class="flex gap10 wrap mt8" style="align-items:center">
+    <button class="btn-outline" onclick="generaDesignazioni()">🔄 Rigenera</button>
+    <span style="font-size:9px;color:#475569;letter-spacing:1px;text-transform:uppercase;flex-basis:100%;margin-top:8px;margin-bottom:2px">Stampa per turno:</span>
+    ${_tlabs2.map(({t,label})=>`<button style="background:#0d2040;color:#f59e0b;border:1px solid #92400e;padding:6px 12px;font-size:10px;border-radius:3px;cursor:pointer;font-family:Georgia,serif" onclick="stampaPDFTurno(${JSON.stringify(t)})">${label}</button>`).join('')}
+    <button class="btn-amber" onclick="stampaPDF()">🖨 Tutti</button>
     <button class="btn-violet" onclick="stampaBadge()">🪪 Badge</button>
   </div>`;
 
