@@ -183,6 +183,7 @@ button,input,select{font-family:Georgia,serif}
   <button onclick="showTab('sessioni',this)" class="tab-btn" style="color:#a78bfa">🕐 Sessioni</button>
   <a href="/gestione-competizioni/pwa/index.html" style="padding:12px 14px;background:transparent;border:none;color:#475569;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;text-decoration:none" title="Torna al menu principale">⌂ Menu</a>
   <button onclick="resetApp()" style="padding:12px 14px;background:transparent;border:none;color:#475569;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer" title="Ripristina dati di esempio">↺ Reset</button>
+  <button class="tab-btn" onclick="showTab('opzioni',this)" style="color:#38bdf8">⚙ Opzioni</button>
   <button id="btn-debug" onclick="toggleDebug()" style="padding:12px 14px;background:transparent;border:none;color:#475569;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer">🐛 Debug</button>
   <button id="btn-pdf"   onclick="stampaPDF()"   style="display:none">🖨 PDF</button>
   <button id="btn-badge" onclick="stampaBadge()" style="display:none">🪪 Badge</button>
@@ -274,22 +275,6 @@ button,input,select{font-family:Georgia,serif}
   <!-- ══ PALESTRE ══ -->
   <div id="tab-palestre" class="tab-panel">
     <div class="eyebrow-sm">Palestre</div>
-
-    <div class="card mb16">
-      <div style="font-size:12px;color:#94a3b8;margin-bottom:10px">Immagine banner per le stampe (opzionale)</div>
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-        <div id="banner-preview" style="display:none;max-height:60px;max-width:200px;overflow:hidden;border:1px solid #1e3a5f;border-radius:3px">
-          <img id="banner-img" style="max-height:60px;max-width:200px;display:block">
-        </div>
-        <div style="flex:1;display:flex;gap:8px;flex-wrap:wrap">
-          <label style="padding:7px 14px;background:#1e3a5f;border-radius:3px;color:#60a5fa;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer">
-            📷 Carica banner
-            <input type="file" accept="image/*" onchange="caricaBanner(event)" style="display:none">
-          </label>
-          <button class="btn-sm" style="background:#2d1515;color:#fca5a5" onclick="rimuviBanner()" id="btn-rimuovi-banner" style="display:none">✕ Rimuovi</button>
-        </div>
-      </div>
-    </div>
 
     <div style="font-size:12px;color:#475569;margin-bottom:20px">Nome, indirizzo e link Google Maps dei campi di gara. Appaiono in designazioni, PDF e badge.</div>
     <div id="palestre-form"></div>
@@ -466,12 +451,12 @@ window.onerror=function(msg,src,line,col,err){
 </script>
 
 <script>
-const VERSION = '2.9.4.1'; // Aggiornare ad ogni release
+const VERSION = '2.9.5.2'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '2.9.4.1',
+  'finali.html':    '2.9.5.2',
   'pwa/index.html': '1.9',
   'sw.js':          '1.5',
   'manifest.json':  '1.3',
@@ -576,6 +561,8 @@ let stato = {
   modificatoArbitri:false,
   risultati:{},
   risultatiFinali:{},
+  turniConfermati:{0:false,1:false,2:false},
+  bannerImage:null,
 };
 stato.nomiArbitri = {
   ER1: {cognome:"LANDI",     nome:"Diego"},
@@ -1764,6 +1751,17 @@ function renderST(){
 
 // ══════════════════════════════════════════════════ PDF
 function scaricaHTML(html,nomeFile){
+  const popup=document.getElementById('chk-stampa-popup')?.checked;
+  if(popup){
+    // Apri in nuova finestra e lancia stampa automatica
+    const win=window.open('','_blank');
+    if(win){
+      win.document.open(); win.document.write(html); win.document.close();
+      win.onload=()=>setTimeout(()=>{try{win.print();}catch(e){}},300);
+      return;
+    }
+  }
+  // Fallback: download file HTML
   const blob=new Blob([html],{type:'text/html;charset=utf-8'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');a.href=url;a.download=nomeFile;
@@ -2072,12 +2070,20 @@ function aggiornaBannerUI(){
   const prev=document.getElementById('banner-preview');
   const img=document.getElementById('banner-img');
   const btn=document.getElementById('btn-rimuovi-banner');
+  const nome=document.getElementById('banner-nome');
   if(stato.bannerImage&&prev&&img){
-    img.src=stato.bannerImage; prev.style.display='block';
+    img.src=stato.bannerImage;
+    prev.style.display='block';
     if(btn)btn.style.display='inline-block';
+    if(nome){
+      // Show image size info
+      const kb=Math.round(stato.bannerImage.length*3/4/1024);
+      nome.textContent=`${kb} KB`;
+    }
   } else {
     if(prev)prev.style.display='none';
     if(btn)btn.style.display='none';
+    if(nome)nome.textContent='Nessun banner caricato';
   }
 }
 
@@ -2334,7 +2340,7 @@ function importaJSON(event){
         stato.calSlots=data.calendario.map(turno=>
           turno.map(campo=>campo.map(p=>{
             const casa=trovaSq(p.casa),ospite=trovaSq(p.ospite);
-            return casa&&ospite?{id:`${p.casa}|${p.ospite}`,casa,ospite,girone:p.girone}:null;
+            return casa&&ospite?{id:`${p.casa}|${p.ospite}`,casa,ospite,girone:p.girone,campoId:p.campoId||null}:null;
           }).filter(Boolean))
         );
         renderCalBuilder();
@@ -3174,8 +3180,8 @@ async function caricaConfigSync(event){
       return;
     }
     syncConfig = cfg;
-    // Salva in sessionStorage (non persiste tra sessioni — sicurezza)
-    sessionStorage.setItem('syncConfig', JSON.stringify(cfg));
+    // Salva in localStorage (persiste tra sessioni, rimosso solo con Scollega)
+    localStorage.setItem('syncConfig', JSON.stringify(cfg));
     aggiornaConfigStatus();
     syncListFiles();
   } catch(e){
@@ -3184,11 +3190,21 @@ async function caricaConfigSync(event){
   event.target.value='';
 }
 
+function disconnettiSync(){
+  if(!confirm('Scollegare il repository sync?\nIl token verrà rimosso dalla memoria locale.')) return;
+  syncConfig = null;
+  localStorage.removeItem('syncConfig');
+  aggiornaConfigStatus();
+  syncFeedback('✓ Repository scollegato', '#4ade80');
+}
+
 function aggiornaConfigStatus(){
   const el = document.getElementById('sync-config-info');
   if(!el) return;
   if(!syncConfig){
     el.innerHTML = '<span style="color:#ef4444">⚠ Nessuna configurazione caricata</span><br><span style="font-size:10px">Carica sync-config.json per abilitare la sincronizzazione</span>';
+    const btnDis2=document.getElementById('btn-disconnetti-sync');
+    if(btnDis2) btnDis2.style.display='none';
   } else {
     el.innerHTML = `<span style="color:#22c55e">✓ Connesso</span><br>
       <span style="font-size:10px;color:#64748b">
@@ -3197,6 +3213,8 @@ function aggiornaConfigStatus(){
         Path: <strong style="color:#94a3b8">${syncConfig.path||'/'}</strong>
         ${syncConfig.user?` · Utente: <strong style="color:#60a5fa">${syncConfig.user}</strong>`:''}
       </span>`;
+    const btnDis=document.getElementById('btn-disconnetti-sync');
+    if(btnDis) btnDis.style.display='inline-block';
   }
 }
 
@@ -3355,9 +3373,9 @@ async function syncPull(path, filename){
   }
 }
 
-// Ripristina config da sessionStorage se presente
+// Ripristina config da localStorage (persiste tra sessioni)
 (()=>{
-  const saved = sessionStorage.getItem('syncConfig');
+  const saved = localStorage.getItem('syncConfig');
   if(saved){ try{ syncConfig=JSON.parse(saved); }catch(e){} }
 })();
 
