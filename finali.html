@@ -466,12 +466,12 @@ window.onerror=function(msg,src,line,col,err){
 </script>
 
 <script>
-const VERSION = '2.9.4'; // Aggiornare ad ogni release
+const VERSION = '2.9.4.1'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '2.9.4',
+  'finali.html':    '2.9.4.1',
   'pwa/index.html': '1.9',
   'sw.js':          '1.5',
   'manifest.json':  '1.3',
@@ -1416,19 +1416,20 @@ function renderDesignazioni(){
 
   // Turni
   cal.turni.forEach(({turno,campi})=>{
+    const _conf=stato.turniConfermati[turno]||false;
     html+=`<div style="margin-bottom:28px">
       <div class="turno-sep">
         <div class="line"></div>
-        <div class="lbl">\${turnoLabel(turno)}</div>
+        <div class="lbl">${turnoLabel(turno)}</div>
         <div class="line"></div>
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;font-size:10px;color:\${stato.turniConfermati[turno]?'#4ade80':'#f59e0b'};flex-shrink:0;margin-left:8px">
-          <input type="checkbox" \${stato.turniConfermati[turno]?'checked':''} onchange="confermaTurno(\${turno},this.checked)"
-            style="width:14px;height:14px;cursor:pointer;flex-shrink:0;accent-color:\${stato.turniConfermati[turno]?'#22c55e':'#f59e0b'}">
-          \${stato.turniConfermati[turno]?'✓ Definitive':'Provvisorie'}
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;font-size:10px;color:${_conf?'#4ade80':'#f59e0b'};flex-shrink:0;margin-left:8px">
+          <input type="checkbox" ${_conf?'checked':''} onchange="confermaTurno(${turno},this.checked)"
+            style="width:14px;height:14px;cursor:pointer;flex-shrink:0;accent-color:${_conf?'#22c55e':'#f59e0b'}">
+          ${_conf?'✓ Definitive':'Provvisorie'}
         </label>
       </div>
-      <div style="font-size:10px;padding:5px 10px;border-radius:3px;margin-bottom:10px;\${stato.turniConfermati[turno]?'background:#0a1a0a;color:#4ade80;border:1px solid #22c55e40':'background:#1a1200;color:#f59e0b;border:1px solid #f59e0b40'}">
-        \${stato.turniConfermati[turno]?'✓ Designazioni DEFINITIVE — turno confermato':'⚠ Designazioni PROVVISORIE — verificare prima della comunicazione ufficiale'}
+      <div style="font-size:10px;padding:5px 10px;border-radius:3px;margin-bottom:10px;${_conf?'background:#0a1a0a;color:#4ade80;border:1px solid #22c55e40':'background:#1a1200;color:#f59e0b;border:1px solid #f59e0b40'}">
+        ${_conf?'✓ Designazioni DEFINITIVE — turno confermato':'⚠ Designazioni PROVVISORIE — verificare prima della comunicazione ufficiale'}
       </div>
       <div class="grid2">`;
     campi.forEach((campo,c)=>{
