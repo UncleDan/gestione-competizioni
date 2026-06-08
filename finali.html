@@ -185,8 +185,6 @@ button,input,select{font-family:Georgia,serif}
   <button onclick="resetApp()" style="padding:12px 14px;background:transparent;border:none;color:#475569;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer" title="Ripristina dati di esempio">↺ Reset</button>
   <button class="tab-btn" onclick="showTab('opzioni',this)" style="color:#38bdf8">⚙ Opzioni</button>
   <button id="btn-debug" onclick="toggleDebug()" style="padding:12px 14px;background:transparent;border:none;color:#475569;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer">🐛 Debug</button>
-  <button id="btn-pdf"   onclick="stampaPDF()"   style="display:none">🖨 PDF</button>
-  <button id="btn-badge" onclick="stampaBadge()" style="display:none">🪪 Badge</button>
 </div>
 
 <div id="main">
@@ -319,7 +317,10 @@ button,input,select{font-family:Georgia,serif}
 
   <!-- ══ RISULTATI & CLASSIFICA ══ -->
   <div id="tab-risultati" class="tab-panel">
-    <div class="eyebrow-sm">Risultati & Classifica</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div class="eyebrow-sm" style="margin-bottom:0">Risultati & Classifica</div>
+      <button class="btn-amber" onclick="stampaRisultatiPDF()" style="font-size:11px;padding:7px 14px">🖨 Risultati & Classifica</button>
+    </div>
     <div style="font-size:12px;color:#475569;margin-bottom:20px">Inserisci i punteggi delle partite. La classifica si aggiorna in tempo reale.</div>
     <div id="risultati-content"></div>
   </div>
@@ -364,34 +365,35 @@ button,input,select{font-family:Georgia,serif}
     <div class="eyebrow-sm">Opzioni</div>
 
     <div class="card mb16">
-      <div style="font-size:13px;color:#e2e8f0;font-weight:bold;margin-bottom:4px">🖼 Banner stampe</div>
-      <div style="font-size:12px;color:#475569;margin-bottom:14px">Immagine mostrata in cima a tutte le designazioni stampate. Salvata nel DB locale e negli export JSON.</div>
-      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-        <div id="banner-preview" style="display:none;max-height:70px;max-width:240px;overflow:hidden;border:1px solid #1e3a5f;border-radius:4px;flex-shrink:0">
-          <img id="banner-img" style="max-height:70px;max-width:240px;display:block">
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-          <label style="padding:8px 16px;background:#1e3a5f;border-radius:3px;color:#60a5fa;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer">
-            📷 Carica immagine
-            <input type="file" accept="image/*" onchange="caricaBanner(event)" style="display:none">
-          </label>
-          <button id="btn-rimuovi-banner" onclick="rimuviBanner()"
-            style="display:none;padding:8px 14px;background:#2d1515;border:none;color:#fca5a5;border-radius:3px;font-size:11px;cursor:pointer;font-family:Georgia,serif">
-            ✕ Rimuovi banner
-          </button>
-          <span id="banner-nome" style="font-size:10px;color:#475569">Nessun banner caricato</span>
-        </div>
+      <div style="font-size:13px;color:#e2e8f0;font-weight:bold;margin-bottom:12px">🖼 Banner stampe</div>
+      <p style="font-size:12px;color:#94a3b8;margin-bottom:16px">
+        Carica un logo o intestazione da inserire in cima a tutte le stampe delle designazioni.<br>
+        Viene salvato nel database locale e negli export JSON.
+      </p>
+      <div style="margin-bottom:14px">
+        <button onclick="document.getElementById('banner-file-input').click()"
+          style="padding:10px 20px;background:#1e3a5f;border:1px solid #3b82f6;color:#60a5fa;border-radius:4px;font-size:12px;cursor:pointer;font-family:Georgia,serif;letter-spacing:1px">
+          📷 Seleziona immagine banner
+        </button>
+        <input type="file" id="banner-file-input" accept="image/*" style="display:none" onchange="caricaBanner(event)">
       </div>
+      <div id="banner-stato" style="font-size:12px;color:#64748b;margin-bottom:12px">Nessun banner caricato</div>
+      <div id="banner-preview" style="display:none;margin-bottom:12px">
+        <img id="banner-img" style="max-height:80px;max-width:300px;display:block;border:1px solid #1e3a5f;border-radius:4px">
+      </div>
+      <button id="btn-rimuovi-banner" onclick="rimuviBanner()"
+        style="display:none;padding:8px 16px;background:#2d1515;border:1px solid #ef4444;color:#fca5a5;border-radius:4px;font-size:12px;cursor:pointer;font-family:Georgia,serif">
+        ✕ Rimuovi banner
+      </button>
     </div>
 
     <div class="card">
-      <div style="font-size:13px;color:#e2e8f0;font-weight:bold;margin-bottom:4px">🖨 Metodo stampa</div>
-      <div style="font-size:12px;color:#475569;margin-bottom:14px">Si applica a tutti i report PDF.</div>
-      <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
-        <input type="checkbox" id="chk-stampa-popup" style="width:15px;height:15px;cursor:pointer">
+      <div style="font-size:13px;color:#e2e8f0;font-weight:bold;margin-bottom:12px">🖨 Metodo stampa PDF</div>
+      <label style="display:flex;align-items:center;gap:12px;cursor:pointer">
+        <input type="checkbox" id="chk-stampa-popup" style="width:16px;height:16px;cursor:pointer;flex-shrink:0">
         <div>
-          <div style="font-size:13px;color:#e2e8f0">Apri in nuova finestra (dialogo stampa automatico)</div>
-          <div style="font-size:11px;color:#475569">Se disattivato scarica il file HTML da aprire manualmente</div>
+          <div style="font-size:13px;color:#e2e8f0">Apri in nuova finestra con stampa automatica</div>
+          <div style="font-size:11px;color:#475569;margin-top:3px">Se disattivato scarica il file HTML da aprire manualmente (consigliato su Android)</div>
         </div>
       </label>
     </div>
@@ -494,12 +496,12 @@ window.onerror=function(msg,src,line,col,err){
 </script>
 
 <script>
-const VERSION = '2.9.6'; // Aggiornare ad ogni release
+const VERSION = '2.9.6.1'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '2.9.6',
+  'finali.html':    '2.9.6.1',
   'pwa/index.html': '1.9',
   'sw.js':          '1.5',
   'manifest.json':  '1.3',
@@ -698,8 +700,8 @@ function impostaGironi(A,B){
   document.getElementById('vincoli-opzioni').style.display='block';
   sincronizzaOpzioni();
   renderCalBuilder();
-  document.getElementById('btn-pdf').style.display='none';
-  document.getElementById('btn-badge').style.display='none';
+  // btn-pdf removed
+  // btn-badge removed
   document.getElementById('tab-btn-designazioni').disabled=true;
   showTab('calendario',document.getElementById('tab-btn-calendario'));
   // Aggiorna finali se già nel tab
@@ -1385,8 +1387,7 @@ function generaDesignazioni(){
   stato.deroghe=deroghe;
   stato.modificatoArbitri=false;
   document.getElementById('tab-btn-designazioni').disabled=false;
-  document.getElementById('btn-pdf').style.display='';
-  document.getElementById('btn-badge').style.display='';
+  // pdf/badge buttons are contextual only
   renderDesignazioni();
   renderArbitriForm();
   showTab('designazioni',document.getElementById('tab-btn-designazioni'));
@@ -1516,7 +1517,6 @@ function renderDesignazioni(){
     {t:0,label:'Ven. Pom.'},
     {t:1,label:'Sab. Matt.'},
     {t:2,label:'Sab. Pom.'},
-    {t:'finali',label:'Dom. Finali'},
   ];
   html+=`<div style="font-size:11px;color:#475569;margin-bottom:12px">${hint}</div>
   <div class="flex gap10 wrap mt8" style="align-items:center">
@@ -2141,23 +2141,23 @@ function rimuviBanner(){
 }
 
 function aggiornaBannerUI(){
-  // Called at init and when Opzioni tab opens — elements may not exist yet, that is OK
   const prev=document.getElementById('banner-preview');
   const img=document.getElementById('banner-img');
   const btn=document.getElementById('btn-rimuovi-banner');
-  const nome=document.getElementById('banner-nome');
+  const stato_el=document.getElementById('banner-stato');
   if(stato.bannerImage){
     if(img) img.src=stato.bannerImage;
     if(prev) prev.style.display='block';
     if(btn) btn.style.display='inline-block';
-    if(nome){
+    if(stato_el){
       const kb=Math.round(stato.bannerImage.length*3/4/1024);
-      nome.textContent=kb+' KB';
+      stato_el.textContent='Banner caricato ('+kb+' KB)';
+      stato_el.style.color='#4ade80';
     }
   } else {
     if(prev) prev.style.display='none';
     if(btn) btn.style.display='none';
-    if(nome) nome.textContent='Nessun banner caricato';
+    if(stato_el){ stato_el.textContent='Nessun banner caricato'; stato_el.style.color='#64748b'; }
   }
 }
 
@@ -2349,8 +2349,7 @@ function importaStato(data, sezioni){
       stato.deroghe=data.designazioni.deroghe||[];
       stato.modificatoArbitri=false;
       document.getElementById('tab-btn-designazioni').disabled=false;
-      document.getElementById('btn-pdf').style.display='';
-      document.getElementById('btn-badge').style.display='';
+      // pdf/badge buttons are contextual only
     }
   } catch(err){ dbg('⚠ importaStato: '+err,true); }
 }
@@ -2466,8 +2465,8 @@ function importaJSON(event){
         stato.deroghe=data.designazioni.deroghe||[];
         stato.modificatoArbitri=false;
         document.getElementById('tab-btn-designazioni').disabled=false;
-        document.getElementById('btn-pdf').style.display='';
-        document.getElementById('btn-badge').style.display='';
+        // btn-pdf removed
+        // btn-badge removed
         renderDesignazioni();
         renderArbitriForm();
         msgs.push('✓ Designazioni importate');
@@ -2665,7 +2664,7 @@ function renderFinali(){
   };
 
   const pdfBtn = stato.gironi ? `<div class="flex gap10 wrap mt16">
-    <button class="btn-amber" onclick="stampaRisultatiPDF()">🖨 PDF Risultati & Classifica</button>
+    
   </div>` : '';
 
   el.innerHTML =
@@ -2852,9 +2851,30 @@ function risultatoKey(partita){ return partita.casa.nome+'|'+partita.ospite.nome
 function getPartiteGirone(girone){
   if(!stato.gironi) return [];
   const sq = stato.gironi[girone];
-  const partite = [];
+  // If calendar is available, return partite in chronological order
+  if(stato.calSlots){
+    const ordinate=[];
+    const viste=new Set();
+    for(let t=0;t<stato.calSlots.length;t++){
+      for(let c=0;c<stato.calSlots[t].length;c++){
+        stato.calSlots[t][c].forEach(p=>{
+          if(p.girone!==girone) return;
+          const k=risultatoKey(p);
+          if(!viste.has(k)){ viste.add(k); ordinate.push(p); }
+        });
+      }
+    }
+    // Add any partite not in calendar (should not happen, but safety)
+    for(let i=0;i<sq.length;i++) for(let j=i+1;j<sq.length;j++){
+      const p={casa:sq[i],ospite:sq[j]};
+      if(!viste.has(risultatoKey(p))) ordinate.push(p);
+    }
+    return ordinate;
+  }
+  // Fallback: combinatorial order
+  const partite=[];
   for(let i=0;i<sq.length;i++) for(let j=i+1;j<sq.length;j++)
-    partite.push({casa:sq[i], ospite:sq[j]});
+    partite.push({casa:sq[i],ospite:sq[j]});
   return partite;
 }
 
@@ -3407,6 +3427,7 @@ async function syncListFiles(){
       return f;
     }));
 
+    filesConTimestamp.sort((a,b)=>(b._ts||0)-(a._ts||0));
     el.innerHTML = filesConTimestamp.map(f=>`
       <div style="padding:8px 0;border-bottom:1px solid #1e3a5f">
         <div style="display:flex;align-items:center;gap:8px">
@@ -3798,8 +3819,8 @@ function renderTutti(){
   }
   if(stato.calendario){
     document.getElementById('tab-btn-designazioni').disabled=false;
-    document.getElementById('btn-pdf').style.display='';
-    document.getElementById('btn-badge').style.display='';
+    // btn-pdf removed
+    // btn-badge removed
     renderDesignazioni();
   }
 }
