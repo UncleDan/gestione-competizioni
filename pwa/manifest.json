@@ -2,7 +2,7 @@
   "name": "Gestione Competizioni Baskin",
   "short_name": "Baskin",
   "start_url": "/gestione-competizioni/pwa/index.html",
-  "scope": "/gestione-competizioni/",
+  "scope": "/gestione-competizioni/pwa/",
   "display": "standalone",
   "background_color": "#0a0e1a",
   "theme_color": "#3b82f6",

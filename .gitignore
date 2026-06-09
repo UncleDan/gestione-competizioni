@@ -1,26 +1,29 @@
-# ── Configurazione sincronizzazione (contiene token) ────────────────────────────
-config/*
-!config/demo-sync.json
+# ── Configurazione sincronizzazione (contiene token PAT) ─────────────────────
+/config/*
+!/config/demo-sync.json
 
-# ── Salvataggi (dati sensibili) ───────────────────────────────────────────────
-# Tutti i file nella cartella save/ sono esclusi TRANNE demo.json
-save/*
-!save/demo.json
+# ── Salvataggi (dati personali reali) ────────────────────────────────────────
+/save/*
+!/save/demo.json
 
-# Salvataggi esportati dall'app
-baskin-dati-*.json
-finali-dati-*.json
-gestione-*.json
+# ── File con dati reali ovunque si trovino ───────────────────────────────────
+**/sync-config.json
+**/finali-2026.json
+**/arbitri-reali.json
+**/*-gestione-competizioni.json
+**/baskin-dati-*.json
+**/finali-dati-*.json
 
-# ── Backup ───────────────────────────────────────────────────────────────────
-bak/
+# ── Backup ──────────────────────────────────────────────────────────────────
+**/bak/
+*.bak
 
-# ── Sistema operativo ─────────────────────────────────────────────────────────
+# ── Sistema operativo ────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# ── Editor ───────────────────────────────────────────────────────────────────
+# ── Editor ──────────────────────────────────────────────────────────────────
 .vscode/
 .idea/
 *.swp

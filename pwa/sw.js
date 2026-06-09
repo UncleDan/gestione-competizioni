@@ -1,47 +1,27 @@
-const CACHE_NAME = 'gestione-competizioni-sw-1.5';
-const BASE = '/gestione-competizioni';
+// ══════════════════════════════════════════════════════════
+// CONFIGURAZIONE — modificare qui per aggiornare il ramo
+// ══════════════════════════════════════════════════════════
+const SW_VERSION = '2.10';
+const BASEDIR    = '/gestione-competizioni';   // root repo — cambiare per nuovo ramo
+const BASE       = BASEDIR + '/pwa';           // cartella istanza (pwa, pwa-beta, ecc.)
+const CACHE_NAME = `gestione-competizioni-sw-${SW_VERSION}`;
 
-// File da mettere in cache all'installazione
-// versions.json è sempre scaricato fresh (no cache) per il controllo aggiornamenti
 const PRECACHE = [
   `${BASE}/`,
-  `${BASE}/pwa/index.html`,
-  `${BASE}/pwa/manifest.json`,
+  `${BASE}/index.html`,
   `${BASE}/finali.html`,
-  `${BASE}/save/finali-2026.json`,
+  `${BASE}/manifest.json`,
   `${BASE}/versions.json`,
-  `${BASE}/pwa/icon.svg`,
+  `${BASE}/icon.svg`,
+  `${BASEDIR}/save/demo.json`,
 ];
 
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(PRECACHE))
-  );
-  // Non chiama skipWaiting automaticamente — aspetta il segnale dal launcher
-});
-
-// Il launcher invia SKIP_WAITING quando l'utente tocca il toast
-self.addEventListener('message', e => {
-  if(e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
-});
-
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    )
-  );
-  self.clients.claim();
-});
-
-// Network first, fallback to cache
+// versions.json sempre fresh (no cache)
 self.addEventListener('fetch', e => {
-  // Solo richieste GET dello stesso origine
   if (e.request.method !== 'GET') return;
   if (!e.request.url.startsWith(self.location.origin)) return;
 
-  // versions.json: sempre fresh, mai dalla cache
-  if(e.request.url.endsWith('/versions.json')){
+  if (e.request.url.includes('/versions.json')) {
     e.respondWith(fetch(e.request));
     return;
   }
@@ -57,4 +37,23 @@ self.addEventListener('fetch', e => {
       })
       .catch(() => caches.match(e.request))
   );
+});
+
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(PRECACHE))
+  );
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+    )
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('message', e => {
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
