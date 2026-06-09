@@ -3,6 +3,13 @@
 
 ---
 
+### v2.11.3 — Fix orari: sorgente dati e sincronizzazione
+- Root cause: `aggiornaOrarioPartita` aggiornava `calSlots` ma non `stato.calendario.turni` (usato dalle stampe)
+- `aggiornaOrarioPartita`: aggiorna ora anche `stato.calendario.turni`
+- `aggiornaOrario` (default): propaga anche a `stato.calendario.turni`
+- Aggiunto helper `syncOrariCalendario()`: dopo import/sync allinea orari da `calSlots` → `stato.calendario.turni`
+- Chiamato dopo `importaStato` e `importaJSON` nella sezione Designazioni
+
 ### v2.11.2 — Fix orario coverage
 - `importaStato`: ripristino `orariDefault` dalla sezione Date
 - `importaJSON`: ripristino `orarioF34/F12` dalla sezione Finali

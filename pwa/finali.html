@@ -151,7 +151,7 @@ button,input,select{font-family:Georgia,serif}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:#475569;letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">2.11.2</span>
+    finali.html v <span id="ver-num">2.11.3</span>
     <span id="ver-update" style="display:none;color:#f59e0b;margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -550,12 +550,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════════════════
 const BASEDIR = '/gestione-competizioni';
 const BASE    = BASEDIR + '/pwa';
-const VERSION = '2.11.2'; // Aggiornare ad ogni release
+const VERSION = '2.11.3'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '2.11.2',
+  'finali.html':    '2.11.3',
   'pwa/index.html': '1.9',
   'sw.js':          '2.10',
   'manifest.json':  '1.3',
@@ -1617,8 +1617,20 @@ function renderDesignazioni(){
 
 // Inverti casa/ospite direttamente nelle designazioni
 function aggiornaOrarioPartita(turno,c,p,val){
+  // Update calSlots (source of truth)
   const slot=stato.calSlots[turno][c][p];
-  if(slot){ slot.orario=val; slot._orarioCustom=true; schedulaSalvataggio(); }
+  if(slot){ slot.orario=val; slot._orarioCustom=true; }
+  // Also update stato.calendario.turni if designazioni already generated
+  if(stato.calendario){
+    const td=stato.calendario.turni.find(r=>r.turno===turno);
+    if(td){
+      // campo 0 and 1 are both in campiRis — find slot by index p
+      [0,1].forEach(ci=>{
+        if(td.campi[ci]&&td.campi[ci][p]) td.campi[ci][p].orario=val;
+      });
+    }
+  }
+  schedulaSalvataggio();
 }
 
 function swapDesPartita(t,c,p){
@@ -1901,6 +1913,19 @@ function scaricaHTML(html,nomeFile){
   const a=document.createElement('a');a.href=url;a.download=nomeFile;
   document.body.appendChild(a);a.click();document.body.removeChild(a);
   setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+// Dopo import: sincronizza gli orari da calSlots → stato.calendario.turni
+function syncOrariCalendario(){
+  if(!stato.calSlots||!stato.calendario) return;
+  stato.calendario.turni.forEach(({turno,campi})=>{
+    [0,1].forEach(ci=>{
+      campi[ci].forEach((slot,p)=>{
+        const src=stato.calSlots[turno]?.[ci]?.[p];
+        if(src&&src.orario) slot.orario=src.orario;
+      });
+    });
+  });
 }
 
 // Risolve campo da id (priorità) oppure da indice corrente
@@ -2462,6 +2487,7 @@ function importaStato(data, sezioni){
       if(data.designazioni.turniConfermati)
         Object.assign(stato.turniConfermati,data.designazioni.turniConfermati);
       stato.modificatoArbitri=false;
+      syncOrariCalendario();
       document.getElementById('tab-btn-designazioni').disabled=false;
       // pdf/badge buttons are contextual only
     }
@@ -2588,6 +2614,7 @@ function importaJSON(event){
         if(data.designazioni.turniConfermati)
           Object.assign(stato.turniConfermati,data.designazioni.turniConfermati);
         stato.modificatoArbitri=false;
+        syncOrariCalendario();
         document.getElementById('tab-btn-designazioni').disabled=false;
         document.getElementById('tab-btn-finali').disabled=false;
         document.getElementById('tab-btn-risultati').disabled=false;
@@ -2633,7 +2660,6 @@ function aggiornaData(key, val){
 function aggiornaOrario(turno,slot,val){
   if(!ORARI_DEFAULT[turno]) ORARI_DEFAULT[turno]={};
   ORARI_DEFAULT[turno][slot]=val;
-  // Propagate to existing calSlots that don't have a custom override
   if(stato.calSlots&&turno!=='dom'){
     const t=Number(turno);
     if(stato.calSlots[t]){
@@ -2641,6 +2667,14 @@ function aggiornaOrario(turno,slot,val){
         const p=stato.calSlots[t][c][slot];
         if(p&&!p._orarioCustom) p.orario=val;
       }
+    }
+    // Propagate to stato.calendario.turni if present
+    if(stato.calendario){
+      const td=stato.calendario.turni.find(r=>r.turno===t);
+      if(td) [0,1].forEach(ci=>{
+        if(td.campi[ci]&&td.campi[ci][slot]&&!td.campi[ci][slot]._orarioCustom)
+          td.campi[ci][slot].orario=val;
+      });
     }
   }
   schedulaSalvataggio();
