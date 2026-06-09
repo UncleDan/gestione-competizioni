@@ -3,6 +3,12 @@
 
 ---
 
+### v2.10.9 — Tab 4.Finali e Risultati disabilitati
+- 4. Finali e 📊 Risultati disabilitati finché i gironi non sono impostati
+- Si abilitano in `impostaGironi()` assieme a Calendario
+- Si disabilitano in `resetApp()` assieme a Calendario e Designazioni
+- Si riabilitano all'import se presenti i gironi
+
 ### v2.10.8 — UX e fix reset
 - Tab 4. Finali spostato prima di 📊 Risultati
 - Pulsante ✕ Scollega repo aggiunto nel tab Sync

@@ -151,7 +151,7 @@ button,input,select{font-family:Georgia,serif}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:#475569;letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">2.10.8.1</span>
+    finali.html v <span id="ver-num">2.10.9.1</span>
     <span id="ver-update" style="display:none;color:#f59e0b;margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -171,8 +171,8 @@ button,input,select{font-family:Georgia,serif}
   <button class="tab-btn active"   onclick="showTab('sorteggio',this)">1. Gironi</button>
   <button class="tab-btn" id="tab-btn-calendario" disabled onclick="showTab('calendario',this)">2. Calendario</button>
   <button class="tab-btn" id="tab-btn-designazioni" disabled onclick="showTab('designazioni',this)">3. Designazioni</button>
-  <button class="tab-btn" id="tab-btn-finali" onclick="showTab('finali',this)">4. Finali</button>
-  <button class="tab-btn" id="tab-btn-risultati" onclick="showTab('risultati',this)">📊 Risultati</button>
+  <button class="tab-btn" id="tab-btn-finali" disabled onclick="showTab('finali',this)">4. Finali</button>
+  <button class="tab-btn" id="tab-btn-risultati" disabled onclick="showTab('risultati',this)">📊 Risultati</button>
   <button class="tab-btn" onclick="showTab('arbitri',this)">Arbitri</button>
   <button class="tab-btn" onclick="showTab('squadre',this)">Squadre</button>
   <button class="tab-btn" onclick="showTab('st',this)">Sezioni Territoriali</button>
@@ -538,12 +538,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════════════════
 const BASEDIR = '/gestione-competizioni';
 const BASE    = BASEDIR + '/pwa';
-const VERSION = '2.10.8.1'; // Aggiornare ad ogni release
+const VERSION = '2.10.9.1'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '2.10.8.1',
+  'finali.html':    '2.10.9.1',
   'pwa/index.html': '1.9',
   'sw.js':          '2.10',
   'manifest.json':  '1.3',
@@ -2549,6 +2549,8 @@ function importaJSON(event){
         stato.deroghe=data.designazioni.deroghe||[];
         stato.modificatoArbitri=false;
         document.getElementById('tab-btn-designazioni').disabled=false;
+        document.getElementById('tab-btn-finali').disabled=false;
+        document.getElementById('tab-btn-risultati').disabled=false;
         // btn-pdf removed
         // btn-badge removed
         renderDesignazioni();
@@ -3959,7 +3961,7 @@ function resetApp(){
   SQUADRE.push(
     {nome:"Reggio Emilia", citta:"Reggio Emilia",  st:"Emilia-Romagna"},
     {nome:"Udine",         citta:"Udine",           st:"Friuli-Venezia Giulia"},
-    {nome:"Cerrano",       citta:"Cerrano",         st:"Valle d'Aosta/Piemonte/Liguria"},
+    {nome:"Cerano",        citta:"Cerano",          st:"Piemonte/Valle d'Aosta/Liguria"},
     {nome:"Schio",         citta:"Schio",           st:"Veneto"},
     {nome:"Bergamo",       citta:"Bergamo",         st:"Lombardia Est"},
     {nome:"Cremona",       citta:"Cremona",         st:"Lombardia Sud"},
@@ -3978,7 +3980,7 @@ function resetApp(){
     {id:"TO2",label:"Toscana",          gruppo:2, st:"Toscana"},
     {id:"VE2",label:"Veneto 2",         gruppo:2, st:"Veneto"},
     {id:"MA2",label:"Marche 2",         gruppo:2, st:"Marche"},
-    {id:"PI3",label:"Piemonte",         gruppo:3, st:"Valle d'Aosta/Piemonte/Liguria"},
+    {id:"PI3",label:"Piemonte",         gruppo:3, st:"Piemonte/Valle d'Aosta/Liguria"},
     {id:"LA3",label:"Lazio",            gruppo:3, st:"Lazio"},
     {id:"ER2",label:"Emilia-Romagna 2", gruppo:3, st:"Emilia-Romagna"},
     {id:"FV2",label:"FVG 2",            gruppo:3, st:"Friuli-Venezia Giulia"},
@@ -4042,6 +4044,8 @@ function resetApp(){
   const _el=id=>document.getElementById(id);
   if(_el("tab-btn-calendario"))  _el("tab-btn-calendario").disabled=true;
   if(_el("tab-btn-designazioni")) _el("tab-btn-designazioni").disabled=true;
+  if(_el("tab-btn-finali"))      _el("tab-btn-finali").disabled=true;
+  if(_el("tab-btn-risultati"))   _el("tab-btn-risultati").disabled=true;
   if(_el("vincoli-opzioni"))     _el("vincoli-opzioni").style.display="none";
   if(_el("finali-stamp-area"))   _el("finali-stamp-area").style.display="none";
   if(_el("btn-disconnetti-sync"))_el("btn-disconnetti-sync"); // never touched by reset
