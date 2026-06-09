@@ -151,7 +151,7 @@ button,input,select{font-family:Georgia,serif}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:#475569;letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">2.10.5</span>
+    finali.html v <span id="ver-num">2.10.7</span>
     <span id="ver-update" style="display:none;color:#f59e0b;margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -317,10 +317,7 @@ button,input,select{font-family:Georgia,serif}
 
   <!-- ══ RISULTATI & CLASSIFICA ══ -->
   <div id="tab-risultati" class="tab-panel">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <div class="eyebrow-sm" style="margin-bottom:0">Risultati & Classifica</div>
-      <button class="btn-amber" onclick="stampaRisultatiPDF()" style="font-size:11px;padding:7px 14px">🖨 Risultati & Classifica</button>
-    </div>
+    <div class="eyebrow-sm">Risultati & Classifica</div>
     <div style="font-size:12px;color:#475569;margin-bottom:20px">Inserisci i punteggi delle partite. La classifica si aggiorna in tempo reale.</div>
     <div id="risultati-content"></div>
   </div>
@@ -389,9 +386,7 @@ button,input,select{font-family:Georgia,serif}
     <div style="font-size:12px;color:#475569;margin-bottom:20px">Trascina le squadre nelle posizioni. Campo 1 · <span id="finali-data-label">14/06/2026</span></div>
     <div id="finali-builder"></div>
     <div id="finali-stamp-area" style="display:none;margin-top:16px">
-      <button class="btn-amber" onclick="stampaPDFTurno('finali')" style="font-size:12px">
-        🖨 Stampa Designazioni Finali
-      </button>
+      <button class="btn-amber" onclick="stampaPDFTurno('finali')" style="font-size:12px">🖨 Finali</button>
     </div>
   </div>
 
@@ -539,12 +534,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════════════════
 const BASEDIR = '/gestione-competizioni';
 const BASE    = BASEDIR + '/pwa';
-const VERSION = '2.10.5'; // Aggiornare ad ogni release
+const VERSION = '2.10.7'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '2.10.5',
+  'finali.html':    '2.10.7',
   'pwa/index.html': '1.9',
   'sw.js':          '2.10',
   'manifest.json':  '1.3',
@@ -1585,7 +1580,7 @@ function renderDesignazioni(){
     <button class="btn-outline" onclick="generaDesignazioni()">🔄 Rigenera</button>
     <span style="font-size:9px;color:#475569;letter-spacing:1px;text-transform:uppercase;flex-basis:100%;margin-top:8px;margin-bottom:2px">Stampa per turno:</span>
     ${_tlabs2.map(({t,label})=>`<button style="background:#0d2040;color:#f59e0b;border:1px solid #92400e;padding:6px 12px;font-size:10px;border-radius:3px;cursor:pointer;font-family:Georgia,serif" onclick="stampaPDFTurno(${JSON.stringify(t)})">${label}</button>`).join('')}
-    <button class="btn-amber" onclick="stampaPDF()">🖨 Tutti</button>
+    <button class="btn-amber" onclick="stampaPDF()">🖨 Gironi</button>
     <button class="btn-violet" onclick="stampaBadge()">🪪 Badge</button>
   </div>`;
 
@@ -1763,7 +1758,7 @@ function renderArbitriForm(){
     html+=`</div></div>`;
   });
 
-  if(stato.calendario)html+=`<div class="flex gap10 wrap mt16"><button class="btn-amber" onclick="stampaPDF()">🖨 PDF</button><button class="btn-violet" onclick="stampaBadge()">🪪 Badge</button></div>`;
+  if(stato.calendario)html+=`<div class="flex gap10 wrap mt16"><button class="btn-violet" onclick="stampaBadge()">🪪 Badge Arbitri</button></div>`;
   document.getElementById('arbitri-form').innerHTML=html;
 }
 
@@ -3534,6 +3529,7 @@ async function syncListFiles(){
           if(commits.length>0){
             const ts = commits[0].commit.committer.date;
             const d = new Date(ts);
+            f._ts = d.getTime();
             f.lastModified = d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'})
               + ' ' + d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
             f.lastAuthor = commits[0].commit.committer.name || commits[0].commit.author.name;

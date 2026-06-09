@@ -3,6 +3,16 @@
 
 ---
 
+### v2.10.7 — Minor fixes
+- Designazioni: pulsante "Tutti" rinominato "Gironi"
+- Finali: pulsante stampa rinominato "Finali", rimosso pulsante Risultati & Classifica
+- Sync: fix ordinamento lista file dal più recente — `_ts` non veniva salvato
+
+### v2.10.6 — Minor UX fixes
+- Pulsante Stampa Risultati & Classifica spostato in fondo al tab (come Designazioni)
+- Tab Finali: pulsante Designazioni Finali + Risultati & Classifica in fondo
+- Tab Arbitri: rimosso pulsante PDF Designazioni, rimane solo Badge Arbitri
+
 ### v2.10.5 — Fix doppioni nel pool partite
 - Aggiunto helper `raccogliTuttePartite()` con deduplicazione per id
 - `distribuisciAuto()` e `svuotaCalendarioManuale()` usano il nuovo helper
