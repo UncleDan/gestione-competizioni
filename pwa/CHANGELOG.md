@@ -3,7 +3,16 @@
 
 ---
 
-### v2.11 — Orari partite e finali
+### v2.11.2 — Fix orario coverage
+- `importaStato`: ripristino `orariDefault` dalla sezione Date
+- `importaJSON`: ripristino `orarioF34/F12` dalla sezione Finali
+- Orari finali presenti in tutte le stampe (stampaPDF, stampaPDFTurno)
+- Audit completo: tutti i percorsi export/import/stampa coprono gli orari
+
+### v2.11.1 — Fix orario duplicato in designazioni
+- Rimossa label statica orario `🕐 HH:MM` dal tab Designazioni (rimane solo l'input nel Calendario)
+
+### v2.11 — Orari partite e finali  *(rilasciata come 2.10.12, poi rinominata)*
 - Orario modificabile inline in ogni slot del CALENDARIO (default da tab Date)
 - Orario mostrato nel tab DESIGNAZIONI accanto a ogni partita
 - FINALI: due input orario diretti nel tab (Finale 3°-4° e Finale 1°-2°)
@@ -21,17 +30,26 @@
 - `importaStato` e `importaJSON`: `turniConfermati` non veniva ripristinato dalla sezione Designazioni
 - Ora banner e flag definitivi/provvisori vengono correttamente caricati da pull e da JSON
 
+### v2.10.9.1 — Bugfix Cerano
+- Corretto nome squadra: Cerrano → Cerano, ST Valle d'Aosta/Piemonte/Liguria → Piemonte/Valle d'Aosta/Liguria
+
 ### v2.10.9 — Tab 4.Finali e Risultati disabilitati
 - 4. Finali e 📊 Risultati disabilitati finché i gironi non sono impostati
 - Si abilitano in `impostaGironi()` assieme a Calendario
 - Si disabilitano in `resetApp()` assieme a Calendario e Designazioni
 - Si riabilitano all'import se presenti i gironi
 
+### v2.10.8.1 — Fix reset nomiArbitri
+- Rimosso doppio azzeramento `nomiArbitri` in `resetApp()` che sovrascriveva i nomi fittizi
+
 ### v2.10.8 — UX e fix reset
 - Tab 4. Finali spostato prima di 📊 Risultati
 - Pulsante ✕ Scollega repo aggiunto nel tab Sync
 - `resetApp()`: tutti i `getElementById` con null-guard
 - `resetApp()` resetta anche `finali-stamp-area`, `nomiArbitri`; non tocca `syncConfig`
+
+### v2.10.7.1 — Fix pulsante stampa risultati
+- Pulsante Stampa Risultati & Classifica aggiunto correttamente in fondo al tab (era scomparso perché innerHTML cancellava il nodo aggiunto con appendChild)
 
 ### v2.10.7 — Minor fixes
 - Designazioni: pulsante "Tutti" rinominato "Gironi"
@@ -79,6 +97,18 @@
 - `sw.js` riscritto con versione nel nome cache (`gestione-competizioni-sw-2.10`)
 - `.gitignore` aggiornato per nuova struttura
 
+### v2.9.7.4 — Fix reset btn-pdf
+- `resetApp()` cercava `btn-pdf` e `btn-badge` rimossi dalla tabbar in 2.9.7
+
+### v2.9.7.3 — Fix badge versione
+- `const VERSION` rimasto a 2.9.6.1; ora tutte le sorgenti versione allineate
+
+### v2.9.7.2 — Fix badge versione (badge HTML)
+- Badge HTML hardcoded non aggiornato; ora coincide con `VERSION` JS
+
+### v2.9.7.1 — Fix versione in launcher
+- Launcher mostrava versione 2.9.1; aggiunto `KNOWN_VERSIONS` per evitare falsi "tutto aggiornato"
+
 ### v2.9.7 — UX miglioramenti
 - Pulsanti PDF/Badge rimossi dalla tabbar (solo contestuali)
 - Stampa per turno: Dom. Finali spostata nel tab Finali; "Gironi" al posto di "Tutti"
@@ -94,6 +124,17 @@
 - Stampa Designazioni Finali con riepilogo arbitri completo (finali + gironi)
 - Pulsante stampa finali nel tab Finali
 
+### v2.9.5.3 — Fix _campoIdCounter e banner timing
+- `_campoIdCounter` non dichiarato → fix standalone declaration
+- Banner non visibile in Opzioni → `aggiornaBannerUI()` chiamata anche in `showTab('opzioni')`
+
+### v2.9.5.2 — Sync persistente
+- Config sync spostata da `sessionStorage` a `localStorage`
+- Pulsante ✕ Scollega repo
+
+### v2.9.5.1 — Fix stato init
+- `turniConfermati` e `bannerImage` mancavano dall'oggetto `stato` iniziale
+
 ### v2.9.5 — Banner e persistenza
 - Banner stampe caricabile in base64, salvato in DB/JSON
 - Tab ⚙ Opzioni dedicato
@@ -101,12 +142,22 @@
 - Pulsante ✕ Scollega repo
 - Tutti i fallback per import JSON da versioni precedenti
 
+### v2.9.4.1 — Fix template literal
+- Caratteri `$` escapati (`\$`) nel turno-sep rendevano il template come testo grezzo
+
 ### v2.9.4 — Checkbox conferma turno
 - Checkbox Provvisorie/Definitive per ogni turno nel tab Designazioni
 - Nota provvisoria/definitiva in ogni stampa
 - Stampa per singola mezza giornata (Ven. Pom., Sab. Matt., Sab. Pom.)
 - Campo ID progressivo nelle palestre (campo_1, campo_2…)
 - Campo snapshot nelle designazioni: nome campo al momento dell'assegnazione
+
+### v2.9.3.2 — Fix annotazione campo drag
+- `campoId` non veniva annotato nel drop manuale cella→cella
+- Aggiunta annotazione in tutti e tre i casi: pool→cella, sposta, swap
+
+### v2.9.3.1 — Fix _campoIdCounter
+- Variabile non dichiarata; reset non ripristinava contatore e `turniConfermati`
 
 ### v2.9.3 — Campi e città
 - ID progressivo per ogni palestra (campo_1, campo_2…)

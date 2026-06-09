@@ -110,6 +110,9 @@ Collaborazione tra designatore e responsabile arbitri tramite repository privato
 - **Verifica aggiornamenti** nel launcher: confronta `versions.json` in cache con quello remoto; segnala sia aggiornamenti che downgrade (con alert di conferma per i downgrade)
 - Il service worker aggiorna i file in background; il toast "Aggiornamento disponibile" permette di applicarlo con un tap
 
+### Orari partite
+Ogni slot del **Calendario** ha un input orario `🕐` modificabile inline. I default per mezza giornata si configurano nel tab **📅 Date e Orari**. Nel tab **4. Finali** si impostano i due orari delle finali. Gli orari appaiono in tutte le stampe delle designazioni e vengono salvati nel DB locale, JSON e sync.
+
 ### Banner stampe
 Nel tab **⚙ Opzioni**: carica un'immagine (logo/intestazione) che viene inserita in cima a tutte le stampe. Salvata in base64 nel DB locale e negli export JSON.
 

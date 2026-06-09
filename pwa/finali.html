@@ -151,7 +151,7 @@ button,input,select{font-family:Georgia,serif}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:#475569;letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">2.11</span>
+    finali.html v <span id="ver-num">2.11.2</span>
     <span id="ver-update" style="display:none;color:#f59e0b;margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -550,12 +550,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════════════════
 const BASEDIR = '/gestione-competizioni';
 const BASE    = BASEDIR + '/pwa';
-const VERSION = '2.11'; // Aggiornare ad ogni release
+const VERSION = '2.11.2'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '2.11',
+  'finali.html':    '2.11.2',
   'pwa/index.html': '1.9',
   'sw.js':          '2.10',
   'manifest.json':  '1.3',
@@ -1555,7 +1555,7 @@ function renderDesignazioni(){
         const slotKey=`${turno}-${c}-${p}`;
         html+=`<div class="slot">
           <div class="slot-title">
-            <span style="font-size:10px;color:#f59e0b;margin-right:6px">🕐 ${slot.orario||getOrarioSlot(turno,p)}</span><span class="slot-partita">${slot.casa.nome}${slot.casa.citta&&slot.casa.citta!==slot.casa.nome?' ('+slot.casa.citta+')':''} <span style="color:#475569;font-weight:normal;font-size:11px">vs</span> ${slot.ospite.nome}${slot.ospite.citta&&slot.ospite.citta!==slot.ospite.nome?' ('+slot.ospite.citta+')':''}</span>
+            <span class="slot-partita">${slot.casa.nome}${slot.casa.citta&&slot.casa.citta!==slot.casa.nome?' ('+slot.casa.citta+')':''} <span style="color:#475569;font-weight:normal;font-size:11px">vs</span> ${slot.ospite.nome}${slot.ospite.citta&&slot.ospite.citta!==slot.ospite.nome?' ('+slot.ospite.citta+')':''}</span>
             <span class="g-tag g${gl.toLowerCase()}">${gl}</span>
           </div>
           <div class="slot-seq">
@@ -2401,6 +2401,7 @@ function importaStato(data, sezioni){
     if(sezioni.includes('date')&&data.date){
       Object.assign(DATE_GARA, data.date);
       ['ven','sab','dom'].forEach(k=>{const el=document.getElementById('date-'+k);if(el&&DATE_GARA[k])el.value=DATE_GARA[k];});
+      if(data.orariDefault){Object.assign(ORARI_DEFAULT,data.orariDefault);aggiornaOrariUI();}
     }
     if(sezioni.includes('gironi')&&data.gironi){
       const trovaSq=nome=>SQUADRE.find(s=>s.nome===nome);
@@ -2552,6 +2553,8 @@ function importaJSON(event){
         stato.finali.f34.ospite=data.finali.f34.ospite?trovaSq(data.finali.f34.ospite):null;
         stato.finali.f12.casa=data.finali.f12.casa?trovaSq(data.finali.f12.casa):null;
         stato.finali.f12.ospite=data.finali.f12.ospite?trovaSq(data.finali.f12.ospite):null;
+        if(data.finali.orarioF34) stato.finali.orarioF34=data.finali.orarioF34;
+        if(data.finali.orarioF12) stato.finali.orarioF12=data.finali.orarioF12;
         if(data.finali.terne){
           stato.finaliCalendario={
             f34:(data.finali.terne.f34||[]).map(trovArb).filter(Boolean),
