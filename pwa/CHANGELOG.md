@@ -3,6 +3,13 @@
 
 ---
 
+### v2.11 — Orari partite e finali
+- Orario modificabile inline in ogni slot del CALENDARIO (default da tab Date)
+- Orario mostrato nel tab DESIGNAZIONI accanto a ogni partita
+- FINALI: due input orario diretti nel tab (Finale 3°-4° e Finale 1°-2°)
+- Orari in tutte le stampe: designazioni per turno, designazioni gironi completo, finali
+- Orari salvati nel JSON/sync (in `calendario[t][c][p].orario` e `finali.orarioF34/F12`)
+
 ### v2.10.11 — Fix tab Finali e Risultati disabilitati
 - `impostaGironi()`: abilita anche Finali e Risultati
 - `importaStato()`: abilita Finali e Risultati quando i gironi sono presenti nel JSON

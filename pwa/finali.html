@@ -151,7 +151,7 @@ button,input,select{font-family:Georgia,serif}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:#475569;letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">2.10.11</span>
+    finali.html v <span id="ver-num">2.11</span>
     <span id="ver-update" style="display:none;color:#f59e0b;margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -383,7 +383,19 @@ button,input,select{font-family:Georgia,serif}
   <!-- ══ FINALI ══ -->
   <div id="tab-finali" class="tab-panel">
     <div class="eyebrow-sm">Finali — Domenica Mattina</div>
-    <div style="font-size:12px;color:#475569;margin-bottom:20px">Trascina le squadre nelle posizioni. Campo 1 · <span id="finali-data-label">14/06/2026</span></div>
+    <div style="font-size:12px;color:#475569;margin-bottom:16px">Trascina le squadre nelle posizioni. Campo 1 · <span id="finali-data-label">14/06/2026</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <label class="card" style="cursor:default">
+        <div style="font-size:10px;letter-spacing:2px;color:#a78bfa;text-transform:uppercase;margin-bottom:6px">🕐 Orario Finale 3°-4°</div>
+        <input type="time" id="orario-finale-f34" value="09:30"
+          class="inp" onchange="stato.finali.orarioF34=this.value;schedulaSalvataggio()">
+      </label>
+      <label class="card" style="cursor:default">
+        <div style="font-size:10px;letter-spacing:2px;color:#a78bfa;text-transform:uppercase;margin-bottom:6px">🕐 Orario Finale 1°-2°</div>
+        <input type="time" id="orario-finale-f12" value="11:00"
+          class="inp" onchange="stato.finali.orarioF12=this.value;schedulaSalvataggio()">
+      </label>
+    </div>
     <div id="finali-builder"></div>
     <div id="finali-stamp-area" style="display:none;margin-top:16px">
       <button class="btn-amber" onclick="stampaPDFTurno('finali')" style="font-size:12px">🖨 Finali</button>
@@ -538,12 +550,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════════════════
 const BASEDIR = '/gestione-competizioni';
 const BASE    = BASEDIR + '/pwa';
-const VERSION = '2.10.11'; // Aggiornare ad ogni release
+const VERSION = '2.11'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '2.10.11',
+  'finali.html':    '2.11',
   'pwa/index.html': '1.9',
   'sw.js':          '2.10',
   'manifest.json':  '1.3',
@@ -649,7 +661,7 @@ let stato = {
   calendario: null,
   // Finali: {f34: {casa,ospite}, f12: {casa,ospite}}
   // squadre scelte con DnD tra le 8 disponibili
-  finali: { f34:{casa:null,ospite:null}, f12:{casa:null,ospite:null} },
+  finali: { f34:{casa:null,ospite:null}, f12:{casa:null,ospite:null}, orarioF34:'09:30', orarioF12:'11:00' },
   finaliCalendario: null, // terne assegnate alle finali
   nomiArbitri: {},
   dndState:{A:[],B:[],pool:[...SQUADRE]},
@@ -703,6 +715,12 @@ function showTab(t,btn){
   if(panel)panel.classList.add('active');
   if(btn&&btn.classList){btn.disabled=false;btn.classList.add('active');}
   if(t==='sessioni') renderSessioni();
+  if(t==='finali'){
+    const ef34=document.getElementById('orario-finale-f34');
+    const ef12=document.getElementById('orario-finale-f12');
+    if(ef34) ef34.value=stato.finali.orarioF34||'09:30';
+    if(ef12) ef12.value=stato.finali.orarioF12||'11:00';
+  }
   if(t==='sync'){ renderSyncSezioni(); aggiornaConfigStatus(); aggiornaFilenameSuggerito(); }
   if(t==='opzioni') aggiornaBannerUI();
 }
@@ -1537,11 +1555,17 @@ function renderDesignazioni(){
         const slotKey=`${turno}-${c}-${p}`;
         html+=`<div class="slot">
           <div class="slot-title">
-            <span class="slot-partita">${slot.casa.nome}${slot.casa.citta&&slot.casa.citta!==slot.casa.nome?' ('+slot.casa.citta+')':''} <span style="color:#475569;font-weight:normal;font-size:11px">vs</span> ${slot.ospite.nome}${slot.ospite.citta&&slot.ospite.citta!==slot.ospite.nome?' ('+slot.ospite.citta+')':''}</span>
+            <span style="font-size:10px;color:#f59e0b;margin-right:6px">🕐 ${slot.orario||getOrarioSlot(turno,p)}</span><span class="slot-partita">${slot.casa.nome}${slot.casa.citta&&slot.casa.citta!==slot.casa.nome?' ('+slot.casa.citta+')':''} <span style="color:#475569;font-weight:normal;font-size:11px">vs</span> ${slot.ospite.nome}${slot.ospite.citta&&slot.ospite.citta!==slot.ospite.nome?' ('+slot.ospite.citta+')':''}</span>
             <span class="g-tag g${gl.toLowerCase()}">${gl}</span>
           </div>
           <div class="slot-seq">
             <span>${p===0?'1ª PARTITA':'2ª PARTITA'}</span>
+            <label style="display:flex;align-items:center;gap:4px;font-size:10px;color:#94a3b8">
+              🕐 <input type="time" value="${slot.orario||getOrarioSlot(turno,p)}"
+                style="background:transparent;border:none;border-bottom:1px solid #1e3a5f;color:#f59e0b;font-size:10px;width:58px;cursor:pointer;font-family:Georgia,serif"
+                onchange="aggiornaOrarioPartita(${turno},${c},${p},this.value)"
+                onclick="event.stopPropagation()">
+            </label>
             <button class="btn-swap" style="font-size:9px;padding:2px 6px" onclick="swapDesPartita(${turno},${c},${p})">⇄ Inverti</button>
           </div>`;
         if(slot.terna){
@@ -1950,13 +1974,13 @@ td{padding:4px 8px;border:1px solid #ddd}
       ${f34.casa&&f34.ospite?`<div class="cb">
         <div class="cl">🥉 Finale 3°-4° — 1ª Partita</div>
         <div class="ca">${ci0.nome}${ci0.indirizzo?' · '+ci0.indirizzo:''}${ci0.citta?' · '+ci0.citta:''}</div>
-        <div class="ph" style="margin-top:8px"><span class="pn">${nc(f34.casa)} vs ${nc(f34.ospite)}</span></div>
+        <div class="ph" style="margin-top:8px"><span class="pn">${nc(f34.casa)} vs ${nc(f34.ospite)}</span><span style="font-size:11px;color:#f59e0b">${stato.finali.orarioF34||''}</span></div>
         ${(stato.finaliCalendario?.f34||[]).map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st||arb.regione}</span></div>`).join('')}
       </div>`:''}
       ${f12.casa&&f12.ospite?`<div class="cb" style="margin-top:10px">
         <div class="cl">🏆 Finale 1°-2° — 2ª Partita</div>
         <div class="ca">${ci0.nome}${ci0.indirizzo?' · '+ci0.indirizzo:''}${ci0.citta?' · '+ci0.citta:''}</div>
-        <div class="ph" style="margin-top:8px"><span class="pn">${nc(f12.casa)} vs ${nc(f12.ospite)}</span></div>
+        <div class="ph" style="margin-top:8px"><span class="pn">${nc(f12.casa)} vs ${nc(f12.ospite)}</span><span style="font-size:11px;color:#f59e0b">${stato.finali.orarioF12||''}</span></div>
         ${(stato.finaliCalendario?.f12||[]).map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st||arb.regione}</span></div>`).join('')}
       </div>`:''}
     </div>
@@ -1996,7 +2020,7 @@ td{padding:4px 8px;border:1px solid #ddd}
           <div class="ca">${ci.indirizzo}${ci.citta?' · '+ci.citta:''}${ci.maps?` · <a href="${ci.maps}" style="color:#2563eb">Maps</a>`:''}</div>
           ${campo.map((slot,p)=>`${p>0?'<hr class="sep">':''}
             <div class="ph"><span class="pn">${nc(slot.casa)} vs ${nc(slot.ospite)}</span><span class="gt2">G.${gL(slot)}</span></div>
-            <div class="ps">${p===0?'1ª partita':'2ª partita'}</div>
+            <div class="ps">${slot.orario||getOrarioSlot(turno,p)} · ${p===0?'1ª partita':'2ª partita'}</div>
             ${slot.terna?slot.terna.map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st||arb.regione}</span></div>`).join(''):'<span style="color:red">⚠ Terna non assegnata</span>'}
           `).join('')}
         </div>`;
@@ -2077,7 +2101,7 @@ ${campi.map((campo,c)=>`<div class="cb">
 <div class="cl">🏟 ${campoInfo(c,campo[0]).nome}</div><div class="ca">${campoInfo(c,campo[0]).indirizzo}${campoInfo(c,campo[0]).citta?' · '+campoInfo(c,campo[0]).citta:''}</div>${campoInfo(c,campo[0]).maps?`<div class="ca"><a href="${campoInfo(c,campo[0]).maps}" style="color:#2563eb">Google Maps</a></div>`:''}
 ${campo.map((slot,p)=>`${p>0?'<hr class="sep">':''}
 <div class="ph"><span class="pn">${slot.casa.nome}${slot.casa.citta&&slot.casa.citta!==slot.casa.nome?' ('+slot.casa.citta+')':''} vs ${slot.ospite.nome}${slot.ospite.citta&&slot.ospite.citta!==slot.ospite.nome?' ('+slot.ospite.citta+')':''}</span><span class="gt2">G.${gL(slot)}</span></div>
-<div class="ps">${p===0?'1ª partita':'2ª partita'}</div>
+<div class="ps">${slot.orario||''} · ${p===0?'1ª partita':'2ª partita'}</div>
 ${slot.terna?slot.terna.map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st||arb.regione}</span></div>`).join(''):'<span style="color:red">⚠</span>'}
 `).join('')}</div>`).join('')}</div></div>`}).join('')}
 <div class="rh">RIEPILOGO ARBITRI — Totale Gironi</div>
@@ -2089,13 +2113,13 @@ ${arbitroRighe.map(arb=>`<tr><td style="font-weight:bold">${arb.nd}</td><td styl
 ${stato.finali.f34.casa&&stato.finali.f34.ospite?`<div class="cb">
 <div class="cl">🥉 Finale 3°-4° Posto — 1ª Partita</div>
 <div class="ca">${CAMPI[0].nome} · ${CAMPI[0].indirizzo}</div>
-<div class="ph" style="margin-top:8px"><span class="pn">${stato.finali.f34.casa.nome} vs ${stato.finali.f34.ospite.nome}</span></div>
+<div class="ph" style="margin-top:8px"><span class="pn">${stato.finali.f34.casa.nome} vs ${stato.finali.f34.ospite.nome}</span><span style="font-size:11px;color:#888;margin-left:8px">${stato.finali.orarioF34||''}</span></div>
 ${(stato.finaliCalendario?.f34||[]).map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st||arb.regione}</span></div>`).join('')}
 </div>`:''}
 ${stato.finali.f12.casa&&stato.finali.f12.ospite?`<div class="cb" style="margin-top:10px">
 <div class="cl">🏆 Finale 1°-2° Posto — 2ª Partita</div>
 <div class="ca">${CAMPI[0].nome} · ${CAMPI[0].indirizzo}</div>
-<div class="ph" style="margin-top:8px"><span class="pn">${stato.finali.f12.casa.nome} vs ${stato.finali.f12.ospite.nome}</span></div>
+<div class="ph" style="margin-top:8px"><span class="pn">${stato.finali.f12.casa.nome} vs ${stato.finali.f12.ospite.nome}</span><span style="font-size:11px;color:#888;margin-left:8px">${stato.finali.orarioF12||''}</span></div>
 ${(stato.finaliCalendario?.f12||[]).map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st||arb.regione}</span></div>`).join('')}
 </div>`:''}
 </div>`:''}
@@ -2309,6 +2333,8 @@ function costruisciExport(sezioni){
   }
   if(sezioni.includes('finali'))
     out.finali={
+      orarioF34:stato.finali.orarioF34||'09:30',
+      orarioF12:stato.finali.orarioF12||'11:00',
       f34:{casa:stato.finali.f34.casa?.nome||null, ospite:stato.finali.f34.ospite?.nome||null},
       f12:{casa:stato.finali.f12.casa?.nome||null, ospite:stato.finali.f12.ospite?.nome||null},
       terne:{
@@ -2407,6 +2433,8 @@ function importaStato(data, sezioni){
       stato.finali.f34.ospite=data.finali.f34.ospite?trovaSq(data.finali.f34.ospite):null;
       stato.finali.f12.casa=data.finali.f12.casa?trovaSq(data.finali.f12.casa):null;
       stato.finali.f12.ospite=data.finali.f12.ospite?trovaSq(data.finali.f12.ospite):null;
+      if(data.finali.orarioF34) stato.finali.orarioF34=data.finali.orarioF34;
+      if(data.finali.orarioF12) stato.finali.orarioF12=data.finali.orarioF12;
       if(data.finali.terne){
         stato.finaliCalendario={
           f34:(data.finali.terne.f34||[]).map(trovArb).filter(Boolean),
@@ -4038,7 +4066,7 @@ function resetApp(){
   stato.calSlots=[[[],[]],[[],[]],[[],[]]];
   stato.partitePool=[];
   stato.calendario=null;
-  stato.finali={f34:{casa:null,ospite:null},f12:{casa:null,ospite:null}};
+  stato.finali={f34:{casa:null,ospite:null},f12:{casa:null,ospite:null},orarioF34:'09:30',orarioF12:'11:00'};
   stato.finaliCalendario=null;
   stato.risultati={};
   stato.risultatiFinali={};
