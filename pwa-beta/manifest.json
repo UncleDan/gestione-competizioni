@@ -1,0 +1,22 @@
+{
+  "name": "Gestione Competizioni Baskin (Beta)",
+  "short_name": "Baskin Beta",
+  "start_url": "/gestione-competizioni/pwa-beta/index.html",
+  "scope": "/gestione-competizioni/pwa-beta/",
+  "display": "standalone",
+  "background_color": "#0a0e1a",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "version": "1.3"
+}
