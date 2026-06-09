@@ -3,6 +3,11 @@
 
 ---
 
+### v2.10.10 — Fix sync banner e turniConfermati
+- Pull sync: sezione Opzioni non veniva rilevata (cercava `data['opzioni']` invece di `data.bannerImage`)
+- `importaStato` e `importaJSON`: `turniConfermati` non veniva ripristinato dalla sezione Designazioni
+- Ora banner e flag definitivi/provvisori vengono correttamente caricati da pull e da JSON
+
 ### v2.10.9 — Tab 4.Finali e Risultati disabilitati
 - 4. Finali e 📊 Risultati disabilitati finché i gironi non sono impostati
 - Si abilitano in `impostaGironi()` assieme a Calendario

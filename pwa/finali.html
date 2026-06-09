@@ -151,7 +151,7 @@ button,input,select{font-family:Georgia,serif}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:#475569;letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">2.10.9.1</span>
+    finali.html v <span id="ver-num">2.10.10</span>
     <span id="ver-update" style="display:none;color:#f59e0b;margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -538,12 +538,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════════════════
 const BASEDIR = '/gestione-competizioni';
 const BASE    = BASEDIR + '/pwa';
-const VERSION = '2.10.9.1'; // Aggiornare ad ogni release
+const VERSION = '2.10.10'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '2.10.9.1',
+  'finali.html':    '2.10.10',
   'pwa/index.html': '1.9',
   'sw.js':          '2.10',
   'manifest.json':  '1.3',
@@ -2425,6 +2425,8 @@ function importaStato(data, sezioni){
       turni.forEach(({campi})=>campi.forEach(campo=>campo.forEach(slot=>slot.terna.forEach(a=>{if(cnt[a.id]!==undefined)cnt[a.id]++;}))));
       stato.calendario={turni,cnt};
       stato.deroghe=data.designazioni.deroghe||[];
+      if(data.designazioni.turniConfermati)
+        Object.assign(stato.turniConfermati,data.designazioni.turniConfermati);
       stato.modificatoArbitri=false;
       document.getElementById('tab-btn-designazioni').disabled=false;
       // pdf/badge buttons are contextual only
@@ -2547,6 +2549,8 @@ function importaJSON(event){
         )));
         stato.calendario={turni,cnt};
         stato.deroghe=data.designazioni.deroghe||[];
+        if(data.designazioni.turniConfermati)
+          Object.assign(stato.turniConfermati,data.designazioni.turniConfermati);
         stato.modificatoArbitri=false;
         document.getElementById('tab-btn-designazioni').disabled=false;
         document.getElementById('tab-btn-finali').disabled=false;
@@ -3577,7 +3581,10 @@ async function syncPull(path, filename){
     const text = decodeURIComponent(escape(atob(file.content.replace(/\n/g,''))));
     const data = JSON.parse(text);
     // Aggiorna i checkbox mostrando solo le sezioni presenti nel JSON
-    const sezioniPresenti = IE_SEZIONI.map(s=>s.id).filter(id=>data[id]!==undefined);
+    const sezioniPresenti = IE_SEZIONI.map(s=>s.id).filter(id=>{
+      if(id==='opzioni') return data.bannerImage!==undefined;
+      return data[id]!==undefined;
+    });
     if(sezioniPresenti.length>0) renderSyncSezioni(sezioniPresenti);
     const sezioni = getSyncSezioniSelezionate();
     importaStato(data, sezioni);
