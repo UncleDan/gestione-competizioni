@@ -151,7 +151,7 @@ button,input,select{font-family:Georgia,serif}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:#475569;letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">2.10.7.1</span>
+    finali.html v <span id="ver-num">2.10.8.1</span>
     <span id="ver-update" style="display:none;color:#f59e0b;margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -171,8 +171,8 @@ button,input,select{font-family:Georgia,serif}
   <button class="tab-btn active"   onclick="showTab('sorteggio',this)">1. Gironi</button>
   <button class="tab-btn" id="tab-btn-calendario" disabled onclick="showTab('calendario',this)">2. Calendario</button>
   <button class="tab-btn" id="tab-btn-designazioni" disabled onclick="showTab('designazioni',this)">3. Designazioni</button>
-  <button class="tab-btn" id="tab-btn-risultati" onclick="showTab('risultati',this)">📊 Risultati</button>
   <button class="tab-btn" id="tab-btn-finali" onclick="showTab('finali',this)">4. Finali</button>
+  <button class="tab-btn" id="tab-btn-risultati" onclick="showTab('risultati',this)">📊 Risultati</button>
   <button class="tab-btn" onclick="showTab('arbitri',this)">Arbitri</button>
   <button class="tab-btn" onclick="showTab('squadre',this)">Squadre</button>
   <button class="tab-btn" onclick="showTab('st',this)">Sezioni Territoriali</button>
@@ -453,6 +453,10 @@ button,input,select{font-family:Georgia,serif}
           📂 Carica sync-config.json
           <input type="file" accept=".json" onchange="caricaConfigSync(event)" style="display:none">
         </label>
+        <button id="btn-disconnetti-sync" onclick="disconnettiSync()"
+          style="display:none;padding:8px 16px;background:transparent;border:1px solid #ef4444;border-radius:4px;color:#ef4444;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:Georgia,serif">
+          ✕ Scollega repo
+        </button>
       </div>
     </div>
 
@@ -534,12 +538,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════════════════
 const BASEDIR = '/gestione-competizioni';
 const BASE    = BASEDIR + '/pwa';
-const VERSION = '2.10.7.1'; // Aggiornare ad ogni release
+const VERSION = '2.10.8.1'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '2.10.7.1',
+  'finali.html':    '2.10.8.1',
   'pwa/index.html': '1.9',
   'sw.js':          '2.10',
   'manifest.json':  '1.3',
@@ -4031,12 +4035,17 @@ function resetApp(){
   aggiornaBannerUI();
   stato.dndState={A:[],B:[],pool:[...SQUADRE]};
   stato.manualeAperto=false;
+  // nomiArbitri already reset to default (fittizi) above
+  // syncConfig intentionally NOT reset
 
   // Disabilita tab dipendenti
-  document.getElementById("tab-btn-calendario").disabled=true;
-  document.getElementById("tab-btn-designazioni").disabled=true;
-  document.getElementById("vincoli-opzioni").style.display="none";
-  // btn-pdf e btn-badge rimossi dalla tabbar (2.9.7) — nessuna azione necessaria
+  const _el=id=>document.getElementById(id);
+  if(_el("tab-btn-calendario"))  _el("tab-btn-calendario").disabled=true;
+  if(_el("tab-btn-designazioni")) _el("tab-btn-designazioni").disabled=true;
+  if(_el("vincoli-opzioni"))     _el("vincoli-opzioni").style.display="none";
+  if(_el("finali-stamp-area"))   _el("finali-stamp-area").style.display="none";
+  if(_el("btn-disconnetti-sync"))_el("btn-disconnetti-sync"); // never touched by reset
+  // btn-pdf e btn-badge rimossi dalla tabbar (2.9.7)
 
   renderTutti();
   const primoBtn=document.getElementById("tab-btn-gironi")||document.querySelector(".tab-btn");

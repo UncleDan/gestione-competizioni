@@ -3,6 +3,12 @@
 
 ---
 
+### v2.10.8 — UX e fix reset
+- Tab 4. Finali spostato prima di 📊 Risultati
+- Pulsante ✕ Scollega repo aggiunto nel tab Sync
+- `resetApp()`: tutti i `getElementById` con null-guard
+- `resetApp()` resetta anche `finali-stamp-area`, `nomiArbitri`; non tocca `syncConfig`
+
 ### v2.10.7 — Minor fixes
 - Designazioni: pulsante "Tutti" rinominato "Gironi"
 - Finali: pulsante stampa rinominato "Finali", rimosso pulsante Risultati & Classifica
