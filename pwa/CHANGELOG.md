@@ -3,6 +3,12 @@
 
 ---
 
+### v2.10.11 — Fix tab Finali e Risultati disabilitati
+- `impostaGironi()`: abilita anche Finali e Risultati
+- `importaStato()`: abilita Finali e Risultati quando i gironi sono presenti nel JSON
+- INIT: all'avvio riabilita tutti i tab in base allo stato caricato dalla sessione
+- Finali sempre accessibili per composizione manuale (nessun requisito sui risultati)
+
 ### v2.10.10 — Fix sync banner e turniConfermati
 - Pull sync: sezione Opzioni non veniva rilevata (cercava `data['opzioni']` invece di `data.bannerImage`)
 - `importaStato` e `importaJSON`: `turniConfermati` non veniva ripristinato dalla sezione Designazioni
