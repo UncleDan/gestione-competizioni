@@ -6,6 +6,17 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b3 — Tema switcher in Opzioni
+- Aggiunto selettore tema (☀️ Chiaro / 🌗 Auto / 🌙 Scuro) nel tab ⚙ Opzioni
+- Sincronizzazione pulsanti attivi all'apertura del tab
+- Nota: questa voce era mancante in 3.0b2 per errore di tracciamento
+
+### v3.0b2 — Fix font, bottoni Material, porting da 2.11.6.x
+- Font Atkinson Hyperlegible applicato a tutti i bottoni inline (rimosso Georgia)
+- Tutti i bottoni migrati a classi Material (btn-sm, btn-primary, btn-amber, btn-danger, btn-outline)
+- Ported da 2.11.6.x: finaleHtml 🕐, aggiornaOrario dom→finali, rimozione input finali
+- `#475569` sostituito con `var(--md-on-surface-v)` in tutti gli stili inline
+
 ### v3.0b1 — Redesign Material + Atkinson Hyperlegible
 - Fork del ramo stabile 2.11.5 in `/pwa-beta/`
 - Redesign completo interfaccia: Material Design 3, tema chiaro/scuro/auto
