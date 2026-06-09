@@ -3,6 +3,13 @@
 
 ---
 
+### v2.11.5 — Orario 🕐 nel badge arbitri
+- Badge arbitri: aggiunto orario con icona 🕐 accanto al turno (es. "Venerdì Pomeriggio 🕐 15:00")
+- Confermato: tutte le stampe (gironi per turno, gironi completo, finali) hanno già 🕐
+
+### v2.11.4 — Icona 🕐 negli orari delle stampe
+- Aggiunta icona orologio 🕐 prima di ogni orario in tutte le stampe (designazioni gironi per turno e complete, finali)
+
 ### v2.11.3 — Fix orari: sorgente dati e sincronizzazione
 - Root cause: `aggiornaOrarioPartita` aggiornava `calSlots` ma non `stato.calendario.turni` (usato dalle stampe)
 - `aggiornaOrarioPartita`: aggiorna ora anche `stato.calendario.turni`

@@ -151,7 +151,7 @@ button,input,select{font-family:Georgia,serif}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:#475569;letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">2.11.3</span>
+    finali.html v <span id="ver-num">2.11.5</span>
     <span id="ver-update" style="display:none;color:#f59e0b;margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -550,12 +550,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════════════════
 const BASEDIR = '/gestione-competizioni';
 const BASE    = BASEDIR + '/pwa';
-const VERSION = '2.11.3'; // Aggiornare ad ogni release
+const VERSION = '2.11.5'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '2.11.3',
+  'finali.html':    '2.11.5',
   'pwa/index.html': '1.9',
   'sw.js':          '2.10',
   'manifest.json':  '1.3',
@@ -1999,13 +1999,13 @@ td{padding:4px 8px;border:1px solid #ddd}
       ${f34.casa&&f34.ospite?`<div class="cb">
         <div class="cl">🥉 Finale 3°-4° — 1ª Partita</div>
         <div class="ca">${ci0.nome}${ci0.indirizzo?' · '+ci0.indirizzo:''}${ci0.citta?' · '+ci0.citta:''}</div>
-        <div class="ph" style="margin-top:8px"><span class="pn">${nc(f34.casa)} vs ${nc(f34.ospite)}</span><span style="font-size:11px;color:#f59e0b">${stato.finali.orarioF34||''}</span></div>
+        <div class="ph" style="margin-top:8px"><span class="pn">${nc(f34.casa)} vs ${nc(f34.ospite)}</span><span style="font-size:11px;color:#f59e0b">${stato.finali.orarioF34?'🕐 '+stato.finali.orarioF34:''}</span></div>
         ${(stato.finaliCalendario?.f34||[]).map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st||arb.regione}</span></div>`).join('')}
       </div>`:''}
       ${f12.casa&&f12.ospite?`<div class="cb" style="margin-top:10px">
         <div class="cl">🏆 Finale 1°-2° — 2ª Partita</div>
         <div class="ca">${ci0.nome}${ci0.indirizzo?' · '+ci0.indirizzo:''}${ci0.citta?' · '+ci0.citta:''}</div>
-        <div class="ph" style="margin-top:8px"><span class="pn">${nc(f12.casa)} vs ${nc(f12.ospite)}</span><span style="font-size:11px;color:#f59e0b">${stato.finali.orarioF12||''}</span></div>
+        <div class="ph" style="margin-top:8px"><span class="pn">${nc(f12.casa)} vs ${nc(f12.ospite)}</span><span style="font-size:11px;color:#f59e0b">${stato.finali.orarioF12?'🕐 '+stato.finali.orarioF12:''}</span></div>
         ${(stato.finaliCalendario?.f12||[]).map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st||arb.regione}</span></div>`).join('')}
       </div>`:''}
     </div>
@@ -2045,7 +2045,7 @@ td{padding:4px 8px;border:1px solid #ddd}
           <div class="ca">${ci.indirizzo}${ci.citta?' · '+ci.citta:''}${ci.maps?` · <a href="${ci.maps}" style="color:#2563eb">Maps</a>`:''}</div>
           ${campo.map((slot,p)=>`${p>0?'<hr class="sep">':''}
             <div class="ph"><span class="pn">${nc(slot.casa)} vs ${nc(slot.ospite)}</span><span class="gt2">G.${gL(slot)}</span></div>
-            <div class="ps">${slot.orario||getOrarioSlot(turno,p)} · ${p===0?'1ª partita':'2ª partita'}</div>
+            <div class="ps">${(slot.orario||getOrarioSlot(turno,p))?'🕐 '+(slot.orario||getOrarioSlot(turno,p))+' · ':''} ${p===0?'1ª partita':'2ª partita'}</div>
             ${slot.terna?slot.terna.map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st||arb.regione}</span></div>`).join(''):'<span style="color:red">⚠ Terna non assegnata</span>'}
           `).join('')}
         </div>`;
@@ -2126,7 +2126,7 @@ ${campi.map((campo,c)=>`<div class="cb">
 <div class="cl">🏟 ${campoInfo(c,campo[0]).nome}</div><div class="ca">${campoInfo(c,campo[0]).indirizzo}${campoInfo(c,campo[0]).citta?' · '+campoInfo(c,campo[0]).citta:''}</div>${campoInfo(c,campo[0]).maps?`<div class="ca"><a href="${campoInfo(c,campo[0]).maps}" style="color:#2563eb">Google Maps</a></div>`:''}
 ${campo.map((slot,p)=>`${p>0?'<hr class="sep">':''}
 <div class="ph"><span class="pn">${slot.casa.nome}${slot.casa.citta&&slot.casa.citta!==slot.casa.nome?' ('+slot.casa.citta+')':''} vs ${slot.ospite.nome}${slot.ospite.citta&&slot.ospite.citta!==slot.ospite.nome?' ('+slot.ospite.citta+')':''}</span><span class="gt2">G.${gL(slot)}</span></div>
-<div class="ps">${slot.orario||''} · ${p===0?'1ª partita':'2ª partita'}</div>
+<div class="ps">${slot.orario?'🕐 '+slot.orario+' · ':''}${p===0?'1ª partita':'2ª partita'}</div>
 ${slot.terna?slot.terna.map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st||arb.regione}</span></div>`).join(''):'<span style="color:red">⚠</span>'}
 `).join('')}</div>`).join('')}</div></div>`}).join('')}
 <div class="rh">RIEPILOGO ARBITRI — Totale Gironi</div>
@@ -2138,13 +2138,13 @@ ${arbitroRighe.map(arb=>`<tr><td style="font-weight:bold">${arb.nd}</td><td styl
 ${stato.finali.f34.casa&&stato.finali.f34.ospite?`<div class="cb">
 <div class="cl">🥉 Finale 3°-4° Posto — 1ª Partita</div>
 <div class="ca">${CAMPI[0].nome} · ${CAMPI[0].indirizzo}</div>
-<div class="ph" style="margin-top:8px"><span class="pn">${stato.finali.f34.casa.nome} vs ${stato.finali.f34.ospite.nome}</span><span style="font-size:11px;color:#888;margin-left:8px">${stato.finali.orarioF34||''}</span></div>
+<div class="ph" style="margin-top:8px"><span class="pn">${stato.finali.f34.casa.nome} vs ${stato.finali.f34.ospite.nome}</span><span style="font-size:11px;color:#888;margin-left:8px">${stato.finali.orarioF34?'🕐 '+stato.finali.orarioF34:''}</span></div>
 ${(stato.finaliCalendario?.f34||[]).map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st||arb.regione}</span></div>`).join('')}
 </div>`:''}
 ${stato.finali.f12.casa&&stato.finali.f12.ospite?`<div class="cb" style="margin-top:10px">
 <div class="cl">🏆 Finale 1°-2° Posto — 2ª Partita</div>
 <div class="ca">${CAMPI[0].nome} · ${CAMPI[0].indirizzo}</div>
-<div class="ph" style="margin-top:8px"><span class="pn">${stato.finali.f12.casa.nome} vs ${stato.finali.f12.ospite.nome}</span><span style="font-size:11px;color:#888;margin-left:8px">${stato.finali.orarioF12||''}</span></div>
+<div class="ph" style="margin-top:8px"><span class="pn">${stato.finali.f12.casa.nome} vs ${stato.finali.f12.ospite.nome}</span><span style="font-size:11px;color:#888;margin-left:8px">${stato.finali.orarioF12?'🕐 '+stato.finali.orarioF12:''}</span></div>
 ${(stato.finaliCalendario?.f12||[]).map(arb=>`<div class="ar"><span class="fb" style="background:${GRUPPO_COLOR_P[arb.gruppo]}">${arb.gruppo}</span><span style="font-size:12px;font-weight:bold">${nomeDisplay(arb)}</span><span style="font-size:10px;color:#888;margin-left:auto">${arb.st||arb.regione}</span></div>`).join('')}
 </div>`:''}
 </div>`:''}
@@ -2161,7 +2161,7 @@ function stampaBadge(){
     campi.forEach((campo,c)=>{
       campo.forEach((slot,p)=>{
         if(slot.terna)slot.terna.forEach(arb=>{
-          const _ci=campoInfo(c,slot);des[arb.id].push({turno:TURNI_LABEL[turno],campo:_ci.nome,mapsUrl:_ci.maps||'',partita:`${slot.casa.nome}${slot.casa.citta&&slot.casa.citta!==slot.casa.nome?' ('+slot.casa.citta+')':''} vs ${slot.ospite.nome}${slot.ospite.citta&&slot.ospite.citta!==slot.ospite.nome?' ('+slot.ospite.citta+')':''}`,seq:p+1});
+          const _ci=campoInfo(c,slot);des[arb.id].push({turno:TURNI_LABEL[turno],campo:_ci.nome,mapsUrl:_ci.maps||'',orario:slot.orario||'',partita:`${slot.casa.nome}${slot.casa.citta&&slot.casa.citta!==slot.casa.nome?' ('+slot.casa.citta+')':''} vs ${slot.ospite.nome}${slot.ospite.citta&&slot.ospite.citta!==slot.ospite.nome?' ('+slot.ospite.citta+')':''}`,seq:p+1});
         });
       });
     });
@@ -2184,7 +2184,7 @@ function stampaBadge(){
 ${ARBITRI_BASE.map(arb=>{
   const nd=nomeDisplay(arb),d=des[arb.id],bg=GRUPPO_COLOR_P[arb.gruppo];
   return `<div class="badge"><div class="bt" style="background:${bg}"><div class="fs">${arb.gruppo}</div><div class="bl">${gruppo_LABEL_P[arb.gruppo]} · ${arb.st||arb.regione}</div><div class="bn">${nd}</div><div class="bs">${arb.label!==nd?arb.label:'&nbsp;'}</div></div>
-<div class="bb">${d.length===0?'<div style="color:#ccc;font-size:11px;text-align:center;padding:8px">Nessuna designazione</div>':d.map(x=>`<div class="dr"><span class="dt">${x.turno}</span><span class="dc">${x.campo}${x.mapsUrl?` <a href="${x.mapsUrl}" style="font-size:9px;color:#2563eb" target="_blank">🗺</a>`:''} · ${x.seq===1?'1ª':'2ª'} partita</span><span class="dp">${x.partita}</span></div>`).join('')}</div>
+<div class="bb">${d.length===0?'<div style="color:#ccc;font-size:11px;text-align:center;padding:8px">Nessuna designazione</div>':d.map(x=>`<div class="dr"><span class="dt">${x.turno}${x.orario?' 🕐 '+x.orario:''}</span><span class="dc">${x.campo}${x.mapsUrl?` <a href="${x.mapsUrl}" style="font-size:9px;color:#2563eb" target="_blank">🗺</a>`:''} · ${x.seq===1?'1ª':'2ª'} partita</span><span class="dp">${x.partita}</span></div>`).join('')}</div>
 <div class="bf">Competizione Baskin · Monfalcone</div></div>`;
 }).join('')}
 </div></body></html>`;
