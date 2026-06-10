@@ -443,6 +443,42 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
 }
 .tema-btn.active{background:var(--md-primary);color:var(--md-on-primary);border-color:var(--md-primary)}
 
+/* ── Calendario builder (riquadri stile des-card) ── */
+.cal-turno-lbl{
+  display:flex;align-items:center;gap:10px;margin:20px 0 10px;
+  font-size:12px;font-weight:700;color:var(--md-primary);
+  letter-spacing:1.5px;text-transform:uppercase;
+}
+.cal-turno-lbl::after{content:'';flex:1;height:2px;background:var(--md-outline-v)}
+.cal-cell{
+  background:var(--md-surface);border:1.5px solid var(--md-outline-v);
+  border-radius:var(--md-radius);padding:12px;margin-bottom:10px;
+  box-shadow:var(--md-shadow);min-height:88px;
+  transition:border-color .15s,background .15s;
+}
+.cal-cell.drag-over-cell{border-color:var(--md-primary);background:var(--md-primary-c)}
+.cal-pool{
+  display:flex;flex-wrap:wrap;gap:8px;min-height:56px;padding:12px;
+  background:var(--md-surface-c);border:2px dashed var(--md-outline-v);
+  border-radius:var(--md-radius);margin-bottom:16px;
+}
+.pbuilder{
+  background:var(--md-surface-c);border:1.5px solid var(--md-outline-v);
+  border-radius:var(--md-radius-sm);padding:10px 12px;margin-bottom:8px;
+  cursor:grab;transition:border-color .15s,box-shadow .15s;
+}
+.pbuilder:hover{border-color:var(--md-primary);box-shadow:var(--md-shadow-md)}
+.pbuilder.dragging{opacity:.5}
+.p-teams{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  font-weight:700;font-size:14px;color:var(--md-on-surface);
+}
+.p-girone{font-size:10px;padding:2px 8px;border-radius:var(--md-radius-full);font-weight:700;margin-left:auto}
+.p-girone.ga{background:var(--md-primary-c);color:var(--md-primary)}
+.p-girone.gb{background:var(--md-green-c);color:var(--md-green)}
+.p-orario{font-size:12px;color:var(--md-amber);font-weight:700;margin-top:4px}
+.p-actions{display:flex;gap:8px;margin-top:8px;align-items:center}
+
 /* ── vincoli-opzioni ── */
 #vincoli-opzioni{padding:8px 0}
 </style>
@@ -454,7 +490,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:var(--md-on-surface-v);letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">3.0b5</span>
+    finali.html v <span id="ver-num">3.0b6</span>
     <span id="ver-update" style="display:none;color:var(--md-amber);margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -484,10 +520,10 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
   <button onclick="showTab('importexport',document.getElementById('tab-btn-ie'))" id="tab-btn-ie" class="tab-btn" style="color:#34d399">⇅ Import/Export</button>
   <button onclick="showTab('sync',this)" class="tab-btn" style="color:var(--md-primary)">☁ Sync</button>
   <button onclick="showTab('sessioni',this)" class="tab-btn" style="color:var(--md-tertiary)">🕐 Sessioni</button>
-  <a href="/gestione-competizioni/pwa/index.html" style="padding:12px 14px;background:transparent;border:none;color:var(--md-on-surface-v);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;text-decoration:none" title="Torna al menu principale">⌂ Menu</a>
-  <button onclick="resetApp()" style="padding:12px 14px;background:transparent;border:none;color:var(--md-on-surface-v);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer" title="Ripristina dati di esempio">↺ Reset</button>
+  <a href="/gestione-competizioni/pwa/index.html" class="tab-btn" style="text-decoration:none;display:inline-flex;align-items:center" title="Torna al menu principale">⌂ Menu</a>
+  <button onclick="resetApp()" class="tab-btn" title="Ripristina dati di esempio">↺ Reset</button>
   <button class="tab-btn" onclick="showTab('opzioni',this)" style="color:#38bdf8">⚙ Opzioni</button>
-  <button id="btn-debug" onclick="toggleDebug()" style="padding:12px 14px;background:transparent;border:none;color:var(--md-on-surface-v);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer">🐛 Debug</button>
+  <button id="btn-debug" onclick="toggleDebug()" class="tab-btn">🐛 Debug</button>
 </div>
 
 <div id="main">
@@ -851,12 +887,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════════════════
 const BASEDIR = '/gestione-competizioni';
 const BASE    = BASEDIR + '/pwa-beta';
-const VERSION = '3.0b5'; // Aggiornare ad ogni release
+const VERSION = '3.0b6'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '3.0b5',
+  'finali.html':    '3.0b6',
   'pwa/index.html': '1.9',
   'sw.js':          '2.10',
   'manifest.json':  '1.3',
@@ -1438,6 +1474,7 @@ function cellPartitaHtml(p,t,c,pi){
       <span>${p.casa.nome}</span><span style="color:var(--md-on-surface-v);font-size:10px">vs</span>
       <span>${p.ospite.nome}</span><span class="p-girone ${gc}">G.${p.girone}</span>
     </div>
+    <div class="p-orario">🕐 ${p.orario||getOrarioSlot(t,pi)||''}</div>
     <div class="p-actions">
       <button class="btn-swap" onclick="swapCasaOspite(${t},${c},${pi})">⇄ Inverti</button>
       <button class="btn-remove" onclick="rimuoviDaSlotCal(${t},${c},${pi})">✕</button>

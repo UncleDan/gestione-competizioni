@@ -6,6 +6,11 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b6 — Fix tabbar, riquadri Calendario, orario partite assegnate
+- Tabbar: ⌂ Menu, ↺ Reset e 🐛 Debug migrati a classe `tab-btn` (font Noto Sans, dimensioni uniformi con gli altri tab)
+- Calendario: ricreate tutte le classi CSS perse nel redesign MD3 (`cal-cell`, `cal-turno-lbl`, `pbuilder`, `cal-pool`, `p-teams`, `p-girone`, `p-actions`) — riquadri in stile card come le Designazioni, con ombra, bordo e highlight al drag
+- Calendario: orario 🕐 visibile su ogni partita anche dopo l'assegnazione allo slot (riga dedicata `p-orario`)
+
 ### v3.0b5 — Font offline e orari slot vuoti
 - Service worker: cache-first per Google Fonts (CSS + woff2) → Noto Sans funziona offline dopo la prima visita; fallback `system-ui` se mai caricato
 - Cache font separata (`-fonts-1`) preservata agli aggiornamenti del SW
