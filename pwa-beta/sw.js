@@ -1,7 +1,7 @@
 // ══════════════════════════════════════════════════════════
 // CONFIGURAZIONE — modificare qui per aggiornare il ramo
 // ══════════════════════════════════════════════════════════
-const SW_VERSION = '2.10';
+const SW_VERSION = '3.0b5';
 const BASEDIR    = '/gestione-competizioni';   // root repo — cambiare per nuovo ramo
 const BASE       = BASEDIR + '/pwa-beta';           // cartella istanza (pwa, pwa-beta, ecc.)
 const CACHE_NAME = `gestione-competizioni-beta-sw-${SW_VERSION}`;
@@ -16,9 +16,28 @@ const PRECACHE = [
   `${BASEDIR}/save/demo.json`,
 ];
 
+const FONT_CACHE = `gestione-competizioni-beta-fonts-1`;
+const FONT_ORIGINS = ['https://fonts.googleapis.com','https://fonts.gstatic.com'];
+
 // versions.json sempre fresh (no cache)
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
+
+  // Font Google: cache-first con fallback rete → offline i font funzionano
+  if (FONT_ORIGINS.some(o => e.request.url.startsWith(o))) {
+    e.respondWith(
+      caches.open(FONT_CACHE).then(cache =>
+        cache.match(e.request).then(hit =>
+          hit || fetch(e.request).then(resp => {
+            if (resp.ok) cache.put(e.request, resp.clone());
+            return resp;
+          }).catch(() => hit)
+        )
+      )
+    );
+    return;
+  }
+
   if (!e.request.url.startsWith(self.location.origin)) return;
 
   if (e.request.url.includes('/versions.json')) {
@@ -48,7 +67,7 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+      Promise.all(keys.filter(k => k !== CACHE_NAME && k !== FONT_CACHE).map(k => caches.delete(k)))
     )
   );
   self.clients.claim();
