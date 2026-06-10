@@ -6,6 +6,13 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b7 — Layout Gironi e Calendario, tab Date, pulsanti stampa, tema persistente
+- Gironi: aggiunto CSS completo (`.dnd-col`, `.dnd-area` 3 colonne, bordo colorato A=blu/B=verde/Pool=grigio, `.errore`, `.grid-auto`)
+- Calendario: layout ristrutturato con blocchi per turno (`cal-turno-block`) contenenti griglia a 2 campi con intestazione campo; niente più celle sparse
+- Tab 📅 Date spostato tra 📊 Risultati e Arbitri
+- Pulsanti stampa: forma pillola uniforme, colori distinti — Ven.Pom/Sab.Matt/Sab.Pom=ambra, 🖨 Gironi=blu primario, 🪪 Badge=viola, 🖨 Finali=verde, 🖨 Risultati=blu
+- Tema: script inline in `<head>` applica il tema salvato PRIMA del render → zero flash bianco/scuro all'apertura
+
 ### v3.0b6 — Fix tabbar, riquadri Calendario, orario partite assegnate
 - Tabbar: ⌂ Menu, ↺ Reset e 🐛 Debug migrati a classe `tab-btn` (font Noto Sans, dimensioni uniformi con gli altri tab)
 - Calendario: ricreate tutte le classi CSS perse nel redesign MD3 (`cal-cell`, `cal-turno-lbl`, `pbuilder`, `cal-pool`, `p-teams`, `p-girone`, `p-actions`) — riquadri in stile card come le Designazioni, con ombra, bordo e highlight al drag
