@@ -698,7 +698,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:var(--md-on-surface-v);letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">3.0b23</span>
+    finali.html v <span id="ver-num">3.0b24</span>
     <span id="ver-update" style="display:none;color:var(--md-amber);margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -1096,12 +1096,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════════════════
 const BASEDIR = '/gestione-competizioni';
 const BASE    = BASEDIR + '/pwa-beta';
-const VERSION = '3.0b23'; // Aggiornare ad ogni release
+const VERSION = '3.0b24'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '3.0b23',
+  'finali.html':    '3.0b24',
   'pwa/index.html': '1.9',
   'sw.js':          '2.10',
   'manifest.json':  '1.3',
@@ -2612,7 +2612,7 @@ td{padding:4px 8px;border:1px solid #ddd}
 
   if(turnoIdx==='finali'){
     const f34=stato.finali.f34, f12=stato.finali.f12;
-    if(!f34.casa&&!f34.ospite&&!f12.casa&&!f12.ospite){alert('Nessuna finale configurata.');return;}
+    if(!f34.casa&&!f34.ospite&&!f12.casa&&!f12.ospite){mostraNotifica('⚠ Nessuna finale configurata', 'warn'); return;}
     const ci0=CAMPI[0]||{nome:'Campo 1',indirizzo:'',citta:'',maps:''};
     const dataFmt=DATE_GARA.dom?new Date(DATE_GARA.dom+'T12:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
     turnoLabel=`Domenica Mattina — Finali${dataFmt?' · '+dataFmt:''}`;
@@ -3621,18 +3621,7 @@ function finaliDrop(e, targetKey){
   if(!finaliDragSrc) return;
   const sq = SQUADRE.find(s=>s.nome===finaliDragSrc.sqNome);
   if(!sq) return;
-  // Alert se la squadra è già nella FINALE OPPOSTA
-  if(targetKey !== 'pool'){
-    const [targetFk] = parseSlotKey(targetKey);
-    const altroFk = targetFk==='f34'?'f12':'f34';
-    const inAltro = stato.finali[altroFk].casa?.nome===sq.nome
-                 || stato.finali[altroFk].ospite?.nome===sq.nome;
-    if(inAltro){
-      mostraNotifica(`⚠ ${sq.nome} è già assegnata alla ${altroFk==='f34'?'Finale 3°-4°':'Finale 1°-2°'}`, 'warn', 6000);
-      renderFinali();
-      return;
-    }
-  }
+  // Conflitto squadra doppia: permesso — evidenziato da renderFinaliVincoli()
   // Rimuovi dalla sorgente
   if(finaliDragSrc.from === 'slot'){
     const [fk, ruolo] = finaliDragSrc.slotKey.split(':');

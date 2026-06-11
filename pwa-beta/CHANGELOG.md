@@ -6,6 +6,10 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b24 — Fix definitivo logica finali
+- Rimosso il blocco `mostraNotifica+return` che impediva l'inserimento della squadra (le versioni precedenti non avevano sostituito il testo corretto)
+- `finaliDrop`: nessun check bloccante — l'inserimento avviene sempre; i conflitti sono mostrati da `renderFinaliVincoli()` come `.violazione-item`
+
 ### v3.0b23 — Conflitti finali come violazione-item + btn-swap uniforme
 - Finali: conflitto squadra doppia visualizzato come `.violazione-item` rosso inline (come vincoli designazioni) — non più balloon
 - `renderFinaliVincoli()`: controlla duplicati f34/f12 e mostra `#finali-vincoli-panel` sopra la composizione
@@ -31,6 +35,10 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 - Calendario: `margin-bottom:16px` tra blocchi turno — Sabato Mattina, Sabato Pomeriggio staccati visivamente
 - Finali: pulsante Rimuovi (`liberaSlot`) stilizzato inline con `border-radius:sm` e testo "✕ Rimuovi" — non più un cerchio
 - Designazioni: 🔍 Verifica Vincoli avvolto in `<div style="margin:14px 0">` per spaziatura
+
+### v3.0b24 — Fix definitivo logica finali
+- Rimosso il blocco `mostraNotifica+return` che impediva l'inserimento della squadra (le versioni precedenti non avevano sostituito il testo corretto)
+- `finaliDrop`: nessun check bloccante — l'inserimento avviene sempre; i conflitti sono mostrati da `renderFinaliVincoli()` come `.violazione-item`
 
 ### v3.0b23 — Conflitti finali come violazione-item + btn-swap uniforme
 - Finali: conflitto squadra doppia visualizzato come `.violazione-item` rosso inline (come vincoli designazioni) — non più balloon
