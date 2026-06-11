@@ -6,6 +6,11 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b23 — Conflitti finali come violazione-item + btn-swap uniforme
+- Finali: conflitto squadra doppia visualizzato come `.violazione-item` rosso inline (come vincoli designazioni) — non più balloon
+- `renderFinaliVincoli()`: controlla duplicati f34/f12 e mostra `#finali-vincoli-panel` sopra la composizione
+- Designazioni: rimosso inline `font-size:9px;padding:2px 6px` dal btn-swap — usa ora il CSS `.btn-swap` (15px bold) identico alle Finali
+
 ### v3.0b22 — Finali: fix popup, checkbox definitivo, stampa con campo
 - Rimosso `return` dal conflict check in `finaliDrop` — mostra balloon senza bloccare
 - Aggiunto `turniConfermati.finali` e checkbox ✓ Designazioni Definitive nel tab Finali
@@ -26,6 +31,11 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 - Calendario: `margin-bottom:16px` tra blocchi turno — Sabato Mattina, Sabato Pomeriggio staccati visivamente
 - Finali: pulsante Rimuovi (`liberaSlot`) stilizzato inline con `border-radius:sm` e testo "✕ Rimuovi" — non più un cerchio
 - Designazioni: 🔍 Verifica Vincoli avvolto in `<div style="margin:14px 0">` per spaziatura
+
+### v3.0b23 — Conflitti finali come violazione-item + btn-swap uniforme
+- Finali: conflitto squadra doppia visualizzato come `.violazione-item` rosso inline (come vincoli designazioni) — non più balloon
+- `renderFinaliVincoli()`: controlla duplicati f34/f12 e mostra `#finali-vincoli-panel` sopra la composizione
+- Designazioni: rimosso inline `font-size:9px;padding:2px 6px` dal btn-swap — usa ora il CSS `.btn-swap` (15px bold) identico alle Finali
 
 ### v3.0b22 — Finali: fix popup, checkbox definitivo, stampa con campo
 - Rimosso `return` dal conflict check in `finaliDrop` — mostra balloon senza bloccare
