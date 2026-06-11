@@ -6,6 +6,12 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b18 — Designazioni e Finali: font, spaziatura, alert
+- `.f-dot`: 30px, `margin-right:10px`; `.arb-row`: gap e separatore bordo inferiore
+- `btn-swap`: font 15px bold, padding `10px 22px`, `min-height:48px` — uguale alle Designazioni
+- `liberaSlot` (Finali): pulsante migrato a `btn-sm btn-danger`
+- Alert UX (pareggio, squadra doppia, sync, errori) → `mostraNotifica()` in cima come balloon, rimossi i popup `alert()`
+
 ### v3.0b17 — Notifiche in alto, stile MD3
 - `#notif-area` spostato in alto (sotto tabbar) invece che in basso
 - `.notif-card`: sfondo `--md-surface`, testo `--md-on-surface`, bordo sinistro colorato per tipo, bordo `--md-outline-v` — zero hex hardcoded
