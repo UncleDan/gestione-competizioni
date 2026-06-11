@@ -146,10 +146,10 @@ async function verificaAggiornamenti(){
     if(!current){
       // Nessuna cache SW (pagina aperta senza SW o prima visita):
       // confronta direttamente con la versione del launcher caricato
-      const launcherVer = '3.0b21'; // versione di questo file
+      const launcherVer = '3.0b22'; // versione di questo file
       // Versioni note di questa build — usate come fallback se cache non disponibile
       const KNOWN_VERSIONS = {
-        'finali.html':    '3.0b21',
+        'finali.html':    '3.0b22',
         'pwa/index.html': '1.9',
         'sw.js':          '2.10',
         'manifest.json':  '1.3',
@@ -211,7 +211,7 @@ const MODULI = [
     nome: 'Finali Nazionali',
     desc: 'Sorteggio gironi · Designazioni arbitrali · Risultati',
     anno: '2026',
-    versione: '3.0b21',
+    versione: '3.0b22',
     file: `${BASE}/finali.html`,
     icon: '🏆',
     attivo: true,

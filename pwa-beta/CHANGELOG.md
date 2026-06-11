@@ -6,6 +6,11 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b22 — Finali: fix popup, checkbox definitivo, stampa con campo
+- Rimosso `return` dal conflict check in `finaliDrop` — mostra balloon senza bloccare
+- Aggiunto `turniConfermati.finali` e checkbox ✓ Designazioni Definitive nel tab Finali
+- `stampaPDFTurno('finali')`: bodyHtml ristrutturato identico alle mezze giornate — campo header con indirizzo e Maps, due partite in sequenza con orario, terne arbitrali
+
 ### v3.0b21 — Badge gironi coerenti + conflitti finali non bloccanti
 - Badge G.A/G.B: `.gA`=azzurro (`--md-primary`), `.gB`=verde (`--md-green`) — stessi colori della composizione gironi; CSS duplicate rimosse
 - Finali: drop squadra già in altra finale non bloccato — mostra balloon `⚠ warn` e permette l'assegnazione
@@ -21,6 +26,11 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 - Calendario: `margin-bottom:16px` tra blocchi turno — Sabato Mattina, Sabato Pomeriggio staccati visivamente
 - Finali: pulsante Rimuovi (`liberaSlot`) stilizzato inline con `border-radius:sm` e testo "✕ Rimuovi" — non più un cerchio
 - Designazioni: 🔍 Verifica Vincoli avvolto in `<div style="margin:14px 0">` per spaziatura
+
+### v3.0b22 — Finali: fix popup, checkbox definitivo, stampa con campo
+- Rimosso `return` dal conflict check in `finaliDrop` — mostra balloon senza bloccare
+- Aggiunto `turniConfermati.finali` e checkbox ✓ Designazioni Definitive nel tab Finali
+- `stampaPDFTurno('finali')`: bodyHtml ristrutturato identico alle mezze giornate — campo header con indirizzo e Maps, due partite in sequenza con orario, terne arbitrali
 
 ### v3.0b21 — Badge gironi coerenti + conflitti finali non bloccanti
 - Badge G.A/G.B: `.gA`=azzurro (`--md-primary`), `.gB`=verde (`--md-green`) — stessi colori della composizione gironi; CSS duplicate rimosse
