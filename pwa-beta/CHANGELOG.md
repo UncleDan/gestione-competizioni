@@ -6,6 +6,9 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b16 — Fix calendario: intestazioni campo duplicate
+- Rimosso il vecchio `<div class="cal-grid">` con le intestazioni palestre flottanti rimasto nel codice dopo la ristrutturazione del b14 — era la causa dei nomi campo duplicati e fuori posto
+
 ### v3.0b15 — Spaziatura badge Provvisorio/Definitivo
 - `.conf-badge-ok` e `.conf-badge-prov`: padding `10px 14px`, `margin:12px 0`, `display:block`
 - Rimosso inline style malformato sul div badge che interferiva con il CSS

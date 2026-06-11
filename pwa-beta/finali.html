@@ -674,7 +674,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:var(--md-on-surface-v);letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">3.0b15</span>
+    finali.html v <span id="ver-num">3.0b16</span>
     <span id="ver-update" style="display:none;color:var(--md-amber);margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -1071,12 +1071,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════════════════
 const BASEDIR = '/gestione-competizioni';
 const BASE    = BASEDIR + '/pwa-beta';
-const VERSION = '3.0b15'; // Aggiornare ad ogni release
+const VERSION = '3.0b16'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '3.0b15',
+  'finali.html':    '3.0b16',
   'pwa/index.html': '1.9',
   'sw.js':          '2.10',
   'manifest.json':  '1.3',
@@ -1635,9 +1635,7 @@ function renderCalBuilder(){
   </div>`;
 
   // Griglia calendario
-  html+=`<div class="cal-grid">
-    <div class="cal-hdr"></div>
-    ${CAMPI.map(camp=>`<div class="cal-hdr">🏟 ${camp.nome}<div style="font-size:9px;color:var(--md-on-surface-v);font-weight:normal;margin-top:2px">${camp.indirizzo}</div></div>`).join('')}`;
+
   // Calendario: build turni grid
   for(let t=0;t<3;t++){
     let turnoHtml = '<div class="cal-turno-block"><div class="cal-turno-header">'+turnoLabel(t)+'</div>';
