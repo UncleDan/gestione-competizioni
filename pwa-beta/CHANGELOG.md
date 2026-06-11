@@ -6,6 +6,11 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b13 — Fix sticky header su PC
+- Aggiunto `overflow-y:scroll` su `html` per renderlo lo scroll container esplicito di Chrome/Desktop
+- `body` passa da `min-height:100vh` a `min-height:100%` per coerenza col nuovo scroll container
+- Header e tabbar restano `position:sticky` (nessuna modifica al layout)
+
 ### v3.0b12 — Fix menu scomparso: ripristino sticky
 - Ripristinato `position:sticky` per header e tabbar (il `fixed` del b9 li faceva sparire)
 - `--header-h` calcolato dinamicamente via JS per il corretto offset del tabbar
