@@ -6,6 +6,17 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b15 — Spaziatura badge Provvisorio/Definitivo
+- `.conf-badge-ok` e `.conf-badge-prov`: padding `10px 14px`, `margin:12px 0`, `display:block`
+- Rimosso inline style malformato sul div badge che interferiva con il CSS
+
+### v3.0b14 — Fix calendario, cerchietti, Inverti, spaziatura
+- Menu: abbandonato tentativo sticky; ripristinato comportamento precedente
+- Calendario: template riscritto senza template literal annidate; introdotte classi CSS dedicate (`cal-campi-row`, `cal-campo-col`, `cal-campo-hdr`, `cal-cell`, `cal-empty-slot`) — layout 2 colonne identico alle Designazioni
+- Designazioni: `.f-dot` con `margin-right:8px` — cerchietti non più incollati al nome
+- Pulsante Inverti: font 14px bold, padding aumentato, bordo più evidente
+- Pulsante 🖨 Finali e 🖨 Risultati & Classifica: aggiunto `padding-bottom:24px` — non più appiccicati al bordo
+
 ### v3.0b13 — Fix sticky header su PC
 - Aggiunto `overflow-y:scroll` su `html` per renderlo lo scroll container esplicito di Chrome/Desktop
 - `body` passa da `min-height:100vh` a `min-height:100%` per coerenza col nuovo scroll container

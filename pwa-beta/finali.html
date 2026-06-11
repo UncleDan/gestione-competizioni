@@ -91,12 +91,12 @@
 
 /* ── Base ── */
 *{margin:0;padding:0;box-sizing:border-box}
-html{-webkit-text-size-adjust:100%;overflow-y:scroll;height:100%}
+html{-webkit-text-size-adjust:100%}
 body{
   font-family:'Noto Sans',system-ui,sans-serif;
   background:var(--md-surface);
   color:var(--md-on-surface);
-  min-height:100%;
+  min-height:100vh;
   font-size:16px;
   line-height:1.5;
 }
@@ -294,6 +294,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
 .f-dot{
   display:inline-flex;align-items:center;justify-content:center;
   width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  margin-right:8px;
   font-size:13px;font-weight:700;color:#fff;
 }
 .f-dot.g1{background:#d97706}
@@ -349,11 +350,13 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
 .arb-row.violazione{background:var(--md-error-c);border-radius:var(--md-radius-sm);border:1px solid var(--md-error)}
 .conf-badge-ok{
   background:var(--md-green-c);color:var(--md-green);border:1px solid var(--md-green);
-  border-radius:var(--md-radius-sm);padding:6px 10px;font-size:12px;font-weight:700;
+  border-radius:var(--md-radius-sm);padding:10px 14px;font-size:12px;font-weight:700;
+  margin:12px 0;display:block;
 }
 .conf-badge-prov{
   background:var(--md-amber-c);color:var(--md-amber);border:1px solid var(--md-amber);
-  border-radius:var(--md-radius-sm);padding:6px 10px;font-size:12px;font-weight:700;
+  border-radius:var(--md-radius-sm);padding:10px 14px;font-size:12px;font-weight:700;
+  margin:12px 0;display:block;
 }
 
 /* ── Risultati ── */
@@ -395,12 +398,13 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
 .finali-slot.occupied{border-style:solid;border-color:var(--md-primary);background:var(--md-primary-c)}
 .finali-slot.drag-over{border-color:var(--md-amber);background:var(--md-amber-c)}
 .btn-swap{
-  background:var(--md-surface-v);border:1px solid var(--md-outline-v);
-  border-radius:var(--md-radius-full);padding:6px 12px;cursor:pointer;
-  font-size:13px;min-height:40px;color:var(--md-on-surface);
-  font-family:'Noto Sans',system-ui,sans-serif;font-weight:600;
+  background:var(--md-surface-v);border:1.5px solid var(--md-outline);
+  border-radius:var(--md-radius-full);padding:8px 18px;cursor:pointer;
+  font-size:14px;font-weight:700;min-height:44px;color:var(--md-on-surface);
+  font-family:'Noto Sans',system-ui,sans-serif;
 }
-.btn-swap:hover{background:var(--md-outline-v)}
+.btn-swap:hover{background:var(--md-surface-c)}
+.btn-swap:active{transform:scale(.97)}
 
 /* ── Sync ── */
 .sync-card{
@@ -606,7 +610,51 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
 }
 .cal-cell.drag-over-cell{background:var(--md-primary-c);border:2px dashed var(--md-primary)}
 
+/* ── Calendario: layout a griglia ── */
+.cal-campi-row{display:grid;grid-template-columns:1fr 1fr}
+@media(max-width:520px){.cal-campi-row{grid-template-columns:1fr}}
+.cal-campo-col{padding:12px}
+.cal-campo-left{border-right:1px solid var(--md-outline-v)}
+.cal-campo-hdr{
+  font-size:11px;font-weight:700;color:var(--md-on-surface-v);
+  letter-spacing:1px;text-transform:uppercase;
+  margin-bottom:8px;padding-bottom:6px;
+  border-bottom:1px solid var(--md-outline-v);
+}
+.cal-cell{min-height:60px}
+.cal-empty-slot{
+  text-align:center;padding:10px 8px;
+  border:2px dashed var(--md-outline-v);
+  border-radius:var(--md-radius-sm);margin-top:6px;
+  background:var(--md-surface);
+}
+.cal-empty-slot+.cal-empty-slot{margin-top:4px}
+.cal-ora{color:var(--md-amber);font-weight:700;font-size:12px}
+.cal-slot-lbl{color:var(--md-outline);font-size:11px}
+
 /* ── vincoli-opzioni ── */
+/* ── Calendario: layout a griglia ── */
+.cal-campi-row{display:grid;grid-template-columns:1fr 1fr}
+@media(max-width:520px){.cal-campi-row{grid-template-columns:1fr}}
+.cal-campo-col{padding:12px}
+.cal-campo-left{border-right:1px solid var(--md-outline-v)}
+.cal-campo-hdr{
+  font-size:11px;font-weight:700;color:var(--md-on-surface-v);
+  letter-spacing:1px;text-transform:uppercase;
+  margin-bottom:8px;padding-bottom:6px;
+  border-bottom:1px solid var(--md-outline-v);
+}
+.cal-cell{min-height:60px}
+.cal-empty-slot{
+  text-align:center;padding:10px 8px;
+  border:2px dashed var(--md-outline-v);
+  border-radius:var(--md-radius-sm);margin-top:6px;
+  background:var(--md-surface);
+}
+.cal-empty-slot+.cal-empty-slot{margin-top:4px}
+.cal-ora{color:var(--md-amber);font-weight:700;font-size:12px}
+.cal-slot-lbl{color:var(--md-outline);font-size:11px}
+
 /* ── vincoli-opzioni ── */
 #vincoli-opzioni{padding:8px 0}
 </style>
@@ -626,7 +674,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:var(--md-on-surface-v);letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">3.0b13</span>
+    finali.html v <span id="ver-num">3.0b15</span>
     <span id="ver-update" style="display:none;color:var(--md-amber);margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -860,7 +908,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
     <div class="eyebrow-sm">Finali — Domenica Mattina</div>
     <div style="font-size:12px;color:var(--md-on-surface-v);margin-bottom:16px">Trascina le squadre nelle posizioni. Campo 1 · <span id="finali-data-label">14/06/2026</span></div>
     <div id="finali-builder"></div>
-    <div id="finali-stamp-area" style="display:none;margin-top:16px">
+    <div id="finali-stamp-area" style="display:none;margin-top:16px;padding-bottom:24px">
       <button class="btn-stamp-finali" onclick="stampaPDFTurno('finali')">🖨 Finali</button>
     </div>
   </div>
@@ -1023,12 +1071,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════════════════
 const BASEDIR = '/gestione-competizioni';
 const BASE    = BASEDIR + '/pwa-beta';
-const VERSION = '3.0b13'; // Aggiornare ad ogni release
+const VERSION = '3.0b15'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '3.0b13',
+  'finali.html':    '3.0b15',
   'pwa/index.html': '1.9',
   'sw.js':          '2.10',
   'manifest.json':  '1.3',
@@ -1590,33 +1638,26 @@ function renderCalBuilder(){
   html+=`<div class="cal-grid">
     <div class="cal-hdr"></div>
     ${CAMPI.map(camp=>`<div class="cal-hdr">🏟 ${camp.nome}<div style="font-size:9px;color:var(--md-on-surface-v);font-weight:normal;margin-top:2px">${camp.indirizzo}</div></div>`).join('')}`;
-  html+=`<div class="cal-turni-grid">`;
+  // Calendario: build turni grid
   for(let t=0;t<3;t++){
-    const campoA=campoInfo(0,null), campoB=campoInfo(1,null);
-    html+=`<div class="cal-turno-block">
-      <div class="cal-turno-header">${turnoLabel(t)}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">`;
+    let turnoHtml = '<div class="cal-turno-block"><div class="cal-turno-header">'+turnoLabel(t)+'</div>';
+    turnoHtml += '<div class="cal-campi-row">';
     for(let c=0;c<2;c++){
-      const campo=campoInfo(c,null);
-      html+=`<div style="padding:12px;${c===0?'border-right:1px solid var(--md-outline-v);':''}">
-        <div style="font-size:11px;font-weight:700;color:var(--md-on-surface-v);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--md-outline-v)">🏟 ${campo?.nome||'Campo '+(c+1)}</div>
-        <div id="cell-${t}-${c}"
-          ondragover="calCellDragOver(event,${t},${c})"
-          ondrop="calCellDrop(event,${t},${c})"
-          ondragleave="calCellDragLeave(event,${t},${c})">`;
-      stato.calSlots[t][c].forEach((p,pi)=>{ html+=cellPartitaHtml(p,t,c,pi); });
-      for(let nextSlot=stato.calSlots[t][c].length;nextSlot<2;nextSlot++){
-        const oraDef=getOrarioSlot(t,nextSlot);
-        html+=`<div style="font-size:11px;color:var(--md-outline);text-align:center;padding:10px 8px;border:2px dashed var(--md-outline-v);border-radius:var(--md-radius-sm);margin-top:${nextSlot>0||stato.calSlots[t][c].length>0?6:0}px;background:var(--md-surface)">
-          ${oraDef?`<span style="color:var(--md-amber);font-weight:700;font-size:12px">🕐 ${oraDef}</span><br>`:''}
-          <span style="color:var(--md-outline)">${nextSlot===0?'1ª partita':'2ª partita'}</span>
-        </div>`;
+      const campo = campoInfo(c,null);
+      const nomeC = campo?.nome||('Campo '+(c+1));
+      let colHtml = '<div class="cal-campo-col'+(c===0?' cal-campo-left':'')+'"><div class="cal-campo-hdr">🏟 '+nomeC+'</div>';
+      colHtml += '<div id="cell-'+t+'-'+c+'" class="cal-cell" ondragover="calCellDragOver(event,'+t+','+c+')" ondrop="calCellDrop(event,'+t+','+c+')" ondragleave="calCellDragLeave(event,'+t+','+c+'">'+'>';
+      stato.calSlots[t][c].forEach(function(p,pi){ colHtml+=cellPartitaHtml(p,t,c,pi); });
+      for(let ns=stato.calSlots[t][c].length;ns<2;ns++){
+        const ora=getOrarioSlot(t,ns);
+        colHtml+='<div class="cal-empty-slot">'+(ora?'<span class="cal-ora">🕐 '+ora+'</span><br>':'')+'<span class="cal-slot-lbl">'+(ns===0?'1ª partita':'2ª partita')+'</span></div>';
       }
-      html+=`</div></div>`;
+      colHtml+='</div></div>';
+      turnoHtml+=colHtml;
     }
-    html+=`</div></div>`;
+    turnoHtml+='</div></div>';
+    html+=turnoHtml;
   }
-  html+=`</div>`;
 
   html+=`<div class="flex gap10 wrap mt12">
     <button class="btn-green" ${conflitti.length>0||totAssegnate<12?'disabled style="opacity:.5;cursor:not-allowed"':''} onclick="generaDesignazioni()">⚡ Genera Designazioni Arbitrali</button>
@@ -2079,7 +2120,7 @@ function renderDesignazioni(){
           ${_conf?'✓ Definitive':'Provvisorie'}
         </label>
       </div>
-      <div style="font-size:10px;padding:5px 10px;border-radius:3px;margin-bottom:10px}" class="${_conf?'conf-badge-ok':'conf-badge-prov'}">
+      <div " class="${_conf?'conf-badge-ok':'conf-badge-prov'}">
         ${_conf?'✓ Designazioni DEFINITIVE — turno confermato':'⚠ Designazioni PROVVISORIE — verificare prima della comunicazione ufficiale'}
       </div>
       <div class="grid2">`;
@@ -3885,7 +3926,7 @@ function renderRisultati(){
 
 
 
-  html += `<div style="margin-top:20px">
+  html += `<div style="margin-top:20px;padding-bottom:24px">
     <button class="btn-stamp-gironi-full" onclick="stampaRisultatiPDF()">🖨 Risultati & Classifica</button>
   </div>`;
   el.innerHTML = html;
