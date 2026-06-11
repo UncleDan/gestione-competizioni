@@ -247,8 +247,9 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
 .girone-box.drag-over{border-color:var(--md-primary);background:var(--md-primary-c)}
 .girone-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--md-primary);margin-bottom:8px}
 .g-tag{font-size:11px;padding:2px 8px;border-radius:var(--md-radius-full);font-weight:700}
-.gA,.ga{background:var(--md-primary-c);color:var(--md-primary)}
-.gB,.gb{background:var(--md-secondary-c);color:var(--md-secondary)}
+.gA,.ga,.g-tag.gA,.g-tag.ga{background:var(--md-primary-c);color:var(--md-primary)}
+.gB,.gb,.g-tag.gB,.g-tag.gb{background:var(--md-green-c);color:var(--md-green)}
+
 
 /* ── Calendario ── */
 .cal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -398,6 +399,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
   transition:border-color .15s,background .15s;
 }
 .finali-slot.occupied{border-style:solid;border-color:var(--md-primary);background:var(--md-primary-c)}
+.finali-slot.conflitto{border-color:var(--md-amber)!important;background:var(--md-amber-c)!important}
 .finali-slot.drag-over{border-color:var(--md-amber);background:var(--md-amber-c)}
 .btn-swap{
   background:var(--md-surface-v);border:1.5px solid var(--md-outline);
@@ -559,7 +561,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
   font-weight:700;font-size:14px;color:var(--md-on-surface);
 }
 .p-girone{font-size:10px;padding:2px 8px;border-radius:var(--md-radius-full);font-weight:700;margin-left:auto}
-.p-girone.ga{background:var(--md-primary-c);color:var(--md-primary)}
+.p-girone
 .p-girone.gb{background:var(--md-green-c);color:var(--md-green)}
 .p-orario{font-size:12px;color:var(--md-amber);font-weight:700;margin-top:4px}
 .p-actions{display:flex;gap:8px;margin-top:8px;align-items:center}
@@ -696,7 +698,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:var(--md-on-surface-v);letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">3.0b20</span>
+    finali.html v <span id="ver-num">3.0b21</span>
     <span id="ver-update" style="display:none;color:var(--md-amber);margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -1093,12 +1095,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════════════════
 const BASEDIR = '/gestione-competizioni';
 const BASE    = BASEDIR + '/pwa-beta';
-const VERSION = '3.0b20'; // Aggiornare ad ogni release
+const VERSION = '3.0b21'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '3.0b20',
+  'finali.html':    '3.0b21',
   'pwa/index.html': '1.9',
   'sw.js':          '2.10',
   'manifest.json':  '1.3',
@@ -2862,6 +2864,18 @@ function renderPalestreForm(){
     </div>`;
   });
   el.innerHTML=html;
+  // Mark conflicting slots (same squad in both finali)
+  ['f34casa','f34ospite','f12casa','f12ospite'].forEach(key=>{
+    const el=document.querySelector(`.finali-slot[data-key="${key}"]`);
+    if(!el) return;
+    const [fk,ruolo]=parseSlotKey(key);
+    const sq=stato.finali[fk]?.[ruolo];
+    if(!sq) return;
+    const altroFk=fk==='f34'?'f12':'f34';
+    const inAltro=stato.finali[altroFk]?.casa?.nome===sq.nome
+                ||stato.finali[altroFk]?.ospite?.nome===sq.nome;
+    el.classList.toggle('conflitto', !!inAltro);
+  });
   // Show stamp button when gironi are set (tab is enabled)
   const _fsa=document.getElementById('finali-stamp-area');
   if(_fsa) _fsa.style.display=stato.gironi?'block':'none';
