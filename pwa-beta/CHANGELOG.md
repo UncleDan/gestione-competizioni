@@ -6,6 +6,13 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b17 — Notifiche in alto, stile MD3
+- `#notif-area` spostato in alto (sotto tabbar) invece che in basso
+- `.notif-card`: sfondo `--md-surface`, testo `--md-on-surface`, bordo sinistro colorato per tipo, bordo `--md-outline-v` — zero hex hardcoded
+- Icona tipo (✓/⚠/✕/ℹ) + pulsante ✕ per chiusura manuale con annullamento auto-dismiss
+- Animazione entrata da sopra (`translateY(-8px)`) coerente con la nuova posizione
+- `session-banner`: bordo cambiato da `#3b82f6` a `var(--md-primary)`
+
 ### v3.0b16 — Fix calendario: intestazioni campo duplicate
 - Rimosso il vecchio `<div class="cal-grid">` con le intestazioni palestre flottanti rimasto nel codice dopo la ristrutturazione del b14 — era la causa dei nomi campo duplicati e fuori posto
 
