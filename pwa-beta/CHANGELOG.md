@@ -6,6 +6,28 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b11 — Fix pulsante stampa Finali
+- Pulsante 🖨 Finali: visibile non appena i gironi sono impostati, non più condizionato all'assegnazione delle squadre
+
+### v3.0b10 — Fix riquadri vincoli e violazioni (integra 3.0b9.1)
+- Aggiunte classi CSS mancanti: `.vincolo-banner`, `.deroga-item`, `.violazione-item`, `.v-titolo`, `.v-desc`, `.arb-row.violazione`, `.conf-badge-ok`, `.conf-badge-prov`
+- Rimossi tutti gli sfondi hex neri/scuri hardcoded nei riquadri Deroghe, Vincoli e badge Definitivo/Provvisorio — sostituiti con token MD3 (`var(--md-amber-c)`, `var(--md-error-c)`, `var(--md-green-c)`)
+
+### v3.0b9 — *(integrato in 3.0b10)*
+
+### v3.0b9-storico — Menu fisso, notifiche MD3, colori token
+- Header e tabbar: `position:fixed` con misurazione dinamica dell'altezza via JS (`--header-h`, `--main-top`) → funziona a qualsiasi risoluzione senza offset hardcoded
+- Notifiche: nuovo `#notif-area` in fondo allo schermo con `mostraNotifica(msg, tipo)` — feedback sync/JSON mostrati come balloon con auto-dismiss (niente più overlay inline nei tab)
+- Tipi notifica: `.ok` (bordo verde), `.warn` (bordo ambra), `.error` (bordo rosso), default (bordo blu)
+- Sostituiti tutti i colori hex hardcoded in JS/HTML con token MD3 (`var(--md-error)`, `var(--md-amber)`, `var(--md-green)`, `var(--md-primary)`, ecc.) — compatibili con tema chiaro e scuro
+
+### v3.0b8 — Fix Calendario, Designazioni cerchietti, Finali MD3, alert finali
+- Calendario: layout inline `display:grid 1fr 1fr` per garantire il rendering a 2 colonne con intestazione campo
+- `btn-swap` (pulsante Inverti): aggiunto `color:var(--md-on-surface)` e font Noto Sans — era illeggibile su tema chiaro
+- Designazioni: cerchietti gruppo `.f-dot.g1/g2/g3` definiti in CSS (circle 28px, colori ambra/blu/viola); rimosso inline style con GRUPPO_COLOR
+- Finali: `finaleHtml`, `slotHtml`, `colonnaHtml` riscritti con token MD3 — rimossi tutti i colori hex hardcoded (`#f59e0b`, `#3b82f6`, `#22c55e`, `#071428`)
+- Finali: `finaliDrop` mostra alert e blocca il drop se la squadra è già assegnata all'altra finale
+
 ### v3.0b7 — Layout Gironi e Calendario, tab Date, pulsanti stampa, tema persistente
 - Gironi: aggiunto CSS completo (`.dnd-col`, `.dnd-area` 3 colonne, bordo colorato A=blu/B=verde/Pool=grigio, `.errore`, `.grid-auto`)
 - Calendario: layout ristrutturato con blocchi per turno (`cal-turno-block`) contenenti griglia a 2 campi con intestazione campo; niente più celle sparse

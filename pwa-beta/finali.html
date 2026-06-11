@@ -7,7 +7,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<meta name="theme-color" content="#3b82f6">
+<meta name="theme-color" content="var(--md-primary)">
 <title>Baskin — Sorteggio & Designazioni</title>
 <style>
 /* ══════════════════════════════════════════════════════════
@@ -110,7 +110,7 @@ button,input,select,textarea{
   background:linear-gradient(135deg,var(--md-primary-c),var(--md-secondary-c));
   padding:16px 16px 10px;
   text-align:center;
-  position:sticky;top:0;z-index:100;
+  position:fixed;top:0;left:0;right:0;z-index:100;
   box-shadow:var(--md-shadow-md);
 }
 [data-theme="dark"] #header{
@@ -128,7 +128,7 @@ button,input,select,textarea{
   background:var(--md-surface-c);
   border-bottom:2px solid var(--md-outline-v);
   padding:0 4px;
-  position:sticky;top:72px;z-index:90;
+  position:fixed;top:var(--header-h,72px);left:0;right:0;z-index:90;
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;
   gap:2px;
@@ -155,7 +155,7 @@ button,input,select,textarea{
 .tab-btn:disabled{opacity:.38;cursor:not-allowed;pointer-events:none}
 
 /* ── Main content ── */
-#main{max-width:960px;margin:0 auto;padding:16px 12px 80px}
+#main{max-width:960px;margin:0 auto;padding:16px 12px 80px;padding-top:var(--main-top,140px)}
 .tab-panel{display:none}.tab-panel.active{display:block}
 
 /* ── Cards ── */
@@ -290,6 +290,16 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
   letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;
 }
 
+/* ── f-dot: cerchietto gruppo (usato in Designazioni e Arbitri) ── */
+.f-dot{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  font-size:13px;font-weight:700;color:#fff;
+}
+.f-dot.g1{background:#d97706}
+.f-dot.g2{background:#1d4ed8}
+.f-dot.g3{background:#7c3aed}
+
 /* ── Designazioni ── */
 .des-card{
   background:var(--md-surface);border:1.5px solid var(--md-outline-v);
@@ -317,6 +327,33 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
 .vincoli-box{
   background:var(--md-error-c);border:1.5px solid var(--md-error);
   border-radius:var(--md-radius-sm);padding:12px;font-size:13px;color:var(--md-error);
+}
+
+/* ── Vincoli & Violazioni ── */
+.vincolo-banner{
+  background:var(--md-amber-c);border:1.5px solid var(--md-amber);
+  border-radius:var(--md-radius-sm);padding:12px 14px;margin-bottom:14px;
+}
+.vincolo-banner-title{font-size:12px;font-weight:700;color:var(--md-amber);margin-bottom:6px}
+.deroga-item{
+  font-size:11px;color:var(--md-on-surface);margin-top:4px;padding:4px 8px;
+  background:var(--md-amber-c);border-radius:var(--md-radius-sm);
+  border:1px solid var(--md-amber);
+}
+.violazione-item{
+  background:var(--md-error-c);border:1.5px solid var(--md-error);
+  border-radius:var(--md-radius-sm);padding:10px 12px;margin-bottom:8px;
+}
+.v-titolo{font-size:13px;font-weight:700;color:var(--md-error);margin-bottom:3px}
+.v-desc{font-size:12px;color:var(--md-on-surface)}
+.arb-row.violazione{background:var(--md-error-c);border-radius:var(--md-radius-sm);border:1px solid var(--md-error)}
+.conf-badge-ok{
+  background:var(--md-green-c);color:var(--md-green);border:1px solid var(--md-green);
+  border-radius:var(--md-radius-sm);padding:6px 10px;font-size:12px;font-weight:700;
+}
+.conf-badge-prov{
+  background:var(--md-amber-c);color:var(--md-amber);border:1px solid var(--md-amber);
+  border-radius:var(--md-radius-sm);padding:6px 10px;font-size:12px;font-weight:700;
 }
 
 /* ── Risultati ── */
@@ -360,8 +397,10 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
 .btn-swap{
   background:var(--md-surface-v);border:1px solid var(--md-outline-v);
   border-radius:var(--md-radius-full);padding:6px 12px;cursor:pointer;
-  font-size:16px;min-height:40px;
+  font-size:13px;min-height:40px;color:var(--md-on-surface);
+  font-family:'Noto Sans',system-ui,sans-serif;font-weight:600;
 }
+.btn-swap:hover{background:var(--md-outline-v)}
 
 /* ── Sync ── */
 .sync-card{
@@ -410,6 +449,22 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
 }
 
 /* ── Toast ── */
+#notif-area{
+  position:fixed;bottom:72px;left:50%;transform:translateX(-50%);
+  z-index:9990;width:min(90vw,460px);display:flex;flex-direction:column;gap:8px;
+  pointer-events:none;
+}
+.notif-card{
+  background:var(--md-inv-surface);color:var(--md-inv-on-surface);
+  padding:12px 20px;border-radius:var(--md-radius);font-size:14px;font-weight:600;
+  box-shadow:var(--md-shadow-lg);pointer-events:auto;
+  animation:notif-in .25s ease;border-left:4px solid var(--md-primary);
+}
+.notif-card.warn{border-left-color:var(--md-amber)}
+.notif-card.error{border-left-color:var(--md-error)}
+.notif-card.ok{border-left-color:var(--md-green)}
+@keyframes notif-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
 #toast{
   position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);
   background:var(--md-inv-surface);color:var(--md-inv-on-surface);
@@ -422,7 +477,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
 /* ── Tablet (≥600px) ── */
 @media(min-width:600px){
   body{font-size:16px}
-  #main{padding:20px 20px 80px}
+  #main{padding:var(--main-top,140px) 20px 80px 20px}
   .tab-btn{padding:14px 18px;font-size:14px}
   .grid2{grid-template-columns:1fr 1fr}
   .cal-grid{grid-template-columns:1fr 1fr}
@@ -430,7 +485,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
 
 /* ── Desktop (≥960px) ── */
 @media(min-width:960px){
-  #main{padding:24px 24px 80px}
+  #main{padding:var(--main-top,140px) 24px 80px 24px}
   #tabbar{justify-content:flex-start}
   .tab-btn{padding:14px 20px}
 }
@@ -571,7 +626,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:var(--md-on-surface-v);letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">3.0b7</span>
+    finali.html v <span id="ver-num">3.0b11</span>
     <span id="ver-update" style="display:none;color:var(--md-amber);margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -937,10 +992,10 @@ function toggleDebug(){
   _debugForzato=panel.style.display==='none';
   if(_debugForzato){
     panel.style.display='block';
-    btn.style.color='#ef4444';
+    btn.style.color='var(--md-error)';
   } else {
     panel.style.display='none';
-    btn.style.color='#475569';
+    btn.style.color='var(--md-on-surface-v)';
   }
 }
 function dbg(msg, forceShow){
@@ -949,7 +1004,7 @@ function dbg(msg, forceShow){
   // Mostra il pannello solo se: errore, deroga, o utente lo ha aperto manualmente
   if(forceShow||_debugForzato){
     panel.style.display='block';
-    document.getElementById('btn-debug').style.color='#ef4444';
+    document.getElementById('btn-debug').style.color='var(--md-error)';
   }
   out.innerHTML=`<div style="border-bottom:1px solid var(--md-outline-v);padding:3px 0">${new Date().toLocaleTimeString()} — ${msg}</div>`+out.innerHTML;
 }
@@ -968,12 +1023,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════════════════
 const BASEDIR = '/gestione-competizioni';
 const BASE    = BASEDIR + '/pwa-beta';
-const VERSION = '3.0b7'; // Aggiornare ad ogni release
+const VERSION = '3.0b11'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '3.0b7',
+  'finali.html':    '3.0b11',
   'pwa/index.html': '1.9',
   'sw.js':          '2.10',
   'manifest.json':  '1.3',
@@ -1065,8 +1120,8 @@ function turnoLabel(t){
 // TURNI_LABEL usato solo nei PDF/badge (senza data)
 const TURNI_LABEL_SHORT = ["Venerdì Pomeriggio","Sabato Mattina","Sabato Pomeriggio","Domenica Mattina"];
 const TURNI_LABEL = TURNI_LABEL_SHORT; // alias per compatibilità
-const GRUPPO_COLOR = {1:"#f59e0b",2:"#60a5fa",3:"#a78bfa"};
-const GRUPPO_COLOR_P={1:"#d97706",2:"#2563eb",3:"#7c3aed"};
+const GRUPPO_COLOR = {1:"var(--md-amber)",2:"var(--md-primary)",3:"var(--md-tertiary)"};
+const GRUPPO_COLOR_P={1:"var(--md-amber)",2:"var(--md-primary)",3:"var(--md-tertiary)"};
 const gruppo_LABEL_P={1:"Gruppo 1",2:"Gruppo 2",3:"Gruppo 3"};
 
 // ══════════════════════════════════════════════════ STATO
@@ -1145,6 +1200,32 @@ function applicaTema(tema){
   } else {
     html.setAttribute('data-theme', tema);
   }
+}
+
+// Misura altezza header+tabbar e aggiorna CSS var
+function aggiornaOffsetHeader(){
+  const h = document.getElementById('header');
+  const t = document.getElementById('tabbar');
+  if(h && t){
+    const tot = h.offsetHeight + t.offsetHeight;
+    document.documentElement.style.setProperty('--header-h', h.offsetHeight + 'px');
+    document.documentElement.style.setProperty('--main-top', (tot + 8) + 'px');
+  }
+}
+
+// Mostra notifica balloon in fondo allo schermo
+function mostraNotifica(msg, tipo='info', durata=4000){
+  let area = document.getElementById('notif-area');
+  if(!area){
+    area = document.createElement('div');
+    area.id = 'notif-area';
+    document.body.appendChild(area);
+  }
+  const card = document.createElement('div');
+  card.className = 'notif-card ' + (tipo==='ok'?'ok':tipo==='warn'?'warn':tipo==='error'?'error':'');
+  card.textContent = msg;
+  area.appendChild(card);
+  setTimeout(()=>{ card.style.opacity='0'; card.style.transition='opacity .3s'; setTimeout(()=>card.remove(), 300); }, durata);
 }
 
 function inizializzaTema(){
@@ -1482,7 +1563,7 @@ function renderCalBuilder(){
 
   // Warning conflitti
   if(conflitti.length>0){
-    html+=`<div style="background:#1a0a0a;border:1px solid #ef4444;border-radius:4px;padding:10px 14px;margin-bottom:14px">
+    html+=`<div class="vincolo-banner" style="border-color:var(--md-error);background:var(--md-error-c);padding:10px 14px;margin-bottom:14px">
       <div style="font-size:11px;color:#ef4444;font-weight:bold;margin-bottom:4px">⚠ Stessa squadra in due partite nello stesso turno:</div>
       ${conflitti.map(c=>`<div style="font-size:11px;color:var(--md-error)">• ${c}</div>`).join('')}
     </div>`;
@@ -1519,12 +1600,12 @@ function renderCalBuilder(){
     const campoA=campoInfo(0,null), campoB=campoInfo(1,null);
     html+=`<div class="cal-turno-block">
       <div class="cal-turno-header">${turnoLabel(t)}</div>
-      <div class="cal-campi-grid">`;
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">`;
     for(let c=0;c<2;c++){
       const campo=campoInfo(c,null);
-      html+=`<div class="cal-campo-col">
-        <div class="cal-campo-header">🏟 ${campo?.nome||'Campo '+(c+1)}</div>
-        <div class="cal-cell" id="cell-${t}-${c}"
+      html+=`<div style="padding:12px;${c===0?'border-right:1px solid var(--md-outline-v);':''}">
+        <div style="font-size:11px;font-weight:700;color:var(--md-on-surface-v);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--md-outline-v)">🏟 ${campo?.nome||'Campo '+(c+1)}</div>
+        <div id="cell-${t}-${c}"
           ondragover="calCellDragOver(event,${t},${c})"
           ondrop="calCellDrop(event,${t},${c})"
           ondragleave="calCellDragLeave(event,${t},${c})">`;
@@ -1952,10 +2033,10 @@ function renderDesignazioni(){
   // Banner deroghe
   let html='';
   if(stato.deroghe&&stato.deroghe.length>0){
-    html+=`<div style="background:#1a0f00;border:1px solid #f59e0b;border-radius:4px;padding:12px 16px;margin-bottom:16px">
+    html+=`<div class="vincolo-banner">
       <div style="font-size:11px;color:var(--md-amber);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">⚠ Designazioni in Deroga</div>
       <div style="font-size:12px;color:#fcd34d;margin-bottom:4px">Le seguenti terne sono state assegnate in deroga ai vincoli standard — verificare prima della comunicazione ufficiale:</div>
-      ${stato.deroghe.map(d=>`<div style="font-size:11px;color:#fbbf24;margin-top:4px;padding:4px 8px;background:#0a0800;border-radius:3px">• ${d}</div>`).join('')}
+      ${stato.deroghe.map(d=>`<div class="deroga-item">• ${d}</div>`).join('')}
     </div>`;
   }
 
@@ -1963,7 +2044,7 @@ function renderDesignazioni(){
   html+=`<div class="grid2 mb20">`;
   ['A','B'].forEach(gr=>{
     html+=`<div class="card ${gr==='A'?'card-top-blue':'card-top-green'}">
-      <div style="font-size:10px;letter-spacing:3px;color:${gr==='A'?'#3b82f6':'#22c55e'};text-transform:uppercase;margin-bottom:7px">Girone ${gr}</div>
+      <div style="font-size:10px;letter-spacing:3px;color:${gr==='A'?'var(--md-primary)':'var(--md-green)'};text-transform:uppercase;margin-bottom:7px">Girone ${gr}</div>
       ${stato.gironi[gr].map(s=>`<div style="font-size:12px;color:var(--md-on-surface);margin-bottom:2px">${s.nome}${s.citta&&s.citta!==s.nome?` <span style="color:var(--md-on-surface-v);font-size:10px">(${s.citta})</span>`:''} <span style="color:var(--md-on-surface-v);font-size:10px">${s.st||s.regione||''}</span></div>`).join('')}
     </div>`;
   });
@@ -1997,13 +2078,13 @@ function renderDesignazioni(){
         <div class="line"></div>
         <div class="lbl">${turnoLabel(turno)}</div>
         <div class="line"></div>
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;font-size:10px;color:${_conf?'#4ade80':'#f59e0b'};flex-shrink:0;margin-left:8px">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;font-size:10px;color:${_conf?'var(--md-green)':'var(--md-amber)'};flex-shrink:0;margin-left:8px">
           <input type="checkbox" ${_conf?'checked':''} onchange="confermaTurno(${turno},this.checked)"
-            style="width:14px;height:14px;cursor:pointer;flex-shrink:0;accent-color:${_conf?'#22c55e':'#f59e0b'}">
+            style="width:14px;height:14px;cursor:pointer;flex-shrink:0;accent-color:${_conf?'var(--md-green)':'var(--md-amber)'}">
           ${_conf?'✓ Definitive':'Provvisorie'}
         </label>
       </div>
-      <div style="font-size:10px;padding:5px 10px;border-radius:3px;margin-bottom:10px;${_conf?'background:#0a1a0a;color:var(--md-green);border:1px solid #22c55e40':'background:#1a1200;color:var(--md-amber);border:1px solid #f59e0b40'}">
+      <div style="font-size:10px;padding:5px 10px;border-radius:3px;margin-bottom:10px}" class="${_conf?'conf-badge-ok':'conf-badge-prov'}">
         ${_conf?'✓ Designazioni DEFINITIVE — turno confermato':'⚠ Designazioni PROVVISORIE — verificare prima della comunicazione ufficiale'}
       </div>
       <div class="grid2">`;
@@ -2037,7 +2118,7 @@ function renderDesignazioni(){
               ondragover="arbDragOver(event)"
               ondragleave="arbDragLeave(event)"
               ondrop="arbDrop(event,${turno},${c},${p},'${arb.id}')">
-              <span class="f-dot" style="background:${GRUPPO_COLOR[arb.gruppo]}">${arb.gruppo}</span>
+              <span class="f-dot g${arb.gruppo}">${arb.gruppo}</span>
               <span class="arb-nome">${nomeDisplay(arb)}</span>
               <span class="arb-reg">${arb.st||arb.regione}</span>
               ${hv?'<span style="color:#ef4444;font-size:10px;margin-left:4px">⚠</span>':''}
@@ -2195,9 +2276,9 @@ function renderArbitriForm(){
     ${gruppi.map(g=>{
       const n=ARBITRI_BASE.filter(a=>a.gruppo===g).length;
       return `<div style="background:var(--md-surface-v);border:1px solid ${GRUPPO_COLOR[g]||'var(--md-outline-v)'};border-radius:4px;padding:6px 14px;display:flex;align-items:center;gap:8px">
-        <span style="width:20px;height:20px;border-radius:50%;background:${GRUPPO_COLOR[g]||'#64748b'};display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:#000;font-weight:bold">${g}</span>
+        <span style="width:20px;height:20px;border-radius:50%;background:${GRUPPO_COLOR[g]||'var(--md-on-surface-v)'};display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:#000;font-weight:bold">${g}</span>
         <span style="font-size:12px;color:var(--md-on-surface)">Gruppo ${g}</span>
-        <span style="font-size:14px;font-weight:bold;color:${GRUPPO_COLOR[g]||'#94a3b8'}">${n}</span>
+        <span style="font-size:14px;font-weight:bold;color:${GRUPPO_COLOR[g]||'var(--md-on-surface-v)'}">${n}</span>
         <span style="font-size:10px;color:var(--md-on-surface-v)">arbitr${n===1?'o':'i'}</span>
       </div>`;
     }).join('')}
@@ -2218,17 +2299,17 @@ function renderArbitriForm(){
     });
     html+=`<div class="gruppo-section">
       <div class="gruppo-hdr">
-        <div class="gruppo-dot" style="background:${GRUPPO_COLOR[gruppo]||'#64748b'}">${gruppo}</div>
-        <span style="color:${GRUPPO_COLOR[gruppo]||'#94a3b8'};font-size:11px;letter-spacing:2px;text-transform:uppercase">Gruppo ${gruppo} — ${arbitriGruppo.length} arbitr${arbitriGruppo.length===1?'o':'i'}</span>
+        <div class="gruppo-dot" style="background:${GRUPPO_COLOR[gruppo]||'var(--md-on-surface-v)'}">${gruppo}</div>
+        <span style="color:${GRUPPO_COLOR[gruppo]||'var(--md-on-surface-v)'};font-size:11px;letter-spacing:2px;text-transform:uppercase">Gruppo ${gruppo} — ${arbitriGruppo.length} arbitr${arbitriGruppo.length===1?'o':'i'}</span>
       </div><div class="arb-grid">`;
     arbitriGruppo.forEach(arb=>{
       const n=stato.nomiArbitri[arb.id];
       const nP=cnt[arb.id]||0;
       const conflitti=SQUADRE.filter(s=>s.st===arb.st);
       const nd=nomeDisplay(arb);
-      const bc=nP===3?'#14532d':nP>0?'var(--md-outline-v)':'#1a1a2e';
-      const bt=nP===3?'#4ade80':nP>0?'#60a5fa':'#475569';
-      html+=`<div class="arb-card" style="border-top:2px solid ${GRUPPO_COLOR[gruppo]||'#64748b'}">
+      const bc=nP===3?'var(--md-green-c)':nP>0?'var(--md-outline-v)':'var(--md-surface)';
+      const bt=nP===3?'var(--md-green)':nP>0?'var(--md-primary)':'var(--md-on-surface-v)';
+      html+=`<div class="arb-card" style="border-top:2px solid ${GRUPPO_COLOR[gruppo]||'var(--md-on-surface-v)'}">
         <div class="arb-card-header">
           <div><div class="arb-label">${nd}</div><div class="arb-sub">${arb.label} · ${arb.st}</div></div>
           ${stato.calendario?`<span class="count-badge" style="background:${bc};color:${bt}">${nP}/3</span>`:''}
@@ -2342,8 +2423,8 @@ function renderST(){
   let html='';
   Object.entries(gruppi).forEach(([macro,sts])=>{
     const isGruppo=sts.length>1;
-    html+=`<div class="card" style="margin-bottom:10px;border-left:3px solid ${isGruppo?'#f59e0b':'var(--md-outline-v)'}">
-      <div style="font-size:12px;color:${isGruppo?'#f59e0b':'#94a3b8'};font-weight:bold;margin-bottom:6px">
+    html+=`<div class="card" style="margin-bottom:10px;border-left:3px solid ${isGruppo?'var(--md-amber)':'var(--md-outline-v)'}">
+      <div style="font-size:12px;color:${isGruppo?'var(--md-amber)':'var(--md-on-surface-v)'};font-weight:bold;margin-bottom:6px">
         ${macro}${isGruppo?' <span style="font-size:10px;color:var(--md-on-surface-v);font-weight:normal">(gruppo)</span>':''}
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:6px">
@@ -2602,7 +2683,7 @@ td{padding:5px 10px;border:1px solid #ddd;vertical-align:middle}
 .np{position:fixed;top:14px;right:14px}@media print{.np{display:none}}</style></head><body>
 <div class="np"><button onclick="window.print()" style="padding:9px 18px;background:#1a1a2e;color:#fff;border:none;border-radius:3px;cursor:pointer;font-family:'Noto Sans',system-ui,sans-serif;font-size:12px">🖨 Stampa</button></div>
 <h1>DESIGNAZIONI ARBITRALI</h1><div class="sub">Competizione Baskin · Monfalcone (GO)</div>
-<div style="text-align:center;font-size:11px;font-weight:bold;padding:5px 0 16px;color:${tuttiTurniConfermati()?'#166534':'#b45309'}">${tuttiTurniConfermati()?'✓ DESIGNAZIONI DEFINITIVE':'⚠ DESIGNAZIONI PROVVISORIE — da controllare prima della comunicazione ufficiale'}</div>
+<div style="text-align:center;font-size:11px;font-weight:bold;padding:5px 0 16px;color:${tuttiTurniConfermati()?'var(--md-green)':'var(--md-amber)'}">${tuttiTurniConfermati()?'✓ DESIGNAZIONI DEFINITIVE':'⚠ DESIGNAZIONI PROVVISORIE — da controllare prima della comunicazione ufficiale'}</div>
 ${stato.bannerImage?`<img src="${stato.bannerImage}" style="max-width:100%;max-height:80px;display:block;margin:0 auto 12px">`:''}
 <div class="gironi">${['A','B'].map(gr=>`<div class="gbox"><div class="gt">Girone ${gr}</div>${g[gr].map(s=>`<div style="line-height:1.8">${s.nome}${s.citta&&s.citta!==s.nome?' ('+s.citta+')':''}</div>`).join('')}</div>`).join('')}</div>
 ${cal.turni.map(({turno,campi})=>{const tc=stato.turniConfermati[turno]||false;return`<div class="tw"><div class="th">${TURNI_LABEL[turno]} <span style="font-size:9px;font-weight:normal;opacity:.8">${tc?'✓ Definitivo':'⚠ Provvisorio'}</span></div><div class="cg">
@@ -2684,7 +2765,7 @@ function renderPalestreForm(){
     html+=`<div class="card" style="margin-bottom:12px;border-left:3px solid #3b82f6">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <div style="font-size:10px;letter-spacing:2px;color:#3b82f6;text-transform:uppercase">Campo ${i+1}</div>
-        ${CAMPI.length>1?`<button onclick="rimuoviPalestra(${i})" style="background:#2d1515;border:none;color:var(--md-error);border-radius:3px;padding:3px 10px;font-size:11px;cursor:pointer">✕ Rimuovi</button>`:''}
+        ${CAMPI.length>1?`<button onclick="rimuoviPalestra(${i})" style="background:var(--md-error-c);border:1px solid var(--md-error);color:var(--md-error);border-radius:3px;padding:3px 10px;font-size:11px;cursor:pointer">✕ Rimuovi</button>`:''}
       </div>
       <div class="grid2" style="gap:8px;margin-bottom:8px">
         <div>
@@ -2710,10 +2791,9 @@ function renderPalestreForm(){
     </div>`;
   });
   el.innerHTML=html;
-  // Show/hide finali stamp button
-  const _hf=stato.finali.f34.casa||stato.finali.f34.ospite||stato.finali.f12.casa||stato.finali.f12.ospite;
+  // Show stamp button when gironi are set (tab is enabled)
   const _fsa=document.getElementById('finali-stamp-area');
-  if(_fsa) _fsa.style.display=_hf?'block':'none';
+  if(_fsa) _fsa.style.display=stato.gironi?'block':'none';
 }
 
 function aggiornaPalestra(i,field,val){
@@ -2729,6 +2809,8 @@ function caricaBanner(event){
     aggiornaBannerUI();
   aggiornaOrariUI();
   inizializzaTema();
+  aggiornaOffsetHeader();
+  window.addEventListener('resize', aggiornaOffsetHeader);
     schedulaSalvataggio();
   };
   reader.readAsDataURL(file);
@@ -2753,12 +2835,12 @@ function aggiornaBannerUI(){
     if(stato_el){
       const kb=Math.round(stato.bannerImage.length*3/4/1024);
       stato_el.textContent='Banner caricato ('+kb+' KB)';
-      stato_el.style.color='#4ade80';
+      stato_el.style.color='var(--md-green)';
     }
   } else {
     if(prev) prev.style.display='none';
     if(btn) btn.style.display='none';
-    if(stato_el){ stato_el.textContent='Nessun banner caricato'; stato_el.style.color='#64748b'; }
+    if(stato_el){ stato_el.textContent='Nessun banner caricato'; stato_el.style.color='var(--md-on-surface-v)'; }
   }
 }
 
@@ -2797,7 +2879,7 @@ function renderIESezioni(availableSezioni){
     return `<label style="display:flex;align-items:flex-start;gap:8px;cursor:${avail?'pointer':'not-allowed'};padding:8px;background:var(--md-surface-v);border:1px solid ${avail?'var(--md-outline-v)':'#0f1f2e'};border-radius:4px;opacity:${avail?'1':'0.4'}">
       <input type="checkbox" id="ie-chk-${s.id}" ${avail?'checked':''} ${avail?'':'disabled'} style="margin-top:2px;width:14px;height:14px;cursor:${avail?'pointer':'not-allowed'};flex-shrink:0">
       <div>
-        <div style="font-size:13px;color:${avail?'#e2e8f0':'#475569'}">${s.label}${avail?'':' <span style="font-size:9px;color:var(--md-outline-v)">non presente</span>'}</div>
+        <div style="font-size:13px;color:${avail?'var(--md-on-surface)':'var(--md-on-surface-v)'}">${s.label}${avail?'':' <span style="font-size:9px;color:var(--md-outline-v)">non presente</span>'}</div>
         <div style="font-size:10px;color:var(--md-on-surface-v)">${s.desc}</div>
       </div>
     </label>`;
@@ -3112,13 +3194,13 @@ function importaJSON(event){
 
       schedulaSalvataggio();
       const fb=document.getElementById('ie-feedback');
-      fb.style.display='block';
-      fb.style.color=msgs.some(m=>m.startsWith('⚠'))?'#fbbf24':'#4ade80';
+      fb.style.display='none';
+      msgs.forEach(m=>mostraNotifica(m, m.startsWith('⚠')?'warn':'ok', 5000));
       const releaseInfo=data._release?`<div style="font-size:10px;color:var(--md-on-surface-v);margin-top:6px">File creato con: ${Object.entries(data._release).map(([k,v])=>`${k} v${v}`).join(' · ')}</div>`:'';
       fb.innerHTML=msgs.join('<br>')+releaseInfo;
     } catch(err){
       const fb=document.getElementById('ie-feedback');
-      fb.style.display='block';fb.style.color='#ef4444';
+      fb.style.display='block';fb.style.color='var(--md-error)';
       fb.textContent='❌ Errore nel file JSON: '+err.message;
       dbg('Import error: '+err.message,true);
     }
@@ -3237,7 +3319,7 @@ function renderFinali(){
           data-sq-nome="${esc(sq.nome)}"
           ondragstart="finaliDragStartEl(event)"
           ondragend="finaliDragEnd(event)"
-          style="padding:7px 10px;background:var(--md-surface-v);border:1px solid ${color}40;border-radius:3px;margin-bottom:5px;cursor:grab;user-select:none">
+          style="padding:7px 10px;background:var(--md-surface-v);border:1.5px solid ${color}40;border-radius:3px;margin-bottom:5px;cursor:grab;user-select:none">
           <div style="font-size:12px;color:var(--md-on-surface)">${sq.nome}</div>
           <div style="font-size:9px;color:var(--md-on-surface-v)">${sq.st}</div>
         </div>`).join('')||'<div style="font-size:10px;color:var(--md-outline-v);font-style:italic">Assegnata</div>'}
@@ -3250,41 +3332,44 @@ function renderFinali(){
         ondragover="finaliDragOver(event)"
         ondragleave="finaliDragLeave(event)"
         ondrop="finaliDrop(event,'${key}')"
-        style="min-height:52px;border:1px dashed ${sq?color+'60':'var(--md-outline-v)'};border-radius:4px;padding:8px;background:${sq?'var(--md-surface-c)':'#071428'}">
+        style="min-height:52px;border:1px dashed ${sq?color+'60':'var(--md-outline-v)'};border-radius:4px;padding:8px;background:${sq?'var(--md-surface-c)':'var(--md-surface)'}">
         ${sq ? `
-          <div style="font-size:13px;color:#fff;font-weight:bold">${sq.nome}</div>
+          <div style="font-size:13px;color:var(--md-on-surface);font-weight:700">${sq.nome}</div>
           <div style="font-size:10px;color:var(--md-on-surface-v);margin-top:2px">${sq.st}</div>
-          <button onclick="liberaSlot('${key}')" style="margin-top:5px;background:#2d1515;border:none;color:var(--md-error);border-radius:3px;padding:2px 8px;font-size:10px;cursor:pointer">✕</button>
+          <button onclick="liberaSlot('${key}')" style="margin-top:5px;background:var(--md-error-c);border:1px solid var(--md-error);color:var(--md-error);border-radius:3px;padding:2px 8px;font-size:10px;cursor:pointer">✕</button>
         ` : `<div style="font-size:11px;color:var(--md-outline-v);text-align:center;padding-top:6px">Trascina qui</div>`}
       </div>
     </div>`;
 
-  const finaleHtml = (fKey, label, emoji, color, poolA, poolB) => {
+  const finaleHtml = (fKey, label, emoji, colorToken, poolA, poolB) => {
     const fin = stato.finali[fKey];
+    const borderColor = fKey==='f34' ? 'var(--md-amber)' : 'var(--md-primary)';
+    const poolColorA  = 'var(--md-primary)';
+    const poolColorB  = 'var(--md-green)';
     return `
-    <div style="background:var(--md-surface-c);border:1px solid ${color}40;border-left:3px solid ${color};border-radius:4px;padding:14px;margin-bottom:14px">
-      <div style="font-size:10px;letter-spacing:3px;color:${color};text-transform:uppercase;margin-bottom:6px">${emoji} ${label}</div>
-      ${(fKey==='f34'&&stato.finali.orarioF34)||(fKey==='f12'&&stato.finali.orarioF12)?`<div style="font-size:13px;color:#f59e0b;margin-bottom:10px">🕐 ${fKey==='f34'?stato.finali.orarioF34:stato.finali.orarioF12}</div>`:''}
+    <div class="card mb16" style="border-left:3px solid ${borderColor}">
+      <div style="font-size:11px;letter-spacing:2px;color:${borderColor};text-transform:uppercase;margin-bottom:6px;font-weight:700">${emoji} ${label}</div>
+      ${(fKey==='f34'&&stato.finali.orarioF34)||(fKey==='f12'&&stato.finali.orarioF12)?`<div style="font-size:13px;color:var(--md-amber);margin-bottom:10px;font-weight:700">🕐 ${fKey==='f34'?stato.finali.orarioF34:stato.finali.orarioF12}</div>`:''}
       <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:start;margin-bottom:12px">
         <div>
-          <div style="font-size:9px;color:var(--md-on-surface-v);letter-spacing:1px;margin-bottom:6px">DISPONIBILI GIRONE A</div>
-          ${colonnaHtml(poolA, fKey+'casa', 'A', '#3b82f6')}
+          <div class="label-xs" style="margin-bottom:6px">DISPONIBILI GIRONE A</div>
+          ${colonnaHtml(poolA, fKey+'casa', 'A', poolColorA)}
         </div>
-        <div style="display:flex;flex-direction:column;gap:6px;align-items:center;padding-top:20px">
-          <div style="color:var(--md-on-surface-v);font-size:9px;letter-spacing:1px;text-transform:uppercase">Partita</div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center;padding-top:24px">
+          <div style="color:var(--md-on-surface-v);font-size:10px;letter-spacing:1px;text-transform:uppercase">vs</div>
         </div>
         <div>
-          <div style="font-size:9px;color:var(--md-on-surface-v);letter-spacing:1px;margin-bottom:6px">DISPONIBILI GIRONE B</div>
-          ${colonnaHtml(poolB, fKey+'ospite', 'B', '#22c55e')}
+          <div class="label-xs" style="margin-bottom:6px">DISPONIBILI GIRONE B</div>
+          ${colonnaHtml(poolB, fKey+'ospite', 'B', poolColorB)}
         </div>
       </div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        ${slotHtml('Casa (Girone A)', fKey+'casa', fin.casa, '#3b82f6')}
+        ${slotHtml('Casa (Girone A)', fKey+'casa', fin.casa, poolColorA)}
         <div style="display:flex;flex-direction:column;gap:6px;align-items:center;flex-shrink:0">
-          <span style="color:var(--md-on-surface-v);font-size:16px;font-weight:bold">vs</span>
-          ${fin.casa&&fin.ospite?`<button class="btn-swap" onclick="swapFinale('${fKey}')">⇄</button>`:''}
+          <span style="color:var(--md-on-surface-v);font-size:18px;font-weight:700">vs</span>
+          ${fin.casa&&fin.ospite?`<button class="btn-swap" onclick="swapFinale('${fKey}')">⇄ Inverti</button>`:''}
         </div>
-        ${slotHtml('Ospite (Girone B)', fKey+'ospite', fin.ospite, '#22c55e')}
+        ${slotHtml('Ospite (Girone B)', fKey+'ospite', fin.ospite, poolColorB)}
       </div>
       ${fin.casa && fin.ospite ? ternaManualeHtml(fKey, fc?.[fKey]) : ''}
     </div>`;
@@ -3352,10 +3437,10 @@ function renderFinali(){
   </div>` : '';
 
   el.innerHTML =
-    finaleHtml('f34','Finale 3°-4° Posto — 1ª Partita','🥉','#f59e0b', poolA34, poolB34) +
-    risultatoFinaleHtml('f34','Finale 3°-4° Posto','#f59e0b') +
-    finaleHtml('f12','Finale 1°-2° Posto — 2ª Partita','🏆','#60a5fa', poolA12, poolB12) +
-    risultatoFinaleHtml('f12','Finale 1°-2° Posto','#60a5fa') +
+    finaleHtml('f34','Finale 3°-4° Posto — 1ª Partita','🥉','var(--md-amber)', poolA34, poolB34) +
+    risultatoFinaleHtml('f34','Finale 3°-4° Posto','var(--md-amber)') +
+    finaleHtml('f12','Finale 1°-2° Posto — 2ª Partita','🏆','var(--md-primary)', poolA12, poolB12) +
+    risultatoFinaleHtml('f12','Finale 1°-2° Posto','var(--md-primary)') +
     classificaFinaleHtml() +
     pdfBtn;
 }
@@ -3445,6 +3530,18 @@ function finaliDrop(e, targetKey){
   if(!finaliDragSrc) return;
   const sq = SQUADRE.find(s=>s.nome===finaliDragSrc.sqNome);
   if(!sq) return;
+  // Alert se la squadra è già nella FINALE OPPOSTA
+  if(targetKey !== 'pool'){
+    const [targetFk] = parseSlotKey(targetKey);
+    const altroFk = targetFk==='f34'?'f12':'f34';
+    const inAltro = stato.finali[altroFk].casa?.nome===sq.nome
+                 || stato.finali[altroFk].ospite?.nome===sq.nome;
+    if(inAltro){
+      alert(`⚠ ${sq.nome} è già assegnata alla ${altroFk==='f34'?'Finale 3°-4°':'Finale 1°-2°'}. Non può partecipare a entrambe le finali.`);
+      renderFinali();
+      return;
+    }
+  }
   // Rimuovi dalla sorgente
   if(finaliDragSrc.from === 'slot'){
     const [fk, ruolo] = finaliDragSrc.slotKey.split(':');
@@ -3697,7 +3794,7 @@ function renderRisultati(){
     const squadre = stato.gironi[g];
     const partite = getPartiteGirone(g);
     const classifica = calcolaClassifica(squadre, partite);
-    const colore = g==='A'?'#3b82f6':'#22c55e';
+    const colore = g==='A'?'var(--md-primary)':'var(--md-green)';
 
     // Classifica
     html+=`<div style="margin-bottom:28px">
@@ -3715,7 +3812,7 @@ function renderRisultati(){
         </tr>
         ${classifica.map((s,i)=>`
         <tr style="background:${i%2===0?'var(--md-surface-c)':'var(--md-surface-v)'};border-bottom:1px solid var(--md-outline-v)">
-          <td style="padding:7px 10px;color:${i<2?colore:'#475569'};font-weight:bold">${i+1}</td>
+          <td style="padding:7px 10px;color:${i<2?colore:'var(--md-on-surface-v)'};font-weight:bold">${i+1}</td>
           <td style="padding:7px 10px;color:var(--md-on-surface);font-weight:${i<2?'bold':'normal'}">
             ${s.sq.nome}
             ${s.notaSpareggio?`<div style="font-size:9px;color:var(--md-amber);margin-top:2px">⚖ ${s.notaSpareggio}</div>`:''}
@@ -3753,7 +3850,7 @@ function renderRisultati(){
             <span style="font-size:13px;color:var(--md-on-surface);font-weight:bold;flex:1;min-width:100px;text-align:right">${pt.ospite.nome}</span>
           </div>
           <div style="display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap">
-            ${res?`<span style="font-size:11px;color:${res.casaPts>res.ospitePts?colore:(res.ospitePts>res.casaPts?'#ef4444':'#94a3b8')}">${res.casaPts>res.ospitePts?'✓ '+pt.casa.nome+' vince':res.ospitePts>res.casaPts?'✓ '+pt.ospite.nome+' vince':'Parità'}</span>`:''}
+            ${res?`<span style="font-size:11px;color:${res.casaPts>res.ospitePts?colore:(res.ospitePts>res.casaPts?'var(--md-error)':'var(--md-on-surface-v)')}">${res.casaPts>res.ospitePts?'✓ '+pt.casa.nome+' vince':res.ospitePts>res.casaPts?'✓ '+pt.ospite.nome+' vince':'Parità'}</span>`:''}
             <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
               <span style="font-size:10px;color:var(--md-on-surface-v)">Forfait:</span>
               <select onchange="setForfait('${key}',this.value)"
@@ -3944,7 +4041,7 @@ function renderSyncSezioni(availableSezioni){
     return `<label style="display:flex;align-items:center;gap:6px;cursor:${avail?'pointer':'not-allowed'};padding:4px 0;opacity:${avail?'1':'0.35'}">
       <input type="checkbox" id="sync-chk-${s.id}" ${avail?'checked':''} ${avail?'':'disabled'} style="width:13px;height:13px;cursor:${avail?'pointer':'not-allowed'};flex-shrink:0">
       <div>
-        <div style="font-size:11px;color:${avail?'#e2e8f0':'#475569'}">${s.label}${avail?'':' <span style="font-size:9px;color:var(--md-outline-v)">—</span>'}</div>
+        <div style="font-size:11px;color:${avail?'var(--md-on-surface)':'var(--md-on-surface-v)'}">${s.label}${avail?'':' <span style="font-size:9px;color:var(--md-outline-v)">—</span>'}</div>
         <div style="font-size:9px;color:var(--md-on-surface-v)">${s.desc}</div>
       </div>
     </label>`;
@@ -3962,7 +4059,7 @@ async function caricaConfigSync(event){
     const text = await file.text();
     const cfg = JSON.parse(text);
     if(!cfg.token||!cfg.repo||!cfg.branch){
-      syncFeedback('⚠ File non valido: mancano token, repo o branch.','#ef4444');
+      syncFeedback('⚠ File non valido: mancano token, repo o branch.','var(--md-error)');
       return;
     }
     syncConfig = cfg;
@@ -3971,7 +4068,7 @@ async function caricaConfigSync(event){
     aggiornaConfigStatus();
     syncListFiles();
   } catch(e){
-    syncFeedback('⚠ Errore lettura config: '+e.message,'#ef4444');
+    syncFeedback('⚠ Errore lettura config: '+e.message,'var(--md-error)');
   }
   event.target.value='';
 }
@@ -3981,7 +4078,7 @@ function disconnettiSync(){
   syncConfig = null;
   localStorage.removeItem('syncConfig');
   aggiornaConfigStatus();
-  syncFeedback('✓ Repository scollegato', '#4ade80');
+  syncFeedback('✓ Repository scollegato', 'var(--md-green)');
 }
 
 function aggiornaConfigStatus(){
@@ -4008,7 +4105,7 @@ function syncFeedback(msg, color){
   const el = document.getElementById('sync-feedback');
   if(!el) return;
   el.style.display='block';
-  el.style.color = color||'#4ade80';
+  el.style.color = color||'var(--md-green)';
   el.textContent = msg;
   setTimeout(()=>{ el.style.display='none'; }, 5000);
 }
@@ -4045,7 +4142,7 @@ function aggiornaFilenameSuggerito(){
 }
 
 async function syncPush(){
-  if(!syncConfig){ syncFeedback('⚠ Carica prima sync-config.json','#ef4444'); return; }
+  if(!syncConfig){ syncFeedback('⚠ Carica prima sync-config.json','var(--md-error)'); return; }
   const filename = document.getElementById('sync-filename').value.trim()||'finali-2026.json';
   const sezioni = getSyncSezioniSelezionate();
   const data = costruisciExport(sezioni);
@@ -4054,7 +4151,7 @@ async function syncPush(){
   const path = ghPath(filename);
   const apiUrl = `https://api.github.com/repos/${syncConfig.repo}/contents/${path}`;
 
-  syncFeedback('⬆ Upload in corso...','#f59e0b');
+  syncFeedback('⬆ Upload in corso...','var(--md-amber)');
   try{
     // Check if file exists (to get SHA for update)
     let sha = null;
@@ -4075,10 +4172,10 @@ async function syncPush(){
 
     const res = await fetch(apiUrl, {method:'PUT', headers: ghHeaders(), body: JSON.stringify(body)});
     if(!res.ok){ const err=await res.json(); throw new Error(err.message); }
-    syncFeedback(`✓ Push completato: ${filename}`,'#4ade80');
+    syncFeedback(`✓ Push completato: ${filename}`,'var(--md-green)');
     syncListFiles();
   } catch(e){
-    syncFeedback('⚠ Errore push: '+e.message,'#ef4444');
+    syncFeedback('⚠ Errore push: '+e.message,'var(--md-error)');
     dbg('sync push error: '+e.message, true);
   }
 }
@@ -4138,8 +4235,8 @@ async function syncListFiles(){
 }
 
 async function syncPull(path, filename){
-  if(!syncConfig){ syncFeedback('⚠ Carica prima sync-config.json','#ef4444'); return; }
-  syncFeedback('⬇ Download in corso...','#f59e0b');
+  if(!syncConfig){ syncFeedback('⚠ Carica prima sync-config.json','var(--md-error)'); return; }
+  syncFeedback('⬇ Download in corso...','var(--md-amber)');
   try{
     const apiUrl = `https://api.github.com/repos/${syncConfig.repo}/contents/${path}?ref=${syncConfig.branch}`;
     const res = await fetch(apiUrl, {headers: ghHeaders()});
@@ -4157,9 +4254,9 @@ async function syncPull(path, filename){
     importaStato(data, sezioni);
     renderTutti();
     schedulaSalvataggio();
-    syncFeedback(`✓ Pull completato: ${filename}`,'#4ade80');
+    syncFeedback(`✓ Pull completato: ${filename}`,'var(--md-green)');
   } catch(e){
-    syncFeedback('⚠ Errore pull: '+e.message,'#ef4444');
+    syncFeedback('⚠ Errore pull: '+e.message,'var(--md-error)');
     dbg('sync pull error: '+e.message, true);
   }
 }
@@ -4268,7 +4365,7 @@ async function ripristinaUltimaSessione(){
     // Feedback visibile nella pagina
     const fb = document.createElement('div');
     fb.textContent = `✓ Caricato dal repo: ${filename}`;
-    fb.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#166534;color:var(--md-green);padding:10px 20px;border-radius:6px;font-size:12px;z-index:9999;pointer-events:none';
+    fb.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--md-green-c);color:var(--md-green);border:1.5px solid var(--md-green);padding:10px 20px;border-radius:var(--md-radius-full);font-size:12px;z-index:9999;pointer-events:none';
     document.body.appendChild(fb);
     setTimeout(()=>fb.remove(), 3000);
   } catch(e){
@@ -4454,7 +4551,7 @@ async function renderSessioni(){
       const dateStr = d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
       const timeStr = d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
       const isFirst = i===0;
-      html+=`<div style="background:var(--md-surface-c);border:1px solid ${isFirst?'#3b82f6':'var(--md-outline-v)'};border-radius:4px;padding:12px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      html+=`<div style="background:var(--md-surface-c);border:1px solid ${isFirst?'var(--md-primary)':'var(--md-outline-v)'};border-radius:4px;padding:12px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <div style="flex:1;min-width:180px">
           <div style="font-size:12px;color:#fff;font-weight:${isFirst?'bold':'normal'}" id="nota-${s.id}">${s.nota}</div>
           <div style="font-size:10px;color:var(--md-on-surface-v);margin-top:2px">${dateStr} ${timeStr}${isFirst?' · <span style="color:#3b82f6">ultima</span>':''}</div>
@@ -4468,7 +4565,7 @@ async function renderSessioni(){
             if(n)rinominaSessione(${s.id},n)"
             style="background:var(--md-surface-v);color:var(--md-on-surface-v);font-size:10px;padding:4px 8px">✏</button>
           <button class="btn-sm" onclick="eliminaSessione(${s.id})"
-            style="background:#2d1515;color:var(--md-error);font-size:10px;padding:4px 8px">✕</button>
+            class="btn-sm btn-danger" style="font-size:10px;padding:4px 8px">✕</button>
         </div>
       </div>`;
     });
@@ -4671,7 +4768,7 @@ function resetApp(){
     const remote = await res.json();
     if(remote['finali.html'] && remote['finali.html'] !== VERSION){
       document.getElementById('ver-update').style.display='inline';
-      document.getElementById('version-badge').style.color='#f59e0b';
+      document.getElementById('version-badge').style.color='var(--md-amber)';
     }
   } catch(e){}
 })();
