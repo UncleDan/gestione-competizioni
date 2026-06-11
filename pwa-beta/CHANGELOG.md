@@ -6,6 +6,11 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b12 — Fix menu scomparso: ripristino sticky
+- Ripristinato `position:sticky` per header e tabbar (il `fixed` del b9 li faceva sparire)
+- `--header-h` calcolato dinamicamente via JS per il corretto offset del tabbar
+- Il menu ora scorre con la pagina fino in cima, poi rimane fisso mentre si scorre verso il basso
+
 ### v3.0b11 — Fix pulsante stampa Finali
 - Pulsante 🖨 Finali: visibile non appena i gironi sono impostati, non più condizionato all'assegnazione delle squadre
 
