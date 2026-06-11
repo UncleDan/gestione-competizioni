@@ -247,8 +247,8 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
 .girone-box.drag-over{border-color:var(--md-primary);background:var(--md-primary-c)}
 .girone-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--md-primary);margin-bottom:8px}
 .g-tag{font-size:11px;padding:2px 8px;border-radius:var(--md-radius-full);font-weight:700}
-.gA{background:var(--md-primary-c);color:var(--md-primary)}
-.gB{background:var(--md-secondary-c);color:var(--md-secondary)}
+.gA,.ga{background:var(--md-primary-c);color:var(--md-primary)}
+.gB,.gb{background:var(--md-secondary-c);color:var(--md-secondary)}
 
 /* ── Calendario ── */
 .cal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -393,7 +393,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
 .finali-slot{
   min-height:52px;min-width:140px;padding:10px 14px;
   border:2px dashed var(--md-outline-v);border-radius:var(--md-radius-sm);
-  background:var(--md-surface);display:flex;align-items:center;
+  background:var(--md-surface);display:flex;flex-direction:row;align-items:center;gap:8px;
   font-weight:700;font-size:14px;color:var(--md-on-surface);
   transition:border-color .15s,background .15s;
 }
@@ -696,7 +696,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:var(--md-on-surface-v);letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">3.0b19</span>
+    finali.html v <span id="ver-num">3.0b20</span>
     <span id="ver-update" style="display:none;color:var(--md-amber);margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -1093,12 +1093,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════════════════
 const BASEDIR = '/gestione-competizioni';
 const BASE    = BASEDIR + '/pwa-beta';
-const VERSION = '3.0b19'; // Aggiornare ad ogni release
+const VERSION = '3.0b20'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '3.0b19',
+  'finali.html':    '3.0b20',
   'pwa/index.html': '1.9',
   'sw.js':          '2.10',
   'manifest.json':  '1.3',
@@ -3405,10 +3405,12 @@ function renderFinali(){
         ondrop="finaliDrop(event,'${key}')"
         style="min-height:52px;border:1px dashed ${sq?color+'60':'var(--md-outline-v)'};border-radius:4px;padding:8px;background:${sq?'var(--md-surface-c)':'var(--md-surface)'}">
         ${sq ? `
-          <div style="font-size:13px;color:var(--md-on-surface);font-weight:700">${sq.nome}</div>
-          <div style="font-size:10px;color:var(--md-on-surface-v);margin-top:2px">${sq.st}</div>
-          <button onclick="liberaSlot('${key}')" style="margin-top:6px;background:var(--md-error-c);color:var(--md-error);border:1.5px solid var(--md-error);border-radius:var(--md-radius-sm);padding:4px 12px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans',system-ui,sans-serif">✕</button>
-        ` : `<div style="font-size:11px;color:var(--md-outline-v);text-align:center;padding-top:6px">Trascina qui</div>`}
+          <div style="display:flex;flex-direction:column;gap:2px;flex:1">
+            <div style="font-size:14px;color:var(--md-on-surface);font-weight:700;line-height:1.3">${sq.nome}</div>
+            <div style="font-size:11px;color:var(--md-on-surface-v)">${sq.st}</div>
+          </div>
+          <button onclick="liberaSlot('${key}')" style="margin-left:8px;flex-shrink:0;background:var(--md-error-c);color:var(--md-error);border:1.5px solid var(--md-error);border-radius:var(--md-radius-full);padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans',system-ui,sans-serif;white-space:nowrap">✕</button>
+        ` : `<div style="font-size:11px;color:var(--md-outline);text-align:center;padding:4px 0">Trascina qui</div>`}
       </div>
     </div>`;
 

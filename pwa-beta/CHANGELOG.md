@@ -6,11 +6,21 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b20 — Girone badge designazioni + fix slot finali
+- Designazioni: badge G.A/G.B ora correttamente colorati (bug: `toLowerCase()` produceva `.ga` invece di `.gA`); CSS aggiornato per coprire entrambe le varianti
+- Finali: `slotHtml` — nome e regione in colonna flex separata, pulsante ✕ pill a destra
+- Finali: `.finali-slot` `flex-direction:row` + `gap:8px` — nome/regione non più appiccicati
+
 ### v3.0b19 — Fix calendario, pulsante Rimuovi, Verifica Vincoli
 - Calendario: rimosso il carattere `>` spurio prima delle partite (doppio chiudi-tag in concatenazione stringa)
 - Calendario: `margin-bottom:16px` tra blocchi turno — Sabato Mattina, Sabato Pomeriggio staccati visivamente
 - Finali: pulsante Rimuovi (`liberaSlot`) stilizzato inline con `border-radius:sm` e testo "✕ Rimuovi" — non più un cerchio
 - Designazioni: 🔍 Verifica Vincoli avvolto in `<div style="margin:14px 0">` per spaziatura
+
+### v3.0b20 — Girone badge designazioni + fix slot finali
+- Designazioni: badge G.A/G.B ora correttamente colorati (bug: `toLowerCase()` produceva `.ga` invece di `.gA`); CSS aggiornato per coprire entrambe le varianti
+- Finali: `slotHtml` — nome e regione in colonna flex separata, pulsante ✕ pill a destra
+- Finali: `.finali-slot` `flex-direction:row` + `gap:8px` — nome/regione non più appiccicati
 
 ### v3.0b19 — Fix calendario, pulsante Rimuovi, Verifica Vincoli
 - Calendario: rimosso `>` spurio prima delle partite (doppio chiudi-tag in concatenazione stringa)
