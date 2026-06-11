@@ -6,6 +6,18 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b19 — Fix calendario, pulsante Rimuovi, Verifica Vincoli
+- Calendario: rimosso il carattere `>` spurio prima delle partite (doppio chiudi-tag in concatenazione stringa)
+- Calendario: `margin-bottom:16px` tra blocchi turno — Sabato Mattina, Sabato Pomeriggio staccati visivamente
+- Finali: pulsante Rimuovi (`liberaSlot`) stilizzato inline con `border-radius:sm` e testo "✕ Rimuovi" — non più un cerchio
+- Designazioni: 🔍 Verifica Vincoli avvolto in `<div style="margin:14px 0">` per spaziatura
+
+### v3.0b19 — Fix calendario, pulsante Rimuovi, Verifica Vincoli
+- Calendario: rimosso `>` spurio prima delle partite (doppio chiudi-tag in concatenazione stringa)
+- Calendario: `margin-bottom:16px` tra blocchi turno
+- Finali: pulsante liberaSlot stilizzato "✕ Rimuovi" con `border-radius:sm`
+- Designazioni: `#vincoli-panel` con `margin:16px 0`; `h3` con padding e separatore
+
 ### v3.0b18 — Designazioni e Finali: font, spaziatura, alert
 - `.f-dot`: 30px, `margin-right:10px`; `.arb-row`: gap e separatore bordo inferiore
 - `btn-swap`: font 15px bold, padding `10px 22px`, `min-height:48px` — uguale alle Designazioni

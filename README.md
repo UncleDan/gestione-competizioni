@@ -3,7 +3,7 @@
 Applicazione web progressiva (PWA) per la gestione completa di competizioni Baskin: sorteggio gironi, calendario partite, designazioni arbitrali automatiche, risultati, classifiche e finali.
 
 [![Apri App Stabile](https://img.shields.io/badge/🏀%20App%20Stabile%202.11.5-1a56a0?style=for-the-badge&logoColor=white)](https://uncledan.github.io/gestione-competizioni/pwa/)
-[![Apri App Beta](https://img.shields.io/badge/⚠%20Beta%203.0b18-dc2626?style=for-the-badge&logoColor=white)](https://uncledan.github.io/gestione-competizioni/pwa-beta/)
+[![Apri App Beta](https://img.shields.io/badge/⚠%20Beta%203.0b19-dc2626?style=for-the-badge&logoColor=white)](https://uncledan.github.io/gestione-competizioni/pwa-beta/)
 
 **Repo privato sync:** https://github.com/UncleDan/gestione-competizioni-private
 

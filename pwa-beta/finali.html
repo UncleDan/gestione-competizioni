@@ -594,6 +594,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
 .cal-turno-block{
   background:var(--md-surface-c);border:1.5px solid var(--md-outline-v);
   border-radius:var(--md-radius);overflow:hidden;box-shadow:var(--md-shadow);
+  margin-bottom:16px;
 }
 .cal-turno-header{
   background:var(--md-primary-c);color:var(--md-primary);
@@ -637,6 +638,14 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
 .cal-ora{color:var(--md-amber);font-weight:700;font-size:12px}
 .cal-slot-lbl{color:var(--md-outline);font-size:11px}
 
+/* ── Verifica Vincoli panel ── */
+#vincoli-panel{margin:16px 0}
+#vincoli-panel h3{
+  font-size:14px;font-weight:700;color:var(--md-on-surface);
+  margin-bottom:12px;padding-bottom:8px;
+  border-bottom:2px solid var(--md-outline-v);
+}
+
 /* ── vincoli-opzioni ── */
 /* ── Calendario: layout a griglia ── */
 .cal-campi-row{display:grid;grid-template-columns:1fr 1fr}
@@ -660,6 +669,14 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
 .cal-ora{color:var(--md-amber);font-weight:700;font-size:12px}
 .cal-slot-lbl{color:var(--md-outline);font-size:11px}
 
+/* ── Verifica Vincoli panel ── */
+#vincoli-panel{margin:16px 0}
+#vincoli-panel h3{
+  font-size:14px;font-weight:700;color:var(--md-on-surface);
+  margin-bottom:12px;padding-bottom:8px;
+  border-bottom:2px solid var(--md-outline-v);
+}
+
 /* ── vincoli-opzioni ── */
 #vincoli-opzioni{padding:8px 0}
 </style>
@@ -679,7 +696,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:var(--md-on-surface-v);letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">3.0b18</span>
+    finali.html v <span id="ver-num">3.0b19</span>
     <span id="ver-update" style="display:none;color:var(--md-amber);margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -1076,12 +1093,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════════════════
 const BASEDIR = '/gestione-competizioni';
 const BASE    = BASEDIR + '/pwa-beta';
-const VERSION = '3.0b18'; // Aggiornare ad ogni release
+const VERSION = '3.0b19'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '3.0b18',
+  'finali.html':    '3.0b19',
   'pwa/index.html': '1.9',
   'sw.js':          '2.10',
   'manifest.json':  '1.3',
@@ -1664,7 +1681,7 @@ function renderCalBuilder(){
       const campo = campoInfo(c,null);
       const nomeC = campo?.nome||('Campo '+(c+1));
       let colHtml = '<div class="cal-campo-col'+(c===0?' cal-campo-left':'')+'"><div class="cal-campo-hdr">🏟 '+nomeC+'</div>';
-      colHtml += '<div id="cell-'+t+'-'+c+'" class="cal-cell" ondragover="calCellDragOver(event,'+t+','+c+')" ondrop="calCellDrop(event,'+t+','+c+')" ondragleave="calCellDragLeave(event,'+t+','+c+'">'+'>';
+      colHtml += '<div id="cell-'+t+'-'+c+'" class="cal-cell" ondragover="calCellDragOver(event,'+t+','+c+')" ondrop="calCellDrop(event,'+t+','+c+')" ondragleave="calCellDragLeave(event,'+t+','+c+')">'; 
       stato.calSlots[t][c].forEach(function(p,pi){ colHtml+=cellPartitaHtml(p,t,c,pi); });
       for(let ns=stato.calSlots[t][c].length;ns<2;ns++){
         const ora=getOrarioSlot(t,ns);
@@ -1702,7 +1719,7 @@ function cellPartitaHtml(p,t,c,pi){
     <div class="p-actions">
       <button class="btn-swap" onclick="swapCasaOspite(${t},${c},${pi})">⇄ Inverti</button>
       <button class="btn-remove" onclick="rimuoviDaSlotCal(${t},${c},${pi})">✕</button>
-    </div>
+    
   </div>`;
 }
 
@@ -2107,7 +2124,7 @@ function renderDesignazioni(){
   // Pannello vincoli
   if(stato.modificatoArbitri){
     html+=`<div id="vincoli-panel"><h3>🔍 Verifica Vincoli</h3>`;
-    if(violazioni.length===0){
+  if(violazioni.length===0){
       html+=`<div class="ok-box">✅ Tutte le terne rispettano i vincoli.</div>`;
     } else {
       violazioni.forEach(v=>{
@@ -3390,7 +3407,7 @@ function renderFinali(){
         ${sq ? `
           <div style="font-size:13px;color:var(--md-on-surface);font-weight:700">${sq.nome}</div>
           <div style="font-size:10px;color:var(--md-on-surface-v);margin-top:2px">${sq.st}</div>
-          <button onclick="liberaSlot('${key}')" class="btn-sm btn-danger" style="margin-top:6px">✕</button>
+          <button onclick="liberaSlot('${key}')" style="margin-top:6px;background:var(--md-error-c);color:var(--md-error);border:1.5px solid var(--md-error);border-radius:var(--md-radius-sm);padding:4px 12px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans',system-ui,sans-serif">✕</button>
         ` : `<div style="font-size:11px;color:var(--md-outline-v);text-align:center;padding-top:6px">Trascina qui</div>`}
       </div>
     </div>`;
