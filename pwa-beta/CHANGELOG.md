@@ -6,6 +6,27 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b27 — Sync: caricamento progressivo e diagnostica
+- Lista file: mostrata subito senza timestamps (caricamento progressivo)
+- Timestamps recuperati in sequenza invece di Promise.all — evita rate limit GitHub con molti file
+- Conteggio totale file visibile ("N file trovati")
+- Errore caricamento lista → `violazione-item` + `mostraNotifica` (rimosso colore hardcoded `#ef4444`)
+- Pulsante Pull stilizzato con classe `btn-stamp-gironi`
+
+### v3.0b26 — Gironi sola andata: fix duplicati
+- `pairKey()`: chiave normalizzata (ordinamento alfabetico) per identificare la coppia indipendentemente da chi è casa/ospite
+- `getPartiteGirone()`: deduplicazione per `pairKey` — ogni coppia di squadre appare una sola volta (sola andata)
+- `getRisultato()`: cerca il risultato sia con chiave A|B che B|A e inverte i punteggi se necessario (retrocompatibilità con sessioni precedenti)
+- `deduplicaCalSlots()`: rimuove partite duplicate dai calSlots dopo import JSON e Sync
+- Solo la prima partita di ogni coppia viene tenuta
+
+### v3.0b25 — Sistema notifiche unificato
+- `.notif-card` ridisegnato come `.violazione-item`: background colorato pieno per gravità (error=rosso, warn=ambra, ok=verde, info=blu), titolo bold + descrizione
+- `#toast` spostato in alto (sotto tabbar) — niente più elementi in basso
+- `mostraNotifica(msg, tipo, durata, titolo)`: nuovo parametro `titolo` per badge header
+- Tutti i residui `alert()` rimpiazzati con `mostraNotifica()` tipizzata
+- Sync: push completato, errori, caricamento → tutti in alto come notifica
+
 ### v3.0b24 — Fix definitivo logica finali
 - Rimosso il blocco `mostraNotifica+return` che impediva l'inserimento della squadra (le versioni precedenti non avevano sostituito il testo corretto)
 - `finaliDrop`: nessun check bloccante — l'inserimento avviene sempre; i conflitti sono mostrati da `renderFinaliVincoli()` come `.violazione-item`
@@ -35,6 +56,27 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 - Calendario: `margin-bottom:16px` tra blocchi turno — Sabato Mattina, Sabato Pomeriggio staccati visivamente
 - Finali: pulsante Rimuovi (`liberaSlot`) stilizzato inline con `border-radius:sm` e testo "✕ Rimuovi" — non più un cerchio
 - Designazioni: 🔍 Verifica Vincoli avvolto in `<div style="margin:14px 0">` per spaziatura
+
+### v3.0b27 — Sync: caricamento progressivo e diagnostica
+- Lista file: mostrata subito senza timestamps (caricamento progressivo)
+- Timestamps recuperati in sequenza invece di Promise.all — evita rate limit GitHub con molti file
+- Conteggio totale file visibile ("N file trovati")
+- Errore caricamento lista → `violazione-item` + `mostraNotifica` (rimosso colore hardcoded `#ef4444`)
+- Pulsante Pull stilizzato con classe `btn-stamp-gironi`
+
+### v3.0b26 — Gironi sola andata: fix duplicati
+- `pairKey()`: chiave normalizzata (ordinamento alfabetico) per identificare la coppia indipendentemente da chi è casa/ospite
+- `getPartiteGirone()`: deduplicazione per `pairKey` — ogni coppia di squadre appare una sola volta (sola andata)
+- `getRisultato()`: cerca il risultato sia con chiave A|B che B|A e inverte i punteggi se necessario (retrocompatibilità con sessioni precedenti)
+- `deduplicaCalSlots()`: rimuove partite duplicate dai calSlots dopo import JSON e Sync
+- Solo la prima partita di ogni coppia viene tenuta
+
+### v3.0b25 — Sistema notifiche unificato
+- `.notif-card` ridisegnato come `.violazione-item`: background colorato pieno per gravità (error=rosso, warn=ambra, ok=verde, info=blu), titolo bold + descrizione
+- `#toast` spostato in alto (sotto tabbar) — niente più elementi in basso
+- `mostraNotifica(msg, tipo, durata, titolo)`: nuovo parametro `titolo` per badge header
+- Tutti i residui `alert()` rimpiazzati con `mostraNotifica()` tipizzata
+- Sync: push completato, errori, caricamento → tutti in alto come notifica
 
 ### v3.0b24 — Fix definitivo logica finali
 - Rimosso il blocco `mostraNotifica+return` che impediva l'inserimento della squadra (le versioni precedenti non avevano sostituito il testo corretto)

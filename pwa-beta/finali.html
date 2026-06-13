@@ -459,25 +459,28 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
 /* ── Toast ── */
 #notif-area{
   position:fixed;top:var(--header-h,72px);left:50%;transform:translateX(-50%);
-  z-index:9990;width:min(96vw,520px);display:flex;flex-direction:column;gap:6px;
+  z-index:9990;width:min(96vw,560px);display:flex;flex-direction:column;gap:6px;
   padding-top:8px;pointer-events:none;
 }
+/* Stesso stile violazione-item ma colorato per gravità */
 .notif-card{
-  background:var(--md-surface);color:var(--md-on-surface);
-  padding:12px 16px 12px 20px;border-radius:var(--md-radius);font-size:14px;font-weight:600;
+  padding:12px 14px;border-radius:var(--md-radius-sm);font-size:13px;
   box-shadow:var(--md-shadow-lg);pointer-events:auto;
   animation:notif-in .2s ease;
-  border:1px solid var(--md-outline-v);
-  border-left:4px solid var(--md-primary);
-  display:flex;align-items:center;gap:10px;
+  background:var(--md-primary-c);border:1.5px solid var(--md-primary);color:var(--md-on-surface);
+  display:flex;align-items:flex-start;gap:10px;
 }
-.notif-card.warn{border-left-color:var(--md-amber);border-color:var(--md-amber)}
-.notif-card.error{border-left-color:var(--md-error);border-color:var(--md-error)}
-.notif-card.ok{border-left-color:var(--md-green);border-color:var(--md-green)}
-@keyframes notif-in{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.notif-card .n-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.notif-card .n-body{flex:1}
+.notif-card .n-title{font-weight:700;font-size:13px;margin-bottom:2px}
+.notif-card .n-close{background:none;border:none;cursor:pointer;font-size:14px;color:inherit;opacity:.6;padding:0;font-family:inherit;flex-shrink:0;align-self:flex-start}
+.notif-card.warn{background:var(--md-amber-c);border-color:var(--md-amber)}
+.notif-card.error{background:var(--md-error-c);border-color:var(--md-error)}
+.notif-card.ok{background:var(--md-green-c);border-color:var(--md-green)}
+@keyframes notif-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 
 #toast{
-  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);
+  position:fixed;top:calc(var(--header-h,72px) + 8px);left:50%;transform:translateX(-50%) translateY(-120%);
   background:var(--md-inv-surface);color:var(--md-inv-on-surface);
   padding:12px 24px;border-radius:var(--md-radius-full);font-size:14px;font-weight:600;
   box-shadow:var(--md-shadow-lg);z-index:9999;transition:transform .3s ease;
@@ -698,7 +701,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:var(--md-on-surface-v);letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">3.0b24</span>
+    finali.html v <span id="ver-num">3.0b27</span>
     <span id="ver-update" style="display:none;color:var(--md-amber);margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -1096,12 +1099,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════════════════
 const BASEDIR = '/gestione-competizioni';
 const BASE    = BASEDIR + '/pwa-beta';
-const VERSION = '3.0b24'; // Aggiornare ad ogni release
+const VERSION = '3.0b27'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '3.0b24',
+  'finali.html':    '3.0b27',
   'pwa/index.html': '1.9',
   'sw.js':          '2.10',
   'manifest.json':  '1.3',
@@ -1282,33 +1285,25 @@ function aggiornaOffsetHeader(){
 }
 
 // Mostra notifica balloon in fondo allo schermo
-function mostraNotifica(msg, tipo='info', durata=5000){
+function mostraNotifica(msg, tipo='info', durata=5000, titolo=''){
   let area = document.getElementById('notif-area');
-  if(!area){
-    area = document.createElement('div');
-    area.id = 'notif-area';
-    document.body.appendChild(area);
-  }
+  if(!area){ area = document.createElement('div'); area.id='notif-area'; document.body.appendChild(area); }
   const icons = {ok:'✓', warn:'⚠', error:'✕', info:'ℹ'};
   const card = document.createElement('div');
   card.className = 'notif-card ' + (tipo==='ok'?'ok':tipo==='warn'?'warn':tipo==='error'?'error':'');
-  // Icon span
   const icon = document.createElement('span');
-  icon.style.cssText = 'font-size:16px;flex-shrink:0';
+  icon.className = 'n-icon';
   icon.textContent = icons[tipo]||icons.info;
-  // Message span
-  const txt = document.createElement('span');
-  txt.style.flex = '1';
-  txt.textContent = msg;
-  // Close button
+  const body = document.createElement('div');
+  body.className = 'n-body';
+  if(titolo){ const t=document.createElement('div'); t.className='n-title'; t.textContent=titolo; body.appendChild(t); }
+  const d=document.createElement('div'); d.textContent=msg; body.appendChild(d);
   const cls = document.createElement('button');
-  cls.textContent = '✕';
-  cls.style.cssText = 'background:none;border:none;cursor:pointer;font-size:14px;color:inherit;opacity:.6;padding:0 0 0 8px;font-family:inherit;flex-shrink:0';
-  cls.onclick = () => card.remove();
-  card.append(icon, txt, cls);
+  cls.className = 'n-close'; cls.textContent='✕';
+  cls.onclick = ()=>{ card.remove(); clearTimeout(timer); };
+  card.append(icon, body, cls);
   area.appendChild(card);
-  const timer = setTimeout(()=>{ card.style.opacity='0'; card.style.transition='opacity .3s'; setTimeout(()=>card.remove(), 300); }, durata);
-  cls.addEventListener('click', ()=>clearTimeout(timer));
+  const timer = setTimeout(()=>{ card.style.opacity='0'; card.style.transition='opacity .3s'; setTimeout(()=>card.remove(),300); }, durata);
 }
 
 function inizializzaTema(){
@@ -2034,7 +2029,7 @@ function generaDesignazioni(){
     for(let c=0;c<2;c++){
       const n=stato.calSlots[t][c].length;
       if(n!==2){
-        alert(`${TURNI_LABEL[t]} · ${CAMPI[c].nome}: ci sono ${n} partite invece di 2.`);
+        mostraNotifica(`${TURNI_LABEL[t]} · ${CAMPI[c].nome}: ci sono ${n} partite invece di 2`, 'error', 6000, 'Errore distribuzione');
         return;
       }
     }
@@ -2059,7 +2054,7 @@ function generaDesignazioni(){
   backtrack(slots,0,cnt,assPerTurno,[],[0,0,0],migliore,opzioni);
 
   if(!migliore.trovato){
-    alert('Impossibile generare designazioni valide. Verifica la distribuzione delle partite.');
+    mostraNotifica('Impossibile generare designazioni valide. Verifica la distribuzione delle partite.', 'error', 7000, 'Generazione fallita');
     return;
   }
   if(migliore.punteggio[0]>0) dbg('Deroghe — livello max: '+migliore.punteggio[0]+', n.deroghe: '+migliore.punteggio[1]+', colleghi ripetuti: '+migliore.punteggio[2], true);
@@ -2554,6 +2549,23 @@ function trovaDataOraPartita(pt){
   return null;
 }
 
+// Rimuove partite duplicate (stesso paio di squadre con orientamento invertito)
+// Tiene solo la prima occorrenza per ogni coppia — sola andata
+function deduplicaCalSlots(){
+  if(!stato.calSlots) return;
+  const viste = new Set();
+  for(let t=0;t<stato.calSlots.length;t++){
+    for(let c=0;c<stato.calSlots[t].length;c++){
+      stato.calSlots[t][c] = stato.calSlots[t][c].filter(p=>{
+        const k = [p.casa.nome, p.ospite.nome].sort().join('|');
+        if(viste.has(k)) return false;
+        viste.add(k);
+        return true;
+      });
+    }
+  }
+}
+
 // Dopo import: sincronizza gli orari da calSlots → stato.calendario.turni
 function syncOrariCalendario(){
   if(!stato.calSlots||!stato.calendario) return;
@@ -2663,7 +2675,7 @@ td{padding:4px 8px;border:1px solid #ddd}
     </table>`:''}`;
   } else {
     const turnoData=cal.turni.find(({turno})=>turno===turnoIdx);
-    if(!turnoData){alert('Turno non trovato.');return;}
+    if(!turnoData){mostraNotifica('Turno non trovato', 'error'); return;}
     const {turno,campi}=turnoData;
     const dateKeys=['ven','sab','sab','dom'];
     const dataFmt=DATE_GARA[dateKeys[turno]]?new Date(DATE_GARA[dateKeys[turno]]+'T12:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
@@ -3271,6 +3283,7 @@ function importaJSON(event){
           Object.assign(stato.turniConfermati,data.designazioni.turniConfermati);
         stato.modificatoArbitri=false;
         syncOrariCalendario();
+        deduplicaCalSlots();
         document.getElementById('tab-btn-designazioni').disabled=false;
         document.getElementById('tab-btn-finali').disabled=false;
         document.getElementById('tab-btn-risultati').disabled=false;
@@ -3734,30 +3747,31 @@ function rimuoviArbitroFinalePos(fKey, pos){
 // forfait: null | 'casa' | 'ospite' | 'entrambi'
 function risultatoKey(partita){ return partita.casa.nome+'|'+partita.ospite.nome; }
 
+// Chiave normalizzata per coppia (indipendente da chi è casa/ospite)
+function pairKey(p){ return [p.casa.nome, p.ospite.nome].sort().join('|'); }
+
 function getPartiteGirone(girone){
   if(!stato.gironi) return [];
   const sq = stato.gironi[girone];
-  // If calendar is available, return partite in chronological order
   if(stato.calSlots){
     const ordinate=[];
-    const viste=new Set();
+    const viste=new Set(); // usa pairKey (non dipende dall'orientamento)
     for(let t=0;t<stato.calSlots.length;t++){
       for(let c=0;c<stato.calSlots[t].length;c++){
         stato.calSlots[t][c].forEach(p=>{
           if(p.girone!==girone) return;
-          const k=risultatoKey(p);
+          const k=pairKey(p);
           if(!viste.has(k)){ viste.add(k); ordinate.push(p); }
         });
       }
     }
-    // Add any partite not in calendar (should not happen, but safety)
+    // Aggiunge coppie mancanti (fallback)
     for(let i=0;i<sq.length;i++) for(let j=i+1;j<sq.length;j++){
       const p={casa:sq[i],ospite:sq[j]};
-      if(!viste.has(risultatoKey(p))) ordinate.push(p);
+      if(!viste.has(pairKey(p))) ordinate.push(p);
     }
     return ordinate;
   }
-  // Fallback: combinatorial order
   const partite=[];
   for(let i=0;i<sq.length;i++) for(let j=i+1;j<sq.length;j++)
     partite.push({casa:sq[i],ospite:sq[j]});
@@ -3766,13 +3780,20 @@ function getPartiteGirone(girone){
 
 // Restituisce {casaPts, ospitePts} effettivi (incluso forfait)
 function getRisultato(key){
-  const r = stato.risultati[key];
+  // Controlla sia A|B che B|A (import da sessioni con orientamento opposto)
+  let r = stato.risultati[key];
+  let invertito = false;
+  if(!r){
+    const parts = key.split('|');
+    if(parts.length===2){ r = stato.risultati[parts[1]+'|'+parts[0]]; invertito = true; }
+  }
   if(!r) return null;
-  if(r.forfait==='casa')    return {casaPts:0,   ospitePts:40, forfeit:true};
-  if(r.forfait==='ospite')  return {casaPts:40,  ospitePts:0,  forfeit:true};
-  if(r.forfait==='entrambi')return {casaPts:0,   ospitePts:0,  forfeit:true, entrambi:true};
+  if(r.forfait==='casa')    return invertito?{casaPts:40,ospitePts:0,forfeit:true}:{casaPts:0,ospitePts:40,forfeit:true};
+  if(r.forfait==='ospite')  return invertito?{casaPts:0,ospitePts:40,forfeit:true}:{casaPts:40,ospitePts:0,forfeit:true};
+  if(r.forfait==='entrambi')return {casaPts:0,ospitePts:0,forfeit:true,entrambi:true};
   if(r.casaPts===''||r.ospitePts===''||r.casaPts===null||r.ospitePts===null) return null;
-  return {casaPts:Number(r.casaPts), ospitePts:Number(r.ospitePts), forfeit:false};
+  const cp=Number(r.casaPts), op=Number(r.ospitePts);
+  return invertito ? {casaPts:op,ospitePts:cp,forfeit:false} : {casaPts:cp,ospitePts:op,forfeit:false};
 }
 
 // Calcola classifica da lista partite
@@ -4285,57 +4306,67 @@ async function syncPush(){
   }
 }
 
+// Render sync file row (shared between initial and updated render)
+function syncFileRowHtml(f){
+  return `<div class="sync-file-row" style="padding:10px 0;border-bottom:1px solid var(--md-outline-v)">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="flex:1">
+        <div style="font-size:13px;color:var(--md-on-surface);font-weight:700">${f.name}</div>
+        ${f.lastModified ? `<div style="font-size:11px;color:var(--md-on-surface-v);margin-top:2px">${f.lastModified}${f.lastAuthor?' · '+f.lastAuthor:''}</div>`
+          :'<div style="font-size:11px;color:var(--md-outline);font-style:italic">caricamento data...</div>'}
+      </div>
+      <button data-path="${f.path}" data-name="${f.name}" onclick="syncPull(this.dataset.path, this.dataset.name)"
+        class="btn-stamp-gironi btn-sm" style="flex-shrink:0">⬇ Pull</button>
+    </div>
+  </div>`;
+}
+
 async function syncListFiles(){
-  if(!syncConfig){ return; }
+  if(!syncConfig) return;
   const path = syncConfig.path ? syncConfig.path.replace(/^\/|\/$$/g,'') : '';
   const apiUrl = `https://api.github.com/repos/${syncConfig.repo}/contents/${path}?ref=${syncConfig.branch}`;
   const el = document.getElementById('sync-filelist');
-  if(el) el.innerHTML = '<span style="color:var(--md-amber)">Caricamento...</span>';
+  if(el) el.innerHTML = '<div style="color:var(--md-amber);padding:8px 0">⏳ Caricamento lista...</div>';
   try{
     const res = await fetch(apiUrl, {headers: ghHeaders()});
-    if(!res.ok) throw new Error('HTTP '+res.status);
+    if(!res.ok) throw new Error('HTTP '+res.status+' — verifica token e repo nella config sync');
     const files = await res.json();
     const jsonFiles = Array.isArray(files) ? files.filter(f=>f.name.endsWith('.json')) : [];
     if(!el) return;
     if(jsonFiles.length===0){
-      el.innerHTML = '<span style="color:var(--md-on-surface-v)">Nessun file JSON nel repo</span>';
+      el.innerHTML = '<div style="color:var(--md-on-surface-v);padding:8px 0">Nessun file JSON trovato nel repo</div>';
       return;
     }
-    // Fetch commit info for each file to get last modified timestamp
-    const filesConTimestamp = await Promise.all(jsonFiles.map(async f=>{
+    // 1. Mostra subito la lista senza timestamps (caricamento progressivo)
+    el.innerHTML = `<div style="font-size:11px;color:var(--md-on-surface-v);margin-bottom:8px">${jsonFiles.length} file trovati — caricamento date...</div>`
+      + jsonFiles.map(f=>syncFileRowHtml(f)).join('');
+
+    // 2. Recupera timestamps in sequenza (non parallel) per evitare rate limit
+    for(const f of jsonFiles){
       try{
-        const commitUrl = `https://api.github.com/repos/${syncConfig.repo}/commits?path=${f.path}&ref=${syncConfig.branch}&per_page=1`;
-        const cr = await fetch(commitUrl, {headers: ghHeaders()});
+        const cr = await fetch(
+          `https://api.github.com/repos/${syncConfig.repo}/commits?path=${f.path}&ref=${syncConfig.branch}&per_page=1`,
+          {headers: ghHeaders()}
+        );
         if(cr.ok){
           const commits = await cr.json();
           if(commits.length>0){
-            const ts = commits[0].commit.committer.date;
-            const d = new Date(ts);
+            const d = new Date(commits[0].commit.committer.date);
             f._ts = d.getTime();
             f.lastModified = d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'})
               + ' ' + d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
-            f.lastAuthor = commits[0].commit.committer.name || commits[0].commit.author.name;
+            f.lastAuthor = commits[0].commit.committer.name||commits[0].commit.author.name;
           }
         }
       } catch(e){}
-      return f;
-    }));
-
-    filesConTimestamp.sort((a,b)=>(b._ts||0)-(a._ts||0));
-    el.innerHTML = filesConTimestamp.map(f=>`
-      <div style="padding:8px 0;border-bottom:1px solid var(--md-outline-v)">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="flex:1;font-size:12px;color:var(--md-on-surface);font-weight:bold">${f.name}</span>
-          <button data-path="${f.path}" data-name="${f.name}" onclick="syncPull(this.dataset.path, this.dataset.name)"
-            style="padding:4px 12px;background:var(--md-primary-c);border:none;color:var(--md-primary);border-radius:3px;font-size:10px;cursor:pointer;flex-shrink:0">⬇ Pull</button>
-        </div>
-        ${f.lastModified ? `<div style="font-size:9px;color:var(--md-on-surface-v);margin-top:3px">
-          Ultima modifica: <span style="color:var(--md-on-surface-v)">${f.lastModified}</span>
-          ${f.lastAuthor?' · '+f.lastAuthor:''}
-        </div>`:''}
-      </div>`).join('');
+    }
+    // 3. Riordina per _ts e ri-renderizza con date
+    jsonFiles.sort((a,b)=>(b._ts||0)-(a._ts||0));
+    el.innerHTML = `<div style="font-size:11px;color:var(--md-on-surface-v);margin-bottom:8px">${jsonFiles.length} file · dal più recente</div>`
+      + jsonFiles.map(f=>syncFileRowHtml(f)).join('');
   } catch(e){
-    if(el) el.innerHTML = '<span style="color:#ef4444">⚠ '+e.message+'</span>';
+    if(el) el.innerHTML = `<div class="violazione-item"><div class="v-titolo">✕ Errore caricamento lista</div><div class="v-desc">${e.message}</div></div>`;
+    mostraNotifica(e.message, 'error', 8000, '✕ Sync: errore lista file');
   }
 }
 
