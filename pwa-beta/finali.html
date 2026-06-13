@@ -122,18 +122,29 @@ button,input,select,textarea{
 #update-notice{font-size:12px;margin-top:4px}
 
 /* ── Tabbar ── */
+#tabbar-wrap{position:sticky;top:var(--header-h,72px);z-index:90;display:flex;align-items:stretch;background:var(--md-surface-c);border-bottom:2px solid var(--md-outline-v)}
 #tabbar{
   display:flex;
   overflow-x:auto;
-  background:var(--md-surface-c);
-  border-bottom:2px solid var(--md-outline-v);
+  background:transparent;
   padding:0 4px;
-  position:sticky;top:var(--header-h,72px);z-index:90;
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;
   gap:2px;
+  flex:1;
 }
 #tabbar::-webkit-scrollbar{display:none}
+.tabbar-arrow{
+  flex-shrink:0;width:32px;display:none;align-items:center;justify-content:center;
+  background:var(--md-surface-c);border:none;cursor:pointer;
+  color:var(--md-on-surface-v);font-size:16px;
+  border-bottom:none;
+}
+.tabbar-arrow:hover{background:var(--md-surface-v);color:var(--md-on-surface)}
+@media(min-width:600px){
+  .tabbar-arrow{display:flex}
+  #tabbar{scrollbar-width:thin;scrollbar-color:var(--md-outline-v) transparent}
+}
 .tab-btn{
   flex-shrink:0;
   padding:12px 14px;
@@ -701,7 +712,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:var(--md-on-surface-v);letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">3.0b27</span>
+    finali.html v <span id="ver-num">3.0b29</span>
     <span id="ver-update" style="display:none;color:var(--md-amber);margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -717,7 +728,9 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
   </div>
 </div>
 
-<div id="tabbar">
+<div id="tabbar-wrap">
+  <button class="tabbar-arrow" id="tabbar-left" onclick="tabbarScroll(-180)" aria-label="Scorri sinistra">‹</button>
+  <div id="tabbar">
   <button class="tab-btn active"   onclick="showTab('sorteggio',this)">1. Gironi</button>
   <button class="tab-btn" id="tab-btn-calendario" disabled onclick="showTab('calendario',this)">2. Calendario</button>
   <button class="tab-btn" id="tab-btn-designazioni" disabled onclick="showTab('designazioni',this)">3. Designazioni</button>
@@ -735,6 +748,8 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
   <button onclick="resetApp()" class="tab-btn" title="Ripristina dati di esempio">↺ Reset</button>
   <button class="tab-btn" onclick="showTab('opzioni',this)" style="color:#38bdf8">⚙ Opzioni</button>
   <button id="btn-debug" onclick="toggleDebug()" class="tab-btn">🐛 Debug</button>
+  </div>
+  <button class="tabbar-arrow" id="tabbar-right" onclick="tabbarScroll(180)" aria-label="Scorri destra">›</button>
 </div>
 
 <div id="main">
@@ -1099,12 +1114,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════════════════
 const BASEDIR = '/gestione-competizioni';
 const BASE    = BASEDIR + '/pwa-beta';
-const VERSION = '3.0b27'; // Aggiornare ad ogni release
+const VERSION = '3.0b29'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '3.0b27',
+  'finali.html':    '3.0b29',
   'pwa/index.html': '1.9',
   'sw.js':          '2.10',
   'manifest.json':  '1.3',
@@ -1279,9 +1294,36 @@ function applicaTema(tema){
 }
 
 // Misura altezza header+tabbar e aggiorna CSS var
+function tabbarScroll(dx){
+  const tb=document.getElementById('tabbar');
+  if(tb) tb.scrollBy({left:dx,behavior:'smooth'});
+}
+
+function initTabbarScroll(){
+  const tb=document.getElementById('tabbar');
+  if(!tb) return;
+  // Mouse wheel → horizontal scroll on desktop
+  tb.addEventListener('wheel', e=>{
+    if(Math.abs(e.deltaX)>Math.abs(e.deltaY)) return; // already horizontal
+    e.preventDefault();
+    tb.scrollBy({left:e.deltaY*1.5,behavior:'auto'});
+  },{passive:false});
+  // Show/hide arrows based on scroll position
+  const updateArrows=()=>{
+    const l=document.getElementById('tabbar-left');
+    const r=document.getElementById('tabbar-right');
+    if(l) l.style.opacity=tb.scrollLeft>4?'1':'.3';
+    if(r) r.style.opacity=(tb.scrollLeft+tb.clientWidth<tb.scrollWidth-4)?'1':'.3';
+  };
+  tb.addEventListener('scroll',updateArrows,{passive:true});
+  updateArrows();
+}
+
 function aggiornaOffsetHeader(){
   const h = document.getElementById('header');
-  if(h) document.documentElement.style.setProperty('--header-h', h.offsetHeight + 'px');
+  const tw=document.getElementById('tabbar-wrap');
+  const tot=(h?h.offsetHeight:0)+(tw?tw.offsetHeight:0);
+  document.documentElement.style.setProperty('--header-h', tot + 'px');
 }
 
 // Mostra notifica balloon in fondo allo schermo
@@ -2912,6 +2954,7 @@ function caricaBanner(event){
   inizializzaTema();
   aggiornaOffsetHeader();
   window.addEventListener('resize', aggiornaOffsetHeader);
+  initTabbarScroll();
     schedulaSalvataggio();
   };
   reader.readAsDataURL(file);
@@ -3800,8 +3843,8 @@ function getRisultato(key){
 function calcolaClassifica(squadre, partite){
   const stats = {};
   squadre.forEach(s => stats[s.nome] = {
-    sq:s, v:0, p:0, pf:0, sf:0,     // vittorie, sconfitte, punti fatti/subiti
-    ptClass:0,                        // punti classifica (3=V,1=S,0=F)
+    sq:s, v:0, p:0, pf:0, sf:0,
+    ptClass:0,
     giocate:0,
   });
 
@@ -3812,25 +3855,22 @@ function calcolaClassifica(squadre, partite){
     const {casaPts, ospitePts, forfeit} = r;
     const c = stats[pt.casa.nome];
     const o = stats[pt.ospite.nome];
+    if(!c||!o) return;
     if(forfeit){
-      const forfVal = stato.risultati[key].forfait;
+      const forfVal = stato.risultati[key]?.forfait || (stato.risultati[pt.ospite.nome+'|'+pt.casa.nome]?.forfait);
       if(forfVal==='entrambi'){
-        // Entrambi forfait: 0-0, 0 punti, conta come giocata
         c.giocate++; o.giocate++;
-        // pf/sf restano 0, nessun punto
       } else if(forfVal==='casa'){
-        o.ptClass+=3; c.ptClass+=0;
-        c.pf+=0; c.sf+=40; o.pf+=40; o.sf+=0;
+        o.ptClass+=3; c.pf+=0; c.sf+=40; o.pf+=40; o.sf+=0;
         c.p++; o.v++; c.giocate++; o.giocate++;
-      } else { // ospite
-        c.ptClass+=3; o.ptClass+=0;
-        c.pf+=40; c.sf+=0; o.pf+=0; o.sf+=40;
+      } else {
+        c.ptClass+=3; c.pf+=40; c.sf+=0; o.pf+=0; o.sf+=40;
         c.v++; o.p++; c.giocate++; o.giocate++;
       }
     } else {
       if(casaPts>ospitePts){ c.ptClass+=3;o.ptClass+=1; c.v++;o.p++; }
       else if(ospitePts>casaPts){ o.ptClass+=3;c.ptClass+=1; o.v++;c.p++; }
-      else { c.ptClass+=2;o.ptClass+=2; } // pareggio (non dovrebbe esserci)
+      else { c.ptClass+=2;o.ptClass+=2; }
     }
     c.pf+=casaPts; c.sf+=ospitePts; c.giocate++;
     o.pf+=ospitePts; o.sf+=casaPts; o.giocate++;
@@ -3838,235 +3878,130 @@ function calcolaClassifica(squadre, partite){
 
   const lista = Object.values(stats);
 
-  // Ordina con traccia del criterio usato per ogni coppia
-  // Ogni elemento avrà .notaSpareggio se la posizione è stata decisa da criterio secondario
-  lista.sort((a,b) => {
-    if(b.ptClass !== a.ptClass) return b.ptClass - a.ptClass;
-    // Scontro diretto
-    const key1 = a.sq.nome+'|'+b.sq.nome;
-    const key2 = b.sq.nome+'|'+a.sq.nome;
-    const r1 = getRisultato(key1);
-    const r2 = getRisultato(key2);
-    const rSD = r1||r2;
-    if(rSD){
-      const aCasa = !!r1;
-      const aSDpts = aCasa ? rSD.casaPts : rSD.ospitePts;
-      const bSDpts = aCasa ? rSD.ospitePts : rSD.casaPts;
-      if(aSDpts > bSDpts) return -1;
-      if(bSDpts > aSDpts) return  1;
-      // Quoziente scontro diretto
-      const qA = bSDpts>0 ? aSDpts/bSDpts : (aSDpts>0?Infinity:1);
-      const qB = aSDpts>0 ? bSDpts/aSDpts : (bSDpts>0?Infinity:1);
-      if(Math.abs(qA-qB)>0.0001) return qB-qA;
-    }
-    // Quoziente canestri generale
-    const qGenA = a.sf>0 ? a.pf/a.sf : (a.pf>0?Infinity:1);
-    const qGenB = b.sf>0 ? b.pf/b.sf : (b.pf>0?Infinity:1);
-    return qGenB - qGenA;
-  });
+  // Quoziente tra un sottoinsieme di squadre (per spareggio 3-way)
+  function quozienteIntern(nome, gruppo){
+    let pf=0, sf=0;
+    partite.forEach(pt=>{
+      const inGruppo = g=>gruppo.includes(g);
+      if(!inGruppo(pt.casa.nome)||!inGruppo(pt.ospite.nome)) return;
+      const r=getRisultato(risultatoKey(pt));
+      if(!r||r.forfeit) return;
+      if(pt.casa.nome===nome){ pf+=r.casaPts; sf+=r.ospitePts; }
+      if(pt.ospite.nome===nome){ pf+=r.ospitePts; sf+=r.casaPts; }
+    });
+    return sf>0 ? pf/sf : (pf>0 ? Infinity : 1);
+  }
 
-  // Dopo l'ordinamento, aggiungi note di spareggio dove necessario
-  for(let i=0;i<lista.length-1;i++){
-    const a=lista[i], b=lista[i+1];
-    if(a.ptClass !== b.ptClass) continue; // separati dai punti, nessuna nota
-    // Stessi punti: calcola quale criterio ha separato a e b
-    const key1=a.sq.nome+'|'+b.sq.nome, key2=b.sq.nome+'|'+a.sq.nome;
-    const r1=getRisultato(key1), r2=getRisultato(key2);
-    const rSD=r1||r2;
-    if(rSD){
-      const aCasa=!!r1;
-      const aSDpts=aCasa?rSD.casaPts:rSD.ospitePts;
-      const bSDpts=aCasa?rSD.ospitePts:rSD.casaPts;
-      if(aSDpts!==bSDpts){
-        // Separati da scontro diretto
-        const nota=`Scontro diretto: ${a.sq.nome} ${aSDpts} – ${bSDpts} ${b.sq.nome}`;
-        a.notaSpareggio=(a.notaSpareggio?a.notaSpareggio+' · ':'')+nota;
-        b.notaSpareggio=(b.notaSpareggio?b.notaSpareggio+' · ':'')+nota;
-        continue;
+  // Ordinamento con risoluzione corretta delle parità 3-way
+  function sortGruppo(gruppo){
+    if(gruppo.length<=1) return gruppo;
+
+    // 1. Punti classifica
+    gruppo.sort((a,b)=>b.ptClass-a.ptClass);
+
+    // Raggruppa per punti uguali e risolvi ricorsivamente
+    const result=[];
+    let i=0;
+    while(i<gruppo.length){
+      let j=i+1;
+      while(j<gruppo.length && gruppo[j].ptClass===gruppo[i].ptClass) j++;
+      const parita=gruppo.slice(i,j);
+      result.push(...resolveParita(parita));
+      i=j;
+    }
+    return result;
+  }
+
+  function resolveParita(g){
+    if(g.length===1) return g;
+    const nomi=g.map(x=>x.sq.nome);
+
+    if(g.length===2){
+      const [a,b]=g;
+      // Scontro diretto
+      const r=getRisultato(a.sq.nome+'|'+b.sq.nome)||getRisultato(b.sq.nome+'|'+a.sq.nome);
+      if(r&&!r.forfeit){
+        const aCasa=!!getRisultato(a.sq.nome+'|'+b.sq.nome);
+        const aPts=aCasa?r.casaPts:r.ospitePts, bPts=aCasa?r.ospitePts:r.casaPts;
+        if(aPts>bPts){ a.notaSpareggio='SD: '+aPts+'-'+bPts; return [a,b]; }
+        if(bPts>aPts){ b.notaSpareggio='SD: '+bPts+'-'+aPts; return [b,a]; }
+        // Quoziente SD
+        const qA=bPts>0?aPts/bPts:1, qB=aPts>0?bPts/aPts:1;
+        if(Math.abs(qA-qB)>0.0001){
+          const lbl='QSD: '+(qA>qB?a.sq.nome:b.sq.nome)+' '+Math.max(qA,qB).toFixed(3);
+          if(qA>qB){ a.notaSpareggio=lbl; return [a,b]; }
+          b.notaSpareggio=lbl; return [b,a];
+        }
       }
-      // Separati da quoziente scontro diretto
-      const qA=bSDpts>0?aSDpts/bSDpts:(aSDpts>0?Infinity:1);
-      const qB=aSDpts>0?bSDpts/aSDpts:(bSDpts>0?Infinity:1);
-      if(Math.abs(qA-qB)>0.0001){
-        const nota=`Quoziente scontri diretti: ${a.sq.nome} ${aSDpts}/${bSDpts}=${qA.toFixed(3)} vs ${b.sq.nome} ${bSDpts}/${aSDpts}=${qB.toFixed(3)}`;
-        a.notaSpareggio=(a.notaSpareggio?a.notaSpareggio+' · ':'')+nota;
-        b.notaSpareggio=(b.notaSpareggio?b.notaSpareggio+' · ':'')+nota;
-        continue;
+      // Quoziente canestri totale
+      const qGenA=a.sf>0?a.pf/a.sf:1, qGenB=b.sf>0?b.pf/b.sf:1;
+      if(Math.abs(qGenA-qGenB)>0.0001){
+        if(qGenA>qGenB){ a.notaSpareggio='Q.gen.'; return [a,b]; }
+        b.notaSpareggio='Q.gen.'; return [b,a];
       }
+      return [a,b]; // pari assoluto
     }
-    // Separati da quoziente generale
-    const qGenA=a.sf>0?a.pf/a.sf:(a.pf>0?Infinity:1);
-    const qGenB=b.sf>0?b.pf/b.sf:(b.pf>0?Infinity:1);
-    if(Math.abs(qGenA-qGenB)>0.0001){
-      const nota=`Quoziente canestri generale: ${a.sq.nome} ${a.pf}/${a.sf}=${qGenA.toFixed(3)} vs ${b.sq.nome} ${b.pf}/${b.sf}=${qGenB.toFixed(3)}`;
-      a.notaSpareggio=(a.notaSpareggio?a.notaSpareggio+' · ':'')+nota;
-      b.notaSpareggio=(b.notaSpareggio?b.notaSpareggio+' · ':'')+nota;
+
+    // 3+ squadre a pari punti
+    // Passo 1: record scontri diretti tra di loro
+    const sdPts={};
+    nomi.forEach(n=>{ sdPts[n]=0; });
+    partite.forEach(pt=>{
+      if(!nomi.includes(pt.casa.nome)||!nomi.includes(pt.ospite.nome)) return;
+      const r=getRisultato(risultatoKey(pt));
+      if(!r) return;
+      if(r.casaPts>r.ospitePts){ sdPts[pt.casa.nome]+=3; sdPts[pt.ospite.nome]+=1; }
+      else if(r.ospitePts>r.casaPts){ sdPts[pt.ospite.nome]+=3; sdPts[pt.casa.nome]+=1; }
+    });
+    const maxSd=Math.max(...nomi.map(n=>sdPts[n]));
+    const minSd=Math.min(...nomi.map(n=>sdPts[n]));
+    if(maxSd!==minSd){
+      // Separa per punti SD e risolvi ogni sotto-gruppo
+      g.sort((a,b)=>sdPts[b.sq.nome]-sdPts[a.sq.nome]);
+      const result2=[];
+      let i2=0;
+      while(i2<g.length){
+        let j2=i2+1;
+        while(j2<g.length&&sdPts[g[j2].sq.nome]===sdPts[g[i2].sq.nome]) j2++;
+        result2.push(...resolveParita(g.slice(i2,j2)));
+        i2=j2;
+      }
+      return result2;
     }
-  }
 
-  return lista;
-}
-
-function renderRisultati(){
-  const el = document.getElementById('risultati-content');
-  if(!el) return;
-  if(!stato.gironi){
-    el.innerHTML='<div style="color:var(--md-on-surface-v);font-size:12px;padding:20px">Completa prima il sorteggio dei gironi.</div>';
-    return;
-  }
-
-  let html='';
-  ['A','B'].forEach(g=>{
-    const squadre = stato.gironi[g];
-    const partite = getPartiteGirone(g);
-    const classifica = calcolaClassifica(squadre, partite);
-    const colore = g==='A'?'var(--md-primary)':'var(--md-green)';
-
-    // Classifica
-    html+=`<div style="margin-bottom:28px">
-      <div style="font-size:10px;letter-spacing:3px;color:${colore};text-transform:uppercase;margin-bottom:10px">Girone ${g} — Classifica</div>
-      <table style="width:100%;border-collapse:collapse;margin-bottom:16px;font-size:12px">
-        <tr style="background:var(--md-surface-v)">
-          <th style="padding:6px 10px;text-align:left;color:var(--md-on-surface-v);font-weight:normal;font-size:10px;letter-spacing:1px">#</th>
-          <th style="padding:6px 10px;text-align:left;color:var(--md-on-surface-v);font-weight:normal;font-size:10px;letter-spacing:1px">Squadra</th>
-          <th style="padding:6px 8px;text-align:center;color:var(--md-on-surface-v);font-weight:normal;font-size:10px">G</th>
-          <th style="padding:6px 8px;text-align:center;color:var(--md-on-surface-v);font-weight:normal;font-size:10px">V</th>
-          <th style="padding:6px 8px;text-align:center;color:var(--md-on-surface-v);font-weight:normal;font-size:10px">P</th>
-          <th style="padding:6px 8px;text-align:center;color:var(--md-on-surface-v);font-weight:normal;font-size:10px">PF</th>
-          <th style="padding:6px 8px;text-align:center;color:var(--md-on-surface-v);font-weight:normal;font-size:10px">PS</th>
-          <th style="padding:6px 8px;text-align:center;color:${colore};font-weight:bold;font-size:10px">Pt</th>
-        </tr>
-        ${classifica.map((s,i)=>`
-        <tr style="background:${i%2===0?'var(--md-surface-c)':'var(--md-surface-v)'};border-bottom:1px solid var(--md-outline-v)">
-          <td style="padding:7px 10px;color:${i<2?colore:'var(--md-on-surface-v)'};font-weight:bold">${i+1}</td>
-          <td style="padding:7px 10px;color:var(--md-on-surface);font-weight:${i<2?'bold':'normal'}">
-            ${s.sq.nome}
-            ${s.notaSpareggio?`<div style="font-size:9px;color:var(--md-amber);margin-top:2px">⚖ ${s.notaSpareggio}</div>`:''}
-          </td>
-          <td style="padding:7px 8px;text-align:center;color:var(--md-on-surface-v)">${s.giocate}</td>
-          <td style="padding:7px 8px;text-align:center;color:var(--md-on-surface-v)">${s.v}</td>
-          <td style="padding:7px 8px;text-align:center;color:var(--md-on-surface-v)">${s.p}</td>
-          <td style="padding:7px 8px;text-align:center;color:var(--md-on-surface-v)">${s.pf}</td>
-          <td style="padding:7px 8px;text-align:center;color:var(--md-on-surface-v)">${s.sf}</td>
-          <td style="padding:7px 8px;text-align:center;color:${colore};font-weight:bold">${s.ptClass}</td>
-        </tr>`).join('')}
-      </table>
-
-      <!-- Risultati partite -->
-      <div style="font-size:10px;letter-spacing:3px;color:var(--md-on-surface-v);text-transform:uppercase;margin-bottom:10px">Risultati Girone ${g}</div>
-      ${partite.map(pt=>{
-        const key = risultatoKey(pt);
-        const r = stato.risultati[key]||{casaPts:'',ospitePts:'',forfait:null};
-        const res = getRisultato(key);
-        const isForfait = r.forfait && r.forfait!=='null';
-        const dop = trovaDataOraPartita(pt);
-        return `<div style="background:var(--md-surface-c);border:1px solid var(--md-outline-v);border-radius:4px;padding:10px 14px;margin-bottom:8px">
-          ${dop&&(dop.data||dop.orario)?`<div style="font-size:11px;color:var(--md-amber);margin-bottom:6px;font-weight:600">📅 ${dop.data} ${dop.orario?'· 🕐 '+dop.orario:''}</div>`:''}
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <span style="font-size:13px;color:var(--md-on-surface);font-weight:bold;flex:1;min-width:100px">${pt.casa.nome}</span>
-            <input type="number" min="0" value="${r.casaPts!==null&&r.casaPts!==''?r.casaPts:''}"
-              placeholder="—" ${isForfait?'disabled':''}
-              onchange="aggiornaRisultato('${key}','casaPts',this.value)" onblur="aggiornaRisultato('${key}','casaPts',this.value)"
-              style="width:60px;padding:6px;background:var(--md-surface-v);border:1px solid var(--md-outline-v);border-radius:3px;color:#fff;text-align:center;font-size:16px;font-weight:bold;-moz-appearance:textfield">
-            <span style="color:var(--md-on-surface-v);font-weight:bold">—</span>
-            <input type="number" min="0" value="${r.ospitePts!==null&&r.ospitePts!==''?r.ospitePts:''}"
-              placeholder="—" ${isForfait?'disabled':''}
-              onchange="aggiornaRisultato('${key}','ospitePts',this.value)" onblur="aggiornaRisultato('${key}','ospitePts',this.value)"
-              style="width:60px;padding:6px;background:var(--md-surface-v);border:1px solid var(--md-outline-v);border-radius:3px;color:#fff;text-align:center;font-size:16px;font-weight:bold;-moz-appearance:textfield">
-            <span style="font-size:13px;color:var(--md-on-surface);font-weight:bold;flex:1;min-width:100px;text-align:right">${pt.ospite.nome}</span>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap">
-            ${res?`<span style="font-size:11px;color:${res.casaPts>res.ospitePts?colore:(res.ospitePts>res.casaPts?'var(--md-error)':'var(--md-on-surface-v)')}">${res.casaPts>res.ospitePts?'✓ '+pt.casa.nome+' vince':res.ospitePts>res.casaPts?'✓ '+pt.ospite.nome+' vince':'Parità'}</span>`:''}
-            <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
-              <span style="font-size:10px;color:var(--md-on-surface-v)">Forfait:</span>
-              <select onchange="setForfait('${key}',this.value)"
-                style="background:var(--md-surface-v);border:1px solid var(--md-outline-v);color:var(--md-on-surface-v);border-radius:3px;padding:3px 6px;font-size:11px">
-                <option value="" ${!r.forfait?'selected':''}>—</option>
-                <option value="casa" ${r.forfait==='casa'?'selected':''}>Casa</option>
-                <option value="ospite" ${r.forfait==='ospite'?'selected':''}>Ospite</option>
-                <option value="entrambi" ${r.forfait==='entrambi'?'selected':''}>Entrambi</option>
-              </select>
-            </div>
-          </div>
-        </div>`;
-      }).join('')}
-    </div>`;
-  });
-
-  // Bottone selezione finaliste automatica
-  const classificaA = calcolaClassifica(stato.gironi.A, getPartiteGirone('A'));
-  const classificaB = calcolaClassifica(stato.gironi.B, getPartiteGirone('B'));
-  const tutteGiocateA = getPartiteGirone('A').every(p=>getRisultato(risultatoKey(p))!==null);
-  const tutteGiocateB = getPartiteGirone('B').every(p=>getRisultato(risultatoKey(p))!==null);
-
-  if(tutteGiocateA||tutteGiocateB){
-    html+=`<div style="background:var(--md-surface-c);border:1px solid #22c55e40;border-radius:4px;padding:14px;margin-top:8px">
-      <div style="font-size:10px;letter-spacing:3px;color:#22c55e;text-transform:uppercase;margin-bottom:10px">Selezione Automatica Finaliste</div>`;
-    if(tutteGiocateA&&tutteGiocateB){
-      html+=`<div style="font-size:12px;color:var(--md-on-surface-v);margin-bottom:12px">
-        Girone A: 1° <strong style="color:var(--md-on-surface)">${classificaA[0].sq.nome}</strong>, 2° <strong style="color:var(--md-on-surface)">${classificaA[1].sq.nome}</strong> &nbsp;|&nbsp;
-        Girone B: 1° <strong style="color:var(--md-on-surface)">${classificaB[0].sq.nome}</strong>, 2° <strong style="color:var(--md-on-surface)">${classificaB[1].sq.nome}</strong>
-      </div>
-      <button class="btn-green" onclick="applicaFinaliste()">⚡ Applica alle Finali</button>`;
-    } else {
-      html+=`<div style="font-size:12px;color:var(--md-on-surface-v)">Completa tutti i risultati di entrambi i gironi per la selezione automatica.</div>`;
+    // Passo 2: quoziente canestri SOLO tra di loro
+    const qIntern=g.map(x=>({x,q:quozienteIntern(x.sq.nome,nomi)}));
+    qIntern.sort((a,b)=>b.q-a.q);
+    if(Math.abs(qIntern[0].q-qIntern[qIntern.length-1].q)>0.0001){
+      // C'è differenza → separa e risolvi sotto-gruppi
+      const result3=[];
+      let i3=0;
+      const arr3=qIntern.map(x=>x.x);
+      arr3.sort((a,b)=>quozienteIntern(b.sq.nome,nomi)-quozienteIntern(a.sq.nome,nomi));
+      while(i3<arr3.length){
+        let j3=i3+1;
+        const qi=quozienteIntern(arr3[i3].sq.nome,nomi);
+        while(j3<arr3.length&&Math.abs(quozienteIntern(arr3[j3].sq.nome,nomi)-qi)<0.0001) j3++;
+        const sub=arr3.slice(i3,j3);
+        sub.forEach(x=>{ x.notaSpareggio='Q.dir.='+qi.toFixed(3); });
+        result3.push(...(sub.length>1?resolveParita(sub):sub));
+        i3=j3;
+      }
+      return result3;
     }
-    html+=`</div>`;
+
+    // Passo 3: quoziente canestri totale
+    g.sort((a,b)=>{
+      const qA=a.sf>0?a.pf/a.sf:1, qB=b.sf>0?b.pf/b.sf:1;
+      return qB-qA;
+    });
+    g.forEach(x=>{ x.notaSpareggio='Q.gen.'; });
+    return g;
   }
 
-
-
-  html += `<div style="margin-top:20px;padding-bottom:24px">
-    <button class="btn-stamp-gironi-full" onclick="stampaRisultatiPDF()">🖨 Risultati & Classifica</button>
-  </div>`;
-  el.innerHTML = html;
+  return sortGruppo(lista);
 }
 
-function aggiornaRisultatoFinale(key, field, val){
-  if(!stato.risultatiFinali) stato.risultatiFinali={};
-  if(!stato.risultatiFinali[key]) stato.risultatiFinali[key]={casaPts:'',ospitePts:''};
-  stato.risultatiFinali[key][field] = val===''?'':Number(val);
-  const r = stato.risultatiFinali[key];
-  if(r.casaPts!==''&&r.ospitePts!==''&&Number(r.casaPts)===Number(r.ospitePts)){
-    mostraNotifica('⚠ Pareggio non ammesso nel Baskin — correggi il risultato', 'warn', 5000);
-    stato.risultatiFinali[key][field]='';
-  }
-  renderRisultati(); schedulaSalvataggio();
-}
-
-function aggiornaRisultato(key, field, val){
-  if(!stato.risultati[key]) stato.risultati[key]={casaPts:'',ospitePts:'',forfait:null};
-  schedulaSalvataggio();
-  stato.risultati[key][field] = val===''?'':Number(val);
-  // Controlla pareggio
-  const r = stato.risultati[key];
-  if(r.casaPts!==''&&r.ospitePts!==''&&Number(r.casaPts)===Number(r.ospitePts)&&Number(r.casaPts)>=0){
-    mostraNotifica('⚠ Pareggio non ammesso nel Baskin — correggi il risultato', 'warn', 5000);
-    stato.risultati[key][field]='';
-  }
-  renderRisultati();
-}
-
-function setForfait(key, val){
-  if(!stato.risultati[key]) stato.risultati[key]={casaPts:'',ospitePts:'',forfait:null};
-  stato.risultati[key].forfait = val||null;
-  if(val){ stato.risultati[key].casaPts=''; stato.risultati[key].ospitePts=''; }
-  renderRisultati();
-}
-
-function applicaFinaliste(){
-  if(!stato.gironi) return;
-  const cA = calcolaClassifica(stato.gironi.A, getPartiteGirone('A'));
-  const cB = calcolaClassifica(stato.gironi.B, getPartiteGirone('B'));
-  // Finale 3-4: 2° Girone A vs 2° Girone B
-  stato.finali.f34.casa   = cA[1].sq;
-  stato.finali.f34.ospite = cB[1].sq;
-  // Finale 1-2: 1° Girone A vs 1° Girone B
-  stato.finali.f12.casa   = cA[0].sq;
-  stato.finali.f12.ospite = cB[0].sq;
-  renderFinali();
-  showTab('finali', document.getElementById('tab-btn-finali'));
-}
 
 // ══════════════════════════════════════════════════ PDF RISULTATI
 function stampaRisultatiPDF(){

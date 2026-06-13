@@ -6,6 +6,19 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b29 — Classifica: spareggio 3-way corretto
+- Riscritta `calcolaClassifica` con algoritmo a gruppi (non più pairwise sort)
+- Tiebreaker 3-way: 1) record scontri diretti tra le 3 squadre, 2) quoziente canestri SOLO tra di loro, 3) quoziente canestri totale
+- Niente più dipendenza dall'ordine dei confronti in JavaScript (sort non transitivo con 3-way ciclo)
+- La nota di spareggio ora indica quale criterio ha separato le squadre (SD / Q.dir. / Q.gen.)
+
+### v3.0b28 — Tabbar: frecce di navigazione su PC
+- Aggiunte frecce ‹ › ai lati della tabbar su schermi ≥600px
+- Opacità ridotta sulla freccia in direzione già al limite
+- Scroll con rotellina del mouse sopra la tabbar (asse verticale → orizzontale)
+- `tabbar-wrap` contenitore sticky che include frecce + `#tabbar`
+- `aggiornaOffsetHeader` misura l'altezza combinata header+tabbar-wrap
+
 ### v3.0b27 — Sync: caricamento progressivo e diagnostica
 - Lista file: mostrata subito senza timestamps (caricamento progressivo)
 - Timestamps recuperati in sequenza invece di Promise.all — evita rate limit GitHub con molti file
@@ -56,6 +69,19 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 - Calendario: `margin-bottom:16px` tra blocchi turno — Sabato Mattina, Sabato Pomeriggio staccati visivamente
 - Finali: pulsante Rimuovi (`liberaSlot`) stilizzato inline con `border-radius:sm` e testo "✕ Rimuovi" — non più un cerchio
 - Designazioni: 🔍 Verifica Vincoli avvolto in `<div style="margin:14px 0">` per spaziatura
+
+### v3.0b29 — Classifica: spareggio 3-way corretto
+- Riscritta `calcolaClassifica` con algoritmo a gruppi (non più pairwise sort)
+- Tiebreaker 3-way: 1) record scontri diretti tra le 3 squadre, 2) quoziente canestri SOLO tra di loro, 3) quoziente canestri totale
+- Niente più dipendenza dall'ordine dei confronti in JavaScript (sort non transitivo con 3-way ciclo)
+- La nota di spareggio ora indica quale criterio ha separato le squadre (SD / Q.dir. / Q.gen.)
+
+### v3.0b28 — Tabbar: frecce di navigazione su PC
+- Aggiunte frecce ‹ › ai lati della tabbar su schermi ≥600px
+- Opacità ridotta sulla freccia in direzione già al limite
+- Scroll con rotellina del mouse sopra la tabbar (asse verticale → orizzontale)
+- `tabbar-wrap` contenitore sticky che include frecce + `#tabbar`
+- `aggiornaOffsetHeader` misura l'altezza combinata header+tabbar-wrap
 
 ### v3.0b27 — Sync: caricamento progressivo e diagnostica
 - Lista file: mostrata subito senza timestamps (caricamento progressivo)
