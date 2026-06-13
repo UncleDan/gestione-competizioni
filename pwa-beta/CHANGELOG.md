@@ -6,6 +6,10 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b31 — Fix funzioni risultati mancanti
+- Reinserite 4 funzioni perse: `aggiornaRisultato`, `aggiornaRisultatoFinale`, `applicaFinaliste`, `setForfait`
+- Stili adattati ai token MD3
+
 ### v3.0b30 — Fix renderRisultati mancante + retrocompatibilità JSON
 - Reinserita `renderRisultati()` (persa in un passaggio precedente): stili MD3, trovaDataOraPartita per data+ora su ogni partita
 - Retrocompatibilità JSON: `data.risultati` e `data.risultatiFinali` inizializzati a `{}` se assenti (evita crash con sessioni vecchie)
@@ -73,6 +77,10 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 - Calendario: `margin-bottom:16px` tra blocchi turno — Sabato Mattina, Sabato Pomeriggio staccati visivamente
 - Finali: pulsante Rimuovi (`liberaSlot`) stilizzato inline con `border-radius:sm` e testo "✕ Rimuovi" — non più un cerchio
 - Designazioni: 🔍 Verifica Vincoli avvolto in `<div style="margin:14px 0">` per spaziatura
+
+### v3.0b31 — Fix funzioni risultati mancanti
+- Reinserite 4 funzioni perse: `aggiornaRisultato`, `aggiornaRisultatoFinale`, `applicaFinaliste`, `setForfait`
+- Stili adattati ai token MD3
 
 ### v3.0b30 — Fix renderRisultati mancante + retrocompatibilità JSON
 - Reinserita `renderRisultati()` (persa in un passaggio precedente): stili MD3, trovaDataOraPartita per data+ora su ogni partita

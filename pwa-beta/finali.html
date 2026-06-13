@@ -712,7 +712,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:var(--md-on-surface-v);letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">3.0b30</span>
+    finali.html v <span id="ver-num">3.0b31</span>
     <span id="ver-update" style="display:none;color:var(--md-amber);margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -1114,12 +1114,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════════════════
 const BASEDIR = '/gestione-competizioni';
 const BASE    = BASEDIR + '/pwa-beta';
-const VERSION = '3.0b30'; // Aggiornare ad ogni release
+const VERSION = '3.0b31'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '3.0b30',
+  'finali.html':    '3.0b31',
   'pwa/index.html': '1.9',
   'sw.js':          '2.10',
   'manifest.json':  '1.3',
@@ -1547,6 +1547,54 @@ function renderRisultati(){
   el.innerHTML = html;
 }
 
+
+function aggiornaRisultato(key, field, val){
+  if(!stato.risultati[key]) stato.risultati[key]={casaPts:'',ospitePts:'',forfait:null};
+  schedulaSalvataggio();
+  stato.risultati[key][field] = val===''?'':Number(val);
+  // Controlla pareggio
+  const r = stato.risultati[key];
+  if(r.casaPts!==''&&r.ospitePts!==''&&Number(r.casaPts)===Number(r.ospitePts)&&Number(r.casaPts)>=0){
+    alert('⚠ Il pareggio non è ammesso nel regolamento Baskin. Correggi il risultato.');
+    stato.risultati[key][field]='';
+  }
+  renderRisultati();
+}
+
+function aggiornaRisultatoFinale(key, field, val){
+  if(!stato.risultatiFinali) stato.risultatiFinali={};
+  if(!stato.risultatiFinali[key]) stato.risultatiFinali[key]={casaPts:'',ospitePts:''};
+  stato.risultatiFinali[key][field] = val===''?'':Number(val);
+  const r = stato.risultatiFinali[key];
+  if(r.casaPts!==''&&r.ospitePts!==''&&Number(r.casaPts)===Number(r.ospitePts)){
+    alert('⚠ Il pareggio non è ammesso nel regolamento Baskin. Correggi il risultato.');
+    stato.risultatiFinali[key][field]='';
+  }
+  renderRisultati(); schedulaSalvataggio();
+}
+
+function applicaFinaliste(){
+  if(!stato.gironi) return;
+  const cA = calcolaClassifica(stato.gironi.A, getPartiteGirone('A'));
+  const cB = calcolaClassifica(stato.gironi.B, getPartiteGirone('B'));
+  // Finale 3-4: 2° Girone A vs 2° Girone B
+  stato.finali.f34.casa   = cA[1].sq;
+  stato.finali.f34.ospite = cB[1].sq;
+  // Finale 1-2: 1° Girone A vs 1° Girone B
+  stato.finali.f12.casa   = cA[0].sq;
+  stato.finali.f12.ospite = cB[0].sq;
+  renderFinali();
+  showTab('finali', document.getElementById('tab-btn-finali'));
+}
+
+// ══════════════════════════════════════════════════ PDF RISULTATI
+
+function setForfait(key, val){
+  if(!stato.risultati[key]) stato.risultati[key]={casaPts:'',ospitePts:'',forfait:null};
+  stato.risultati[key].forfait = val||null;
+  if(val){ stato.risultati[key].casaPts=''; stato.risultati[key].ospitePts=''; }
+  renderRisultati();
+}
 function sorteggioCasuale(){
   const s=shuffle(SQUADRE);
   impostaGironi(s.slice(0,4),s.slice(4,8));
