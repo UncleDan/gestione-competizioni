@@ -6,6 +6,10 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b30 — Fix renderRisultati mancante + retrocompatibilità JSON
+- Reinserita `renderRisultati()` (persa in un passaggio precedente): stili MD3, trovaDataOraPartita per data+ora su ogni partita
+- Retrocompatibilità JSON: `data.risultati` e `data.risultatiFinali` inizializzati a `{}` se assenti (evita crash con sessioni vecchie)
+
 ### v3.0b29 — Classifica: spareggio 3-way corretto
 - Riscritta `calcolaClassifica` con algoritmo a gruppi (non più pairwise sort)
 - Tiebreaker 3-way: 1) record scontri diretti tra le 3 squadre, 2) quoziente canestri SOLO tra di loro, 3) quoziente canestri totale
@@ -69,6 +73,10 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 - Calendario: `margin-bottom:16px` tra blocchi turno — Sabato Mattina, Sabato Pomeriggio staccati visivamente
 - Finali: pulsante Rimuovi (`liberaSlot`) stilizzato inline con `border-radius:sm` e testo "✕ Rimuovi" — non più un cerchio
 - Designazioni: 🔍 Verifica Vincoli avvolto in `<div style="margin:14px 0">` per spaziatura
+
+### v3.0b30 — Fix renderRisultati mancante + retrocompatibilità JSON
+- Reinserita `renderRisultati()` (persa in un passaggio precedente): stili MD3, trovaDataOraPartita per data+ora su ogni partita
+- Retrocompatibilità JSON: `data.risultati` e `data.risultatiFinali` inizializzati a `{}` se assenti (evita crash con sessioni vecchie)
 
 ### v3.0b29 — Classifica: spareggio 3-way corretto
 - Riscritta `calcolaClassifica` con algoritmo a gruppi (non più pairwise sort)
