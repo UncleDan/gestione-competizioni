@@ -6,6 +6,10 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b32 — Fix guard retrocompatibilità posizionato male
+- Il guard `data.risultati||{}` era finito dentro `costruisciExport` (stessa firma `sezioni`) invece di `importaStato` — causava "data is not defined" al salvataggio sessione
+- Spostato correttamente all'inizio di `importaStato`
+
 ### v3.0b31 — Fix funzioni risultati mancanti
 - Reinserite 4 funzioni perse: `aggiornaRisultato`, `aggiornaRisultatoFinale`, `applicaFinaliste`, `setForfait`
 - Stili adattati ai token MD3
@@ -77,6 +81,10 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 - Calendario: `margin-bottom:16px` tra blocchi turno — Sabato Mattina, Sabato Pomeriggio staccati visivamente
 - Finali: pulsante Rimuovi (`liberaSlot`) stilizzato inline con `border-radius:sm` e testo "✕ Rimuovi" — non più un cerchio
 - Designazioni: 🔍 Verifica Vincoli avvolto in `<div style="margin:14px 0">` per spaziatura
+
+### v3.0b32 — Fix guard retrocompatibilità posizionato male
+- Il guard `data.risultati||{}` era finito dentro `costruisciExport` (stessa firma `sezioni`) invece di `importaStato` — causava "data is not defined" al salvataggio sessione
+- Spostato correttamente all'inizio di `importaStato`
 
 ### v3.0b31 — Fix funzioni risultati mancanti
 - Reinserite 4 funzioni perse: `aggiornaRisultato`, `aggiornaRisultatoFinale`, `applicaFinaliste`, `setForfait`

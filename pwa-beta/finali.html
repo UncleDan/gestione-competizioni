@@ -712,7 +712,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:var(--md-on-surface-v);letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">3.0b31</span>
+    finali.html v <span id="ver-num">3.0b32</span>
     <span id="ver-update" style="display:none;color:var(--md-amber);margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -1114,12 +1114,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════════════════
 const BASEDIR = '/gestione-competizioni';
 const BASE    = BASEDIR + '/pwa-beta';
-const VERSION = '3.0b31'; // Aggiornare ad ogni release
+const VERSION = '3.0b32'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '3.0b31',
+  'finali.html':    '3.0b32',
   'pwa/index.html': '1.9',
   'sw.js':          '2.10',
   'manifest.json':  '1.3',
@@ -3227,9 +3227,7 @@ function costruisciExport(sezioni){
         campoId:p.campoId||null, orario:p.orario||null, _orarioCustom:p._orarioCustom||false,
       })))
     );
-  // Retrocompatibilità: inizializza campi mancanti
-if(!data.risultati) data.risultati={};
-if(!data.risultatiFinali) data.risultatiFinali={};
+
 if(sezioni.includes('risultati')){
     out.risultati = {...stato.risultati};
     out.risultatiFinali = {...(stato.risultatiFinali||{})};
@@ -3281,6 +3279,9 @@ function esportaJSON(){
 // importaStato: used by session restore (same logic as importaJSON but takes data directly)
 function importaStato(data, sezioni){
   try{
+    // Retrocompatibilità: sessioni precedenti potrebbero non avere questi campi
+    if(!data.risultati) data.risultati={};
+    if(!data.risultatiFinali) data.risultatiFinali={};
     if(sezioni.includes('opzioni')){
       if(data.bannerImage){stato.bannerImage=data.bannerImage;aggiornaBannerUI();}
     }
