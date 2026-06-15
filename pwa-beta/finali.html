@@ -712,7 +712,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
   <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
   <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
   <div id="version-badge" style="font-size:10px;color:var(--md-on-surface-v);letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">3.0b32</span>
+    finali.html v <span id="ver-num">3.0b34</span>
     <span id="ver-update" style="display:none;color:var(--md-amber);margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -1062,7 +1062,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
       </div>
     </div>
 
-    <div id="sync-feedback" style="display:none;font-size:12px;padding:10px 14px;background:var(--md-surface-v);border-radius:4px;border:1px solid var(--md-outline-v)"></div>
+    
   </div>
 
 <!-- DEBUG PANEL -->
@@ -1114,12 +1114,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════════════════
 const BASEDIR = '/gestione-competizioni';
 const BASE    = BASEDIR + '/pwa-beta';
-const VERSION = '3.0b32'; // Aggiornare ad ogni release
+const VERSION = '3.0b34'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '3.0b32',
+  'finali.html':    '3.0b34',
   'pwa/index.html': '1.9',
   'sw.js':          '2.10',
   'manifest.json':  '1.3',
@@ -4331,12 +4331,12 @@ function aggiornaConfigStatus(){
 }
 
 function syncFeedback(msg, color){
-  const el = document.getElementById('sync-feedback');
-  if(!el) return;
-  el.style.display='block';
-  el.style.color = color||'var(--md-green)';
-  el.textContent = msg;
-  setTimeout(()=>{ el.style.display='none'; }, 5000);
+  // Determina tipo notifica dal colore/contenuto (retrocompat con vecchie chiamate)
+  let tipo='ok';
+  if(color==='var(--md-error)' || msg.startsWith('⚠') || msg.startsWith('✕')) tipo='error';
+  else if(color==='var(--md-amber)') tipo='warn';
+  else if(color==='var(--md-green)' || msg.startsWith('✓')) tipo='ok';
+  mostraNotifica(msg.replace(/^[✓⚠✕⬆⬇🔄]\s*/,''), tipo, 5000, msg.match(/^[✓⚠✕⬆⬇🔄]/)?.[0]+' Sync');
 }
 
 // GitHub API helpers
@@ -4434,8 +4434,14 @@ async function syncListFiles(){
     const res = await fetch(apiUrl, {headers: ghHeaders()});
     if(!res.ok) throw new Error('HTTP '+res.status+' — verifica token e repo nella config sync');
     const files = await res.json();
-    const jsonFiles = Array.isArray(files) ? files.filter(f=>f.name.endsWith('.json')) : [];
     if(!el) return;
+    if(!Array.isArray(files)){
+      // L'API ha risposto con un oggetto singolo (path punta a un file, non a una cartella)
+      el.innerHTML = `<div class="violazione-item"><div class="v-titolo">✕ Percorso non valido</div><div class="v-desc">"${path||'/'}" non è una cartella del repository — controlla syncConfig.path</div></div>`;
+      return;
+    }
+    // Solo file (non sottocartelle) con estensione .json
+    const jsonFiles = files.filter(f=>f.type==='file' && f.name.endsWith('.json'));
     if(jsonFiles.length===0){
       el.innerHTML = '<div style="color:var(--md-on-surface-v);padding:8px 0">Nessun file JSON trovato nel repo</div>';
       return;

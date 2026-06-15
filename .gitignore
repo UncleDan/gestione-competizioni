@@ -6,16 +6,8 @@
 /save/*
 !/save/demo.json
 
-# ── File con dati reali ovunque si trovino ───────────────────────────────────
-**/sync-config.json
-**/finali-2026.json
-**/arbitri-reali.json
-**/*-gestione-competizioni.json
-**/baskin-dati-*.json
-**/finali-dati-*.json
-
 # ── Backup ──────────────────────────────────────────────────────────────────
-**/bak/
+/bak/
 *.bak
 
 # ── Sistema operativo ────────────────────────────────────────────────────────

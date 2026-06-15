@@ -6,6 +6,19 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b34 — Sync: lista file verificata e irrobustita
+- Verificato: `syncListFiles` mostra TUTTI i file `.json` della cartella e ordina per `_ts` (data ultimo commit) decrescente — più recente in cima
+- Filtro `f.type==='file'` aggiunto: esclude sottocartelle che terminano per coincidenza con `.json`
+- Se `syncConfig.path` punta a un file invece che a una cartella, l'API risponde con un oggetto (non array) — ora mostrato come errore esplicito invece di "nessun file trovato"
+- Confermato: la lista delle sessioni locali (tab Sessioni) è già ordinata più recente in cima (cursore IndexedDB `prev`) e mostra tutte le sessioni salvate
+
+### v3.0b33 — Launcher MD3, sync feedback unificato
+- **Launcher (index.html)** completamente riscritto con stile MD3/Noto Sans/tema chiaro-scuro-auto, identico a finali.html: token CSS, font, toggle tema persistente, toast aggiornamento ristilizzato
+- **Sync feedback**: `syncFeedback()` ora instrada su `mostraNotifica()` — rimosso il vecchio div statico `#sync-feedback` (era spesso fuori vista)
+- **Audit pulsanti stampa**: confermato — Finali/Risultati/Designazioni sempre visibili quando la rispettiva sezione è attiva (`stato.gironi` truthy)
+- **Audit banner**: import/export/sync di `bannerImage` confermato corretto in `costruisciExport`, `importaStato`, `importaJSON`
+- **Audit Sync**: push (con gestione SHA per update) e pull (con `importaStato`) confermati corretti
+
 ### v3.0b32 — Fix guard retrocompatibilità posizionato male
 - Il guard `data.risultati||{}` era finito dentro `costruisciExport` (stessa firma `sezioni`) invece di `importaStato` — causava "data is not defined" al salvataggio sessione
 - Spostato correttamente all'inizio di `importaStato`
@@ -81,6 +94,19 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 - Calendario: `margin-bottom:16px` tra blocchi turno — Sabato Mattina, Sabato Pomeriggio staccati visivamente
 - Finali: pulsante Rimuovi (`liberaSlot`) stilizzato inline con `border-radius:sm` e testo "✕ Rimuovi" — non più un cerchio
 - Designazioni: 🔍 Verifica Vincoli avvolto in `<div style="margin:14px 0">` per spaziatura
+
+### v3.0b34 — Sync: lista file verificata e irrobustita
+- Verificato: `syncListFiles` mostra TUTTI i file `.json` della cartella e ordina per `_ts` (data ultimo commit) decrescente — più recente in cima
+- Filtro `f.type==='file'` aggiunto: esclude sottocartelle che terminano per coincidenza con `.json`
+- Se `syncConfig.path` punta a un file invece che a una cartella, l'API risponde con un oggetto (non array) — ora mostrato come errore esplicito invece di "nessun file trovato"
+- Confermato: la lista delle sessioni locali (tab Sessioni) è già ordinata più recente in cima (cursore IndexedDB `prev`) e mostra tutte le sessioni salvate
+
+### v3.0b33 — Launcher MD3, sync feedback unificato
+- **Launcher (index.html)** completamente riscritto con stile MD3/Noto Sans/tema chiaro-scuro-auto, identico a finali.html: token CSS, font, toggle tema persistente, toast aggiornamento ristilizzato
+- **Sync feedback**: `syncFeedback()` ora instrada su `mostraNotifica()` — rimosso il vecchio div statico `#sync-feedback` (era spesso fuori vista)
+- **Audit pulsanti stampa**: confermato — Finali/Risultati/Designazioni sempre visibili quando la rispettiva sezione è attiva (`stato.gironi` truthy)
+- **Audit banner**: import/export/sync di `bannerImage` confermato corretto in `costruisciExport`, `importaStato`, `importaJSON`
+- **Audit Sync**: push (con gestione SHA per update) e pull (con `importaStato`) confermati corretti
 
 ### v3.0b32 — Fix guard retrocompatibilità posizionato male
 - Il guard `data.risultati||{}` era finito dentro `costruisciExport` (stessa firma `sezioni`) invece di `importaStato` — causava "data is not defined" al salvataggio sessione
