@@ -108,10 +108,14 @@ button,input,select,textarea{
 #header{
   background:var(--md-on-primary-c);
   background:linear-gradient(135deg,var(--md-primary-c),var(--md-secondary-c));
-  padding:16px 16px 10px;
+  padding:10px 16px;
   text-align:center;
   position:sticky;top:0;z-index:100;
   box-shadow:var(--md-shadow-md);
+}
+#header .eyebrow{
+  font-size:14px;font-weight:700;letter-spacing:1.5px;
+  color:var(--md-on-primary-c);
 }
 [data-theme="dark"] #header{
   background:linear-gradient(135deg,var(--md-primary-c),var(--md-secondary-c));
@@ -122,28 +126,14 @@ button,input,select,textarea{
 #update-notice{font-size:12px;margin-top:4px}
 
 /* ── Tabbar ── */
-#tabbar-wrap{position:sticky;top:var(--header-h,72px);z-index:90;display:flex;align-items:stretch;background:var(--md-surface-c);border-bottom:2px solid var(--md-outline-v)}
+#tabbar-wrap{position:sticky;top:var(--header-h,48px);z-index:90;display:flex;align-items:stretch;background:var(--md-surface-c);border-bottom:2px solid var(--md-outline-v)}
 #tabbar{
   display:flex;
-  overflow-x:auto;
+  flex-wrap:wrap;
   background:transparent;
-  padding:0 4px;
-  -webkit-overflow-scrolling:touch;
-  scrollbar-width:none;
+  padding:2px 4px;
   gap:2px;
   flex:1;
-}
-#tabbar::-webkit-scrollbar{display:none}
-.tabbar-arrow{
-  flex-shrink:0;width:32px;display:none;align-items:center;justify-content:center;
-  background:var(--md-surface-c);border:none;cursor:pointer;
-  color:var(--md-on-surface-v);font-size:16px;
-  border-bottom:none;
-}
-.tabbar-arrow:hover{background:var(--md-surface-v);color:var(--md-on-surface)}
-@media(min-width:600px){
-  .tabbar-arrow{display:flex}
-  #tabbar{scrollbar-width:thin;scrollbar-color:var(--md-outline-v) transparent}
 }
 .tab-btn{
   flex-shrink:0;
@@ -469,7 +459,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
 
 /* ── Toast ── */
 #notif-area{
-  position:fixed;top:var(--header-h,72px);left:50%;transform:translateX(-50%);
+  position:fixed;top:var(--content-h,96px);left:50%;transform:translateX(-50%);
   z-index:9990;width:min(96vw,560px);display:flex;flex-direction:column;gap:6px;
   padding-top:8px;pointer-events:none;
 }
@@ -491,7 +481,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
 @keyframes notif-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 
 #toast{
-  position:fixed;top:calc(var(--header-h,72px) + 8px);left:50%;transform:translateX(-50%) translateY(-120%);
+  position:fixed;top:calc(var(--content-h,96px) + 8px);left:50%;transform:translateX(-50%) translateY(-120%);
   background:var(--md-inv-surface);color:var(--md-inv-on-surface);
   padding:12px 24px;border-radius:var(--md-radius-full);font-size:14px;font-weight:600;
   box-shadow:var(--md-shadow-lg);z-index:9999;transition:transform .3s ease;
@@ -708,11 +698,9 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
 <body>
 
 <div id="header">
-  <div class="eyebrow">Gestione Competizione Baskin</div>
-  <h1>Sorteggio Gironi &amp; Designazioni Arbitrali</h1>
-  <div class="sub">8 Squadre · 12 Arbitri · 3 Turni · 2 Campi · Monfalcone (GO)</div>
-  <div id="version-badge" style="font-size:10px;color:var(--md-on-surface-v);letter-spacing:2px;margin-top:5px">
-    finali.html v <span id="ver-num">3.0b34</span>
+  <div class="eyebrow">🏀 Gestione Competizione Baskin</div>
+  <div id="version-badge" style="font-size:10px;color:var(--md-on-surface-v);letter-spacing:2px">
+    finali.html v <span id="ver-num">3.0b35</span>
     <span id="ver-update" style="display:none;color:var(--md-amber);margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -729,7 +717,6 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
 </div>
 
 <div id="tabbar-wrap">
-  <button class="tabbar-arrow" id="tabbar-left" onclick="tabbarScroll(-180)" aria-label="Scorri sinistra">‹</button>
   <div id="tabbar">
   <button class="tab-btn active"   onclick="showTab('sorteggio',this)">1. Gironi</button>
   <button class="tab-btn" id="tab-btn-calendario" disabled onclick="showTab('calendario',this)">2. Calendario</button>
@@ -749,7 +736,6 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
   <button class="tab-btn" onclick="showTab('opzioni',this)" style="color:#38bdf8">⚙ Opzioni</button>
   <button id="btn-debug" onclick="toggleDebug()" class="tab-btn">🐛 Debug</button>
   </div>
-  <button class="tabbar-arrow" id="tabbar-right" onclick="tabbarScroll(180)" aria-label="Scorri destra">›</button>
 </div>
 
 <div id="main">
@@ -951,6 +937,17 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
     <div style="font-size:12px;color:var(--md-on-surface-v);margin-bottom:16px">Trascina le squadre nelle posizioni. Campo 1 · <span id="finali-data-label">14/06/2026</span></div>
     <div id="finali-vincoli-panel" style="display:none;margin-bottom:12px"></div>
     <div id="finali-builder"></div>
+    <div id="finali-vincoli-panel" style="display:none;margin-bottom:12px"></div>
+    <div style="margin-top:16px">
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 0">
+        <input type="checkbox" id="chk-finali-conf" style="width:18px;height:18px;cursor:pointer;accent-color:var(--md-green)"
+          onchange="stato.turniConfermati.finali=this.checked;schedulaSalvataggio();renderFinali()">
+        <div>
+          <div style="font-size:14px;color:var(--md-on-surface);font-weight:600">✓ Designazioni Definitive</div>
+          <div style="font-size:12px;color:var(--md-on-surface-v)">Spunta per confermare le designazioni delle finali</div>
+        </div>
+      </label>
+    </div>
     <div id="finali-stamp-area" style="display:none;margin-top:16px;padding-bottom:24px">
       <button class="btn-stamp-finali" onclick="stampaPDFTurno('finali')">🖨 Finali</button>
     </div>
@@ -1025,7 +1022,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
       <div style="font-size:10px;letter-spacing:3px;color:var(--md-on-surface-v);text-transform:uppercase;margin-bottom:10px">Configurazione</div>
       <div id="sync-config-info" style="font-size:12px;color:var(--md-on-surface-v)">Caricamento...</div>
       <div class="flex gap10 wrap mt8">
-        <label style="padding:8px 16px;background:var(--md-primary-c);border-radius:4px;color:var(--md-primary);font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer">
+        <label class="btn-sm btn-primary" style="cursor:pointer">
           📂 Carica sync-config.json
           <input type="file" accept=".json" onchange="caricaConfigSync(event)" style="display:none">
         </label>
@@ -1058,7 +1055,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
           <div class="label-xs">File disponibili nel repo</div>
           <div id="sync-filelist" style="font-size:11px;color:var(--md-on-surface-v);margin-top:4px">—</div>
         </div>
-        <button class="btn-outline" onclick="syncListFiles()" style="margin-bottom:8px;font-size:11px">🔄 Aggiorna lista</button>
+        <button class="btn-sm btn-outline" onclick="syncListFiles()" style="margin-bottom:8px">🔄 Aggiorna lista</button>
       </div>
     </div>
 
@@ -1114,12 +1111,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════════════════
 const BASEDIR = '/gestione-competizioni';
 const BASE    = BASEDIR + '/pwa-beta';
-const VERSION = '3.0b34'; // Aggiornare ad ogni release
+const VERSION = '3.0b35'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '3.0b34',
+  'finali.html':    '3.0b35',
   'pwa/index.html': '1.9',
   'sw.js':          '2.10',
   'manifest.json':  '1.3',
@@ -1233,7 +1230,7 @@ let stato = {
   modificatoArbitri:false,
   risultati:{},
   risultatiFinali:{},
-  turniConfermati:{0:false,1:false,2:false},
+  turniConfermati:{0:false,1:false,2:false,finali:false},
   bannerImage:null,
 };
 stato.nomiArbitri = {
@@ -1294,36 +1291,13 @@ function applicaTema(tema){
 }
 
 // Misura altezza header+tabbar e aggiorna CSS var
-function tabbarScroll(dx){
-  const tb=document.getElementById('tabbar');
-  if(tb) tb.scrollBy({left:dx,behavior:'smooth'});
-}
-
-function initTabbarScroll(){
-  const tb=document.getElementById('tabbar');
-  if(!tb) return;
-  // Mouse wheel → horizontal scroll on desktop
-  tb.addEventListener('wheel', e=>{
-    if(Math.abs(e.deltaX)>Math.abs(e.deltaY)) return; // already horizontal
-    e.preventDefault();
-    tb.scrollBy({left:e.deltaY*1.5,behavior:'auto'});
-  },{passive:false});
-  // Show/hide arrows based on scroll position
-  const updateArrows=()=>{
-    const l=document.getElementById('tabbar-left');
-    const r=document.getElementById('tabbar-right');
-    if(l) l.style.opacity=tb.scrollLeft>4?'1':'.3';
-    if(r) r.style.opacity=(tb.scrollLeft+tb.clientWidth<tb.scrollWidth-4)?'1':'.3';
-  };
-  tb.addEventListener('scroll',updateArrows,{passive:true});
-  updateArrows();
-}
-
 function aggiornaOffsetHeader(){
   const h = document.getElementById('header');
-  const tw=document.getElementById('tabbar-wrap');
-  const tot=(h?h.offsetHeight:0)+(tw?tw.offsetHeight:0);
-  document.documentElement.style.setProperty('--header-h', tot + 'px');
+  const tw = document.getElementById('tabbar-wrap');
+  const hH = h?h.offsetHeight:0;
+  const twH = tw?tw.offsetHeight:0;
+  document.documentElement.style.setProperty('--header-h', hH + 'px');
+  document.documentElement.style.setProperty('--content-h', (hH+twH) + 'px');
 }
 
 // Mostra notifica balloon in fondo allo schermo
@@ -2835,7 +2809,7 @@ td{padding:4px 8px;border:1px solid #ddd}
     const dataFmt=DATE_GARA.dom?new Date(DATE_GARA.dom+'T12:00:00').toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'}):'';
     turnoLabel=`Domenica Mattina — Finali${dataFmt?' · '+dataFmt:''}`;
     // Finali non ha checkbox — usa stato.turniConfermati[2] come proxy
-    isConfermato=stato.turniConfermati[2]||false;
+    isConfermato=stato.turniConfermati.finali||false;
     // Riepilogo arbitri finali + girone
     const arbitriFinali=ARBITRI_BASE.map(arb=>{
       const pp=[];
@@ -3060,7 +3034,7 @@ function renderPalestreForm(){
     html+=`<div class="card" style="margin-bottom:12px;border-left:3px solid #3b82f6">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <div style="font-size:10px;letter-spacing:2px;color:#3b82f6;text-transform:uppercase">Campo ${i+1}</div>
-        ${CAMPI.length>1?`<button onclick="rimuoviPalestra(${i})" style="background:var(--md-error-c);border:1px solid var(--md-error);color:var(--md-error);border-radius:3px;padding:3px 10px;font-size:11px;cursor:pointer">✕ Rimuovi</button>`:''}
+        ${CAMPI.length>1?`<button onclick="rimuoviPalestra(${i})" class="btn-sm btn-danger">✕ Rimuovi</button>`:''}
       </div>
       <div class="grid2" style="gap:8px;margin-bottom:8px">
         <div>
@@ -3080,27 +3054,12 @@ function renderPalestreForm(){
         <div class="label-xs">Link Google Maps</div>
         <div style="display:flex;gap:6px;align-items:center">
           <input class="inp" value="${c.maps||''}" placeholder="https://maps.google.com/..." oninput="aggiornaPalestra(${i},'maps',this.value)" style="flex:1">
-          ${c.maps?`<a href="${c.maps}" target="_blank" style="padding:7px 12px;background:var(--md-primary-c);border:none;border-radius:3px;color:var(--md-primary);font-size:11px;text-decoration:none;white-space:nowrap;cursor:pointer">🗺 Apri</a>`:''}
+          ${c.maps?`<a href="${c.maps}" target="_blank" style="padding:8px 14px;background:var(--md-primary-c);border:none;border-radius:var(--md-radius-full);color:var(--md-primary);font-size:13px;font-weight:600;font-family:'Noto Sans',system-ui,sans-serif;text-decoration:none;white-space:nowrap;cursor:pointer">🗺 Apri</a>`:''}
         </div>
       </div>
     </div>`;
   });
   el.innerHTML=html;
-  // Mark conflicting slots (same squad in both finali)
-  ['f34casa','f34ospite','f12casa','f12ospite'].forEach(key=>{
-    const el=document.querySelector(`.finali-slot[data-key="${key}"]`);
-    if(!el) return;
-    const [fk,ruolo]=parseSlotKey(key);
-    const sq=stato.finali[fk]?.[ruolo];
-    if(!sq) return;
-    const altroFk=fk==='f34'?'f12':'f34';
-    const inAltro=stato.finali[altroFk]?.casa?.nome===sq.nome
-                ||stato.finali[altroFk]?.ospite?.nome===sq.nome;
-    el.classList.toggle('conflitto', !!inAltro);
-  });
-  // Show stamp button when gironi are set (tab is enabled)
-  const _fsa=document.getElementById('finali-stamp-area');
-  if(_fsa) _fsa.style.display=stato.gironi?'block':'none';
 }
 
 function aggiornaPalestra(i,field,val){
@@ -3118,7 +3077,6 @@ function caricaBanner(event){
   inizializzaTema();
   aggiornaOffsetHeader();
   window.addEventListener('resize', aggiornaOffsetHeader);
-  initTabbarScroll();
     schedulaSalvataggio();
   };
   reader.readAsDataURL(file);
@@ -3758,6 +3716,26 @@ function renderFinali(){
     risultatoFinaleHtml('f12','Finale 1°-2° Posto','var(--md-primary)') +
     classificaFinaleHtml() +
     pdfBtn;
+
+  renderFinaliVincoli();
+  // Sync checkbox Definitivo
+  const _chkFin=document.getElementById('chk-finali-conf');
+  if(_chkFin) _chkFin.checked=stato.turniConfermati.finali||false;
+  // Evidenzia slot in conflitto (stessa squadra in entrambe le finali)
+  ['f34casa','f34ospite','f12casa','f12ospite'].forEach(key=>{
+    const slotEl=document.querySelector(`.finali-slot[data-key="${key}"]`);
+    if(!slotEl) return;
+    const [fk,ruolo]=parseSlotKey(key);
+    const sq=stato.finali[fk]?.[ruolo];
+    if(!sq) return;
+    const altroFk=fk==='f34'?'f12':'f34';
+    const inAltro=stato.finali[altroFk]?.casa?.nome===sq.nome
+                ||stato.finali[altroFk]?.ospite?.nome===sq.nome;
+    slotEl.classList.toggle('conflitto', !!inAltro);
+  });
+  // Mostra pulsante stampa quando i gironi sono impostati
+  const _fsa=document.getElementById('finali-stamp-area');
+  if(_fsa) _fsa.style.display=stato.gironi?'block':'none';
 }
 
 function ternaManualeHtml(fKey, terna){
@@ -4419,7 +4397,7 @@ function syncFileRowHtml(f){
           :'<div style="font-size:11px;color:var(--md-outline);font-style:italic">caricamento data...</div>'}
       </div>
       <button data-path="${f.path}" data-name="${f.name}" onclick="syncPull(this.dataset.path, this.dataset.name)"
-        class="btn-stamp-gironi btn-sm" style="flex-shrink:0">⬇ Pull</button>
+        class="btn-sm btn-primary" style="flex-shrink:0">⬇ Pull</button>
     </div>
   </div>`;
 }
@@ -4948,7 +4926,7 @@ function resetApp(){
   stato.risultatiFinali={};
   stato.deroghe=[];
   stato.modificatoArbitri=false;
-  stato.turniConfermati={0:false,1:false,2:false};
+  stato.turniConfermati={0:false,1:false,2:false,finali:false};
   stato.bannerImage=null;
   aggiornaBannerUI();
   stato.dndState={A:[],B:[],pool:[...SQUADRE]};

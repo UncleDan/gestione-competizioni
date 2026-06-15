@@ -6,6 +6,15 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b35 — Header compatto, menu impilato, tipografia pulsanti, fix Finali
+- Header: rimossi `<h1>` e riepilogo squadre/arbitri/turni — solo titolo compatto + versione, padding ridotto (16px→10px)
+- Tabbar: tornata a layout impilato (`flex-wrap`), niente scroll orizzontale né frecce; sticky solo sotto l'header (`--header-h`)
+- Nuova variabile `--content-h` (header+tabbar) per posizionare `#notif-area`/`#toast` sempre sotto la tabbar
+- Sync: "Carica sync-config.json" e "🔄 Aggiorna lista" e "⬇ Pull" → tipografia `.btn-sm` uniforme col resto dell'app
+- Palestre: "✕ Rimuovi" → `.btn-sm.btn-danger` (pill), "🗺 Apri" → stondato e Noto Sans
+- **Fix critico**: il codice di chiusura di `renderFinali` (evidenziazione conflitti, checkbox Definitivo, pannello vincoli) era finito per errore dentro `renderPalestreForm` durante un edit precedente — spostato al posto giusto
+- Completato il wiring mai arrivato a destinazione nei b22/b23: checkbox "✓ Designazioni Definitive" nel tab Finali, `stato.turniConfermati.finali`, `#finali-vincoli-panel`, chiamata a `renderFinaliVincoli()`
+
 ### v3.0b34 — Sync: lista file verificata e irrobustita
 - Verificato: `syncListFiles` mostra TUTTI i file `.json` della cartella e ordina per `_ts` (data ultimo commit) decrescente — più recente in cima
 - Filtro `f.type==='file'` aggiunto: esclude sottocartelle che terminano per coincidenza con `.json`
@@ -94,6 +103,15 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 - Calendario: `margin-bottom:16px` tra blocchi turno — Sabato Mattina, Sabato Pomeriggio staccati visivamente
 - Finali: pulsante Rimuovi (`liberaSlot`) stilizzato inline con `border-radius:sm` e testo "✕ Rimuovi" — non più un cerchio
 - Designazioni: 🔍 Verifica Vincoli avvolto in `<div style="margin:14px 0">` per spaziatura
+
+### v3.0b35 — Header compatto, menu impilato, tipografia pulsanti, fix Finali
+- Header: rimossi `<h1>` e riepilogo squadre/arbitri/turni — solo titolo compatto + versione, padding ridotto (16px→10px)
+- Tabbar: tornata a layout impilato (`flex-wrap`), niente scroll orizzontale né frecce; sticky solo sotto l'header (`--header-h`)
+- Nuova variabile `--content-h` (header+tabbar) per posizionare `#notif-area`/`#toast` sempre sotto la tabbar
+- Sync: "Carica sync-config.json" e "🔄 Aggiorna lista" e "⬇ Pull" → tipografia `.btn-sm` uniforme col resto dell'app
+- Palestre: "✕ Rimuovi" → `.btn-sm.btn-danger` (pill), "🗺 Apri" → stondato e Noto Sans
+- **Fix critico**: il codice di chiusura di `renderFinali` (evidenziazione conflitti, checkbox Definitivo, pannello vincoli) era finito per errore dentro `renderPalestreForm` durante un edit precedente — spostato al posto giusto
+- Completato il wiring mai arrivato a destinazione nei b22/b23: checkbox "✓ Designazioni Definitive" nel tab Finali, `stato.turniConfermati.finali`, `#finali-vincoli-panel`, chiamata a `renderFinaliVincoli()`
 
 ### v3.0b34 — Sync: lista file verificata e irrobustita
 - Verificato: `syncListFiles` mostra TUTTI i file `.json` della cartella e ordina per `_ts` (data ultimo commit) decrescente — più recente in cima
