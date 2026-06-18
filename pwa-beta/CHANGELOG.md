@@ -6,6 +6,11 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b36 — Fix Carica JSON, Scollega repo, loop aggiornamento
+- Import/Export: "⬆ Carica JSON" (era gradient blu hardcoded, 11px maiuscolo, radius 4px) → `.btn-sm.btn-primary` come "Carica sync-config.json"
+- Sync: "✕ Scollega repo" aveva `style.display='inline-block'` impostato via JS (override inline che vinceva su `display:inline-flex` del CSS) → corretto in `'inline-flex'`. Era questa la causa della differenza visiva da "Carica sync-config.json"
+- **sw.js → 3.0b6**: fetch principale ora usa `{cache:'no-store'}` — risolve il loop "Aggiornamento disponibile" che si riproponeva dopo il reload: prima, `window.location.reload()` poteva ricevere `finali.html` dalla cache HTTP del browser (ancora alla versione precedente) nonostante il SW fosse aggiornato, facendo persistere il mismatch di versione
+
 ### v3.0b35 — Header compatto, menu impilato, tipografia pulsanti, fix Finali
 - Header: rimossi `<h1>` e riepilogo squadre/arbitri/turni — solo titolo compatto + versione, padding ridotto (16px→10px)
 - Tabbar: tornata a layout impilato (`flex-wrap`), niente scroll orizzontale né frecce; sticky solo sotto l'header (`--header-h`)
@@ -103,6 +108,11 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 - Calendario: `margin-bottom:16px` tra blocchi turno — Sabato Mattina, Sabato Pomeriggio staccati visivamente
 - Finali: pulsante Rimuovi (`liberaSlot`) stilizzato inline con `border-radius:sm` e testo "✕ Rimuovi" — non più un cerchio
 - Designazioni: 🔍 Verifica Vincoli avvolto in `<div style="margin:14px 0">` per spaziatura
+
+### v3.0b36 — Fix Carica JSON, Scollega repo, loop aggiornamento
+- Import/Export: "⬆ Carica JSON" (era gradient blu hardcoded, 11px maiuscolo, radius 4px) → `.btn-sm.btn-primary` come "Carica sync-config.json"
+- Sync: "✕ Scollega repo" aveva `style.display='inline-block'` impostato via JS (override inline che vinceva su `display:inline-flex` del CSS) → corretto in `'inline-flex'`. Era questa la causa della differenza visiva da "Carica sync-config.json"
+- **sw.js → 3.0b6**: fetch principale ora usa `{cache:'no-store'}` — risolve il loop "Aggiornamento disponibile" che si riproponeva dopo il reload: prima, `window.location.reload()` poteva ricevere `finali.html` dalla cache HTTP del browser (ancora alla versione precedente) nonostante il SW fosse aggiornato, facendo persistere il mismatch di versione
 
 ### v3.0b35 — Header compatto, menu impilato, tipografia pulsanti, fix Finali
 - Header: rimossi `<h1>` e riepilogo squadre/arbitri/turni — solo titolo compatto + versione, padding ridotto (16px→10px)

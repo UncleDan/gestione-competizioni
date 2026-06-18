@@ -1,7 +1,7 @@
 // ══════════════════════════════════════════════════════════
 // CONFIGURAZIONE — modificare qui per aggiornare il ramo
 // ══════════════════════════════════════════════════════════
-const SW_VERSION = '3.0b5';
+const SW_VERSION = '3.0b6';
 const BASEDIR    = '/gestione-competizioni';   // root repo — cambiare per nuovo ramo
 const BASE       = BASEDIR + '/pwa-beta';           // cartella istanza (pwa, pwa-beta, ecc.)
 const CACHE_NAME = `gestione-competizioni-beta-sw-${SW_VERSION}`;
@@ -46,7 +46,11 @@ self.addEventListener('fetch', e => {
   }
 
   e.respondWith(
-    fetch(e.request)
+    // cache:'no-store' impedisce alla cache HTTP del browser di servire
+    // versioni stale di finali.html/index.html dopo un "Aggiornamento disponibile"
+    // (altrimenti window.location.reload() poteva ri-ottenere lo stesso file vecchio
+    // anche con SW aggiornato, riproponendo il banner di aggiornamento all'infinito)
+    fetch(e.request, {cache:'no-store'})
       .then(response => {
         if (response.ok) {
           const clone = response.clone();
