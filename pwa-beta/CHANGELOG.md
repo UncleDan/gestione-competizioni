@@ -6,6 +6,21 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b38 — Fix link ⌂ Menu apriva finestra esterna
+- Il pulsante ⌂ Menu puntava a `/gestione-competizioni/pwa/index.html` — il launcher del ramo STABILE, fuori dallo `scope` dichiarato nel manifest (`/gestione-competizioni/pwa-beta/`)
+- Navigare fuori dallo scope di una PWA installata fa sì che il sistema apra una finestra browser separata invece di restare nella finestra dell'app
+- Corretto in `index.html` (percorso relativo, resta nello scope beta) — ora torna al menu nella stessa finestra
+
+### v3.0b37 — Stampa Risultati pulita, riepilogo arbitri finali, fix Applica Finaliste
+- **Stampa Risultati & Classifica**: rimossa la sezione "Finali" e "Classifica Finale" — la stampa ora contiene solo i risultati dei gironi, come da richiesta
+- **Stampa Finali**: il "Riepilogo Arbitri" include ora SOLO le designazioni delle finali (prima includeva anche tutte le partite dei gironi per ogni arbitro, rendendo la tabella enorme e fuorviante)
+- **`applicaFinaliste()` irrobustita**:
+  - Validazione esplicita: richiede almeno 2 squadre classificate per girone (altrimenti notifica di errore invece di un crash silenzioso)
+  - **Guardia anti-duplicati**: se una squadra con lo stesso nome risulta presente in entrambi i gironi (o comunque le 4 squadre selezionate non sono tutte distinte), l'operazione viene bloccata con un messaggio esplicito — probabile causa reale del problema "Finale 1°-2° applicata due volte"
+  - Calcolo in variabili locali e assegnazione atomica allo stato: nessuno stato parziale/incoerente possibile in caso di errore a metà operazione
+  - Notifica di conferma con il riepilogo delle 2 finali appena impostate
+  - Testato con harness Node.js dedicato su: caso normale, girone con squadre insufficienti, nomi duplicati tra gironi — tutti i casi gestiti correttamente
+
 ### v3.0b36 — Fix Carica JSON, Scollega repo, loop aggiornamento
 - Import/Export: "⬆ Carica JSON" (era gradient blu hardcoded, 11px maiuscolo, radius 4px) → `.btn-sm.btn-primary` come "Carica sync-config.json"
 - Sync: "✕ Scollega repo" aveva `style.display='inline-block'` impostato via JS (override inline che vinceva su `display:inline-flex` del CSS) → corretto in `'inline-flex'`. Era questa la causa della differenza visiva da "Carica sync-config.json"
@@ -108,6 +123,21 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 - Calendario: `margin-bottom:16px` tra blocchi turno — Sabato Mattina, Sabato Pomeriggio staccati visivamente
 - Finali: pulsante Rimuovi (`liberaSlot`) stilizzato inline con `border-radius:sm` e testo "✕ Rimuovi" — non più un cerchio
 - Designazioni: 🔍 Verifica Vincoli avvolto in `<div style="margin:14px 0">` per spaziatura
+
+### v3.0b38 — Fix link ⌂ Menu apriva finestra esterna
+- Il pulsante ⌂ Menu puntava a `/gestione-competizioni/pwa/index.html` — il launcher del ramo STABILE, fuori dallo `scope` dichiarato nel manifest (`/gestione-competizioni/pwa-beta/`)
+- Navigare fuori dallo scope di una PWA installata fa sì che il sistema apra una finestra browser separata invece di restare nella finestra dell'app
+- Corretto in `index.html` (percorso relativo, resta nello scope beta) — ora torna al menu nella stessa finestra
+
+### v3.0b37 — Stampa Risultati pulita, riepilogo arbitri finali, fix Applica Finaliste
+- **Stampa Risultati & Classifica**: rimossa la sezione "Finali" e "Classifica Finale" — la stampa ora contiene solo i risultati dei gironi, come da richiesta
+- **Stampa Finali**: il "Riepilogo Arbitri" include ora SOLO le designazioni delle finali (prima includeva anche tutte le partite dei gironi per ogni arbitro, rendendo la tabella enorme e fuorviante)
+- **`applicaFinaliste()` irrobustita**:
+  - Validazione esplicita: richiede almeno 2 squadre classificate per girone (altrimenti notifica di errore invece di un crash silenzioso)
+  - **Guardia anti-duplicati**: se una squadra con lo stesso nome risulta presente in entrambi i gironi (o comunque le 4 squadre selezionate non sono tutte distinte), l'operazione viene bloccata con un messaggio esplicito — probabile causa reale del problema "Finale 1°-2° applicata due volte"
+  - Calcolo in variabili locali e assegnazione atomica allo stato: nessuno stato parziale/incoerente possibile in caso di errore a metà operazione
+  - Notifica di conferma con il riepilogo delle 2 finali appena impostate
+  - Testato con harness Node.js dedicato su: caso normale, girone con squadre insufficienti, nomi duplicati tra gironi — tutti i casi gestiti correttamente
 
 ### v3.0b36 — Fix Carica JSON, Scollega repo, loop aggiornamento
 - Import/Export: "⬆ Carica JSON" (era gradient blu hardcoded, 11px maiuscolo, radius 4px) → `.btn-sm.btn-primary` come "Carica sync-config.json"

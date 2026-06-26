@@ -700,7 +700,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
 <div id="header">
   <div class="eyebrow">🏀 Gestione Competizione Baskin</div>
   <div id="version-badge" style="font-size:10px;color:var(--md-on-surface-v);letter-spacing:2px">
-    finali.html v <span id="ver-num">3.0b36</span>
+    finali.html v <span id="ver-num">3.0b38</span>
     <span id="ver-update" style="display:none;color:var(--md-amber);margin-left:8px;cursor:pointer" onclick="window.location.reload()">⬆ Aggiornamento disponibile — ricarica</span>
   </div>
 </div>
@@ -731,7 +731,7 @@ input[type="time"].inp,input[type="date"].inp{min-height:48px}
   <button onclick="showTab('importexport',document.getElementById('tab-btn-ie'))" id="tab-btn-ie" class="tab-btn" style="color:#34d399">⇅ Import/Export</button>
   <button onclick="showTab('sync',this)" class="tab-btn" style="color:var(--md-primary)">☁ Sync</button>
   <button onclick="showTab('sessioni',this)" class="tab-btn" style="color:var(--md-tertiary)">🕐 Sessioni</button>
-  <a href="/gestione-competizioni/pwa/index.html" class="tab-btn" style="text-decoration:none;display:inline-flex;align-items:center" title="Torna al menu principale">⌂ Menu</a>
+  <a href="index.html" class="tab-btn" style="text-decoration:none;display:inline-flex;align-items:center" title="Torna al menu principale">⌂ Menu</a>
   <button onclick="resetApp()" class="tab-btn" title="Ripristina dati di esempio">↺ Reset</button>
   <button class="tab-btn" onclick="showTab('opzioni',this)" style="color:#38bdf8">⚙ Opzioni</button>
   <button id="btn-debug" onclick="toggleDebug()" class="tab-btn">🐛 Debug</button>
@@ -1111,12 +1111,12 @@ window.onerror=function(msg,src,line,col,err){
 // ══════════════════════════════════════════════════════════
 const BASEDIR = '/gestione-competizioni';
 const BASE    = BASEDIR + '/pwa-beta';
-const VERSION = '3.0b36'; // Aggiornare ad ogni release
+const VERSION = '3.0b38'; // Aggiornare ad ogni release
 
 // Escape sicuro per qualsiasi stringa inserita in attributi HTML
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 const VERSIONS = {
-  'finali.html':    '3.0b36',
+  'finali.html':    '3.0b38',
   'pwa/index.html': '1.9',
   'sw.js':          '2.10',
   'manifest.json':  '1.3',
@@ -1551,14 +1551,36 @@ function applicaFinaliste(){
   if(!stato.gironi) return;
   const cA = calcolaClassifica(stato.gironi.A, getPartiteGirone('A'));
   const cB = calcolaClassifica(stato.gironi.B, getPartiteGirone('B'));
-  // Finale 3-4: 2° Girone A vs 2° Girone B
-  stato.finali.f34.casa   = cA[1].sq;
-  stato.finali.f34.ospite = cB[1].sq;
-  // Finale 1-2: 1° Girone A vs 1° Girone B
-  stato.finali.f12.casa   = cA[0].sq;
-  stato.finali.f12.ospite = cB[0].sq;
+
+  // Validazione difensiva: servono almeno 2 squadre classificate per girone
+  if(cA.length<2 || cB.length<2){
+    mostraNotifica('Servono almeno 2 squadre per girone per generare le finali', 'error', 6000, '✕ Impossibile applicare');
+    return;
+  }
+
+  // Calcola in variabili LOCALI prima di toccare lo stato — evita stati
+  // parziali/incoerenti se qualcosa va storto a metà operazione
+  const nuovoF34 = { casa: cA[1].sq, ospite: cB[1].sq };
+  const nuovoF12 = { casa: cA[0].sq, ospite: cB[0].sq };
+
+  // Guardia di coerenza: le 4 squadre selezionate devono essere tutte diverse
+  const nomi = [nuovoF34.casa.nome, nuovoF34.ospite.nome, nuovoF12.casa.nome, nuovoF12.ospite.nome];
+  const nomiUnici = new Set(nomi);
+  if(nomiUnici.size !== 4){
+    mostraNotifica('Rilevate squadre duplicate nella classifica — controlla i nomi delle squadre nei gironi', 'error', 8000, '✕ Impossibile applicare');
+    return;
+  }
+
+  // Assegnazione atomica: solo ora, con dati validati, si tocca lo stato
+  stato.finali.f34.casa   = nuovoF34.casa;
+  stato.finali.f34.ospite = nuovoF34.ospite;
+  stato.finali.f12.casa   = nuovoF12.casa;
+  stato.finali.f12.ospite = nuovoF12.ospite;
+
+  schedulaSalvataggio();
   renderFinali();
   showTab('finali', document.getElementById('tab-btn-finali'));
+  mostraNotifica(`Finale 3°-4°: ${nuovoF34.casa.nome} vs ${nuovoF34.ospite.nome} · Finale 1°-2°: ${nuovoF12.casa.nome} vs ${nuovoF12.ospite.nome}`, 'ok', 5000, '✓ Finali applicate');
 }
 
 // ══════════════════════════════════════════════════ PDF RISULTATI
@@ -2810,19 +2832,11 @@ td{padding:4px 8px;border:1px solid #ddd}
     turnoLabel=`Domenica Mattina — Finali${dataFmt?' · '+dataFmt:''}`;
     // Finali non ha checkbox — usa stato.turniConfermati[2] come proxy
     isConfermato=stato.turniConfermati.finali||false;
-    // Riepilogo arbitri finali + girone
+    // Riepilogo arbitri SOLO finali (non gironi)
     const arbitriFinali=ARBITRI_BASE.map(arb=>{
       const pp=[];
-      // Partite finali
       if((stato.finaliCalendario?.f34||[]).find(a=>a.id===arb.id)) pp.push(`${ci0.nome} — Fin. 3°-4°`);
       if((stato.finaliCalendario?.f12||[]).find(a=>a.id===arb.id)) pp.push(`${ci0.nome} — Fin. 1°-2°`);
-      // Partite girone
-      if(cal&&cal.turni) cal.turni.forEach(({turno,campi})=>campi.forEach((campo,c)=>campo.forEach((slot,p)=>{
-        if(slot.terna?.find(a=>a.id===arb.id)){
-          const ci=campoInfo(c,slot);
-          pp.push(`${TURNI_LABEL_SHORT[turno]} · ${ci.nome} (${p+1}ª)`);
-        }
-      })));
       return pp.length?{...arb,partite:pp,nd:nomeDisplay(arb)}:null;
     }).filter(Boolean);
 
@@ -2843,7 +2857,7 @@ td{padding:4px 8px;border:1px solid #ddd}
         `).join('')}
       </div>
     </div>
-    ${arbitriFinali.length?`<div class="rh" style="margin-top:16px">RIEPILOGO ARBITRI — Finali + Gironi</div>
+    ${arbitriFinali.length?`<div class="rh" style="margin-top:16px">RIEPILOGO ARBITRI — Finali</div>
     <table>
       <tr><th>Arbitro</th><th>Ruolo</th><th>ST</th><th>Tutte le designazioni</th></tr>
       ${arbitriFinali.map(arb=>`<tr>
@@ -4196,41 +4210,6 @@ td{padding:5px 8px;border:1px solid #ddd;vertical-align:middle}
     }).join('')}
     </div>`;
   });
-
-  // Finali e classifica completa
-  const f34=stato.finali.f34, f12=stato.finali.f12;
-  if(f34.casa&&f34.ospite||f12.casa&&f12.ospite){
-    html+=`<div class="sh">Domenica Mattina — Finali</div>`;
-    [{fin:f34,label:'🥉 Finale 3°-4° Posto'},{fin:f12,label:'🏆 Finale 1°-2° Posto'}].forEach(({fin,label})=>{
-      if(!fin.casa||!fin.ospite) return;
-      const res=stato.risultatiFinali?.[fin.casa.nome+'|'+fin.ospite.nome];
-      html+=`<div class="res"><span>${label}</span></div>
-      <div class="res">
-        <span style="flex:1;font-weight:bold">${fin.casa.nome}</span>
-        <span class="pts">${res&&res.casaPts!==''?res.casaPts:'—'}</span>
-        <span style="color:#888;margin:0 6px">—</span>
-        <span class="pts">${res&&res.ospitePts!==''?res.ospitePts:'—'}</span>
-        <span style="flex:1;text-align:right;font-weight:bold">${fin.ospite.nome}</span>
-      </div>`;
-    });
-  }
-  if(f12.casa&&f12.ospite&&f34.casa&&f34.ospite){
-    const r12=stato.risultatiFinali?.[f12.casa.nome+'|'+f12.ospite.nome];
-    const r34=stato.risultatiFinali?.[f34.casa.nome+'|'+f34.ospite.nome];
-    if(r12&&r12.casaPts!==''&&r12.ospitePts!==''&&r34&&r34.casaPts!==''&&r34.ospitePts!==''){
-      const v12=Number(r12.casaPts)>Number(r12.ospitePts)?f12.casa:f12.ospite;
-      const s12=Number(r12.casaPts)>Number(r12.ospitePts)?f12.ospite:f12.casa;
-      const v34=Number(r34.casaPts)>Number(r34.ospitePts)?f34.casa:f34.ospite;
-      const q34=Number(r34.casaPts)>Number(r34.ospitePts)?f34.ospite:f34.casa;
-      const finaliste=new Set([v12.nome,s12.nome,v34.nome,q34.nome]);
-      const quinte=[...SQUADRE].filter(s=>!finaliste.has(s.nome)).sort((a,b)=>a.nome.localeCompare(b.nome));
-      html+=`<div class="sh">🏆 Classifica Finale</div>
-      ${[{m:'🥇',s:v12,p:'1°'},{m:'🥈',s:s12,p:'2°'},{m:'🥉',s:v34,p:'3°'},{m:'4️⃣',s:q34,p:'4°'}]
-        .map(({m,s,p})=>`<div class="res"><span class="medal">${m}</span><span style="font-size:15px;font-weight:bold;margin-left:10px">${s.nome}</span><span style="margin-left:auto;color:#888">${p} posto</span></div>`)
-        .join('')}
-      ${quinte.map(s=>`<div class="res"><span style="font-size:14px;color:#888;min-width:28px">5°</span><span style="margin-left:10px;color:#555">${s.nome}</span></div>`).join('')}`;
-    }
-  }
 
   html+=`</body></html>`;
   scaricaHTML(html,'risultati-baskin.html');
