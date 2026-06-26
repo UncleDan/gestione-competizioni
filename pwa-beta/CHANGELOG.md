@@ -6,6 +6,12 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b40 — Fix aggiornamento SW rotto
+- **Causa**: `finali.html` registrava il SW senza gestire il suo ciclo di vita → il nuovo SW si installava ma non attivava mai (vecchio SW restava in controllo indefinitamente)
+- **Fix**: aggiunto ciclo di vita completo — `updatefound` → `statechange=installed` → `postMessage(SKIP_WAITING)` → `controllerchange` → `reload()`
+- **Fix sw.js → 3.0b7**: rimosso `cache:'no-store'` (aggiunto erroneamente in b36) che rendeva impossibile l'uso offline e creava conflitti con la strategia di aggiornamento; ripristinata la strategia network-first standard
+- Controllo aggiornamenti automatico ogni 60 secondi (reg.update()) mentre la pagina è aperta
+
 ### v3.0b39 — Stampa designazioni gironi: rimossa sezione Finali
 - `stampaPDF()` (🖨 Gironi): rimossa la sezione "Domenica Mattina — Finali" con designazioni arbitrali delle finali — la stampa riepilogativa dei gironi ora contiene solo i turni dei gironi e il riepilogo arbitri gironi
 
@@ -126,6 +132,12 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 - Calendario: `margin-bottom:16px` tra blocchi turno — Sabato Mattina, Sabato Pomeriggio staccati visivamente
 - Finali: pulsante Rimuovi (`liberaSlot`) stilizzato inline con `border-radius:sm` e testo "✕ Rimuovi" — non più un cerchio
 - Designazioni: 🔍 Verifica Vincoli avvolto in `<div style="margin:14px 0">` per spaziatura
+
+### v3.0b40 — Fix aggiornamento SW rotto
+- **Causa**: `finali.html` registrava il SW senza gestire il suo ciclo di vita → il nuovo SW si installava ma non attivava mai (vecchio SW restava in controllo indefinitamente)
+- **Fix**: aggiunto ciclo di vita completo — `updatefound` → `statechange=installed` → `postMessage(SKIP_WAITING)` → `controllerchange` → `reload()`
+- **Fix sw.js → 3.0b7**: rimosso `cache:'no-store'` (aggiunto erroneamente in b36) che rendeva impossibile l'uso offline e creava conflitti con la strategia di aggiornamento; ripristinata la strategia network-first standard
+- Controllo aggiornamenti automatico ogni 60 secondi (reg.update()) mentre la pagina è aperta
 
 ### v3.0b39 — Stampa designazioni gironi: rimossa sezione Finali
 - `stampaPDF()` (🖨 Gironi): rimossa la sezione "Domenica Mattina — Finali" con designazioni arbitrali delle finali — la stampa riepilogativa dei gironi ora contiene solo i turni dei gironi e il riepilogo arbitri gironi
