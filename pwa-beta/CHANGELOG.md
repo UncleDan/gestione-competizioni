@@ -6,6 +6,9 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 
 ---
 
+### v3.0b39 — Stampa designazioni gironi: rimossa sezione Finali
+- `stampaPDF()` (🖨 Gironi): rimossa la sezione "Domenica Mattina — Finali" con designazioni arbitrali delle finali — la stampa riepilogativa dei gironi ora contiene solo i turni dei gironi e il riepilogo arbitri gironi
+
 ### v3.0b38 — Fix link ⌂ Menu apriva finestra esterna
 - Il pulsante ⌂ Menu puntava a `/gestione-competizioni/pwa/index.html` — il launcher del ramo STABILE, fuori dallo `scope` dichiarato nel manifest (`/gestione-competizioni/pwa-beta/`)
 - Navigare fuori dallo scope di una PWA installata fa sì che il sistema apra una finestra browser separata invece di restare nella finestra dell'app
@@ -123,6 +126,9 @@ Per il changelog del ramo stabile vedere `/pwa/CHANGELOG.md`.
 - Calendario: `margin-bottom:16px` tra blocchi turno — Sabato Mattina, Sabato Pomeriggio staccati visivamente
 - Finali: pulsante Rimuovi (`liberaSlot`) stilizzato inline con `border-radius:sm` e testo "✕ Rimuovi" — non più un cerchio
 - Designazioni: 🔍 Verifica Vincoli avvolto in `<div style="margin:14px 0">` per spaziatura
+
+### v3.0b39 — Stampa designazioni gironi: rimossa sezione Finali
+- `stampaPDF()` (🖨 Gironi): rimossa la sezione "Domenica Mattina — Finali" con designazioni arbitrali delle finali — la stampa riepilogativa dei gironi ora contiene solo i turni dei gironi e il riepilogo arbitri gironi
 
 ### v3.0b38 — Fix link ⌂ Menu apriva finestra esterna
 - Il pulsante ⌂ Menu puntava a `/gestione-competizioni/pwa/index.html` — il launcher del ramo STABILE, fuori dallo `scope` dichiarato nel manifest (`/gestione-competizioni/pwa-beta/`)
