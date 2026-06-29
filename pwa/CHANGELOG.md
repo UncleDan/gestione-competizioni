@@ -1,3 +1,24 @@
+# CHANGELOG — pwa (stabile)
+
+## v3.0 — Rilascio stabile (promozione da pwa-beta 3.0b40)
+
+Primo rilascio con redesign completo Material Design 3 + Noto Sans.
+Per il dettaglio delle 40 versioni beta vedi `pwa-beta/CHANGELOG.md`.
+
+### Principali novità rispetto alla v2.11.5
+- Redesign completo Material Design 3: token CSS per tema chiaro/scuro/auto
+- Font Noto Sans (con fallback offline via Service Worker)
+- Calendario: blocchi per turno con intestazione campo, slot vuoti con orario
+- Designazioni: cerchietti gruppo colorati, btn-swap uniforme
+- Finali: drag & drop, conflitti rilevati, checkbox Definitivo
+- Classifica: algoritmo a gruppi con spareggio 3-way corretto (quoziente tra le N squadre pari)
+- Stampa: 4 stampe distinte (per turno, gironi completo, finali, risultati)
+- Sync GitHub: caricamento progressivo lista file
+- Notifiche: sistema unificato in alto (tipo violazione-item MD3)
+- SW: ciclo di vita completo con skipWaiting e aggiornamento automatico
+
+---
+
 # CHANGELOG — Gestione Competizioni Baskin
 ## finali.html
 
@@ -262,3 +283,4 @@
 - Finali (3°-4° e 1°-2°)
 - Import/Export JSON per sezioni
 - Stampa PDF via HTML + browser
+

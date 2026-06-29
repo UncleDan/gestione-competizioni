@@ -1,3 +1,16 @@
+# CHANGELOG — pwa-beta
+
+## Versione 4.x (nuovo ciclo di sviluppo)
+
+### v4.0b0 — Base da promozione 3.0 stabile
+- Ramo `pwa` promosso a **v3.0 stabile** — questa versione `pwa-beta` riparte da quella base come **4.0b0**
+- Nessuna modifica funzionale rispetto a 3.0b40
+- Pronto per prossime implementazioni del ciclo 4.x
+
+---
+
+## Versione 3.x (ciclo completato → promosso a pwa stabile)
+
 # CHANGELOG — Gestione Competizioni Baskin
 ## finali.html — Ramo BETA (3.x)
 

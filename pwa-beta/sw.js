@@ -1,7 +1,7 @@
 // ══════════════════════════════════════════════════════════
 // CONFIGURAZIONE — modificare qui per aggiornare il ramo
 // ══════════════════════════════════════════════════════════
-const SW_VERSION = '3.0b7';
+const SW_VERSION = '4.0b0';
 const BASEDIR    = '/gestione-competizioni';   // root repo — cambiare per nuovo ramo
 const BASE       = BASEDIR + '/pwa-beta';           // cartella istanza (pwa, pwa-beta, ecc.)
 const CACHE_NAME = `gestione-competizioni-beta-sw-${SW_VERSION}`;
